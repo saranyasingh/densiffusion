@@ -36,3 +36,6 @@ overwritten; `data/` and `outputs/` are ignored by Git.
 and returns forecasts on the original grid. `metrics.evaluate` is a placeholder.
 Generator implementations and model training are supplied separately;
 the example config is a template.
+
+`data.split_data`, `data.make_windows`, `training.train_densifier`,
+`training.train_forecaster`, and `experiments.run_experiment` are stubs.

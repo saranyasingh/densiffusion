@@ -3,7 +3,7 @@ import tomllib
 from dataclasses import asdict, dataclass, field
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Self
+from typing import Any, Literal, Self
 
 import numpy as np
 
@@ -73,3 +73,21 @@ def save_dataset(path: Path, values: Array, config: GenerationConfig) -> None:
     except BaseException:
         path.unlink(missing_ok=True)
         raise
+
+
+def split_data(
+    values: Array,
+    *,
+    train_fraction: float,
+    validation_fraction: float,
+    axis: Literal["series", "time"] = "series",
+) -> tuple[Array, Array, Array]:
+    """Split train/validation/test before windowing, preserving order along axis."""
+    raise NotImplementedError("Dataset splitting is not implemented yet.")
+
+
+def make_windows(
+    values: Array, *, context_length: int, horizon: int, stride: int = 1
+) -> tuple[Array, Array]:
+    """Return history/future arrays shaped (windows, steps, channels)."""
+    raise NotImplementedError("Time-series windowing is not implemented yet.")
