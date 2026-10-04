@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "densiffusion"
+version = "0.1.0"
+description = "Densify, diffuse, and downsample for time-series forecasting."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["numpy>=2.0,<3"]
+
+[project.optional-dependencies]
+research = ["scipy>=1.14,<2", "torch>=2.4,<3"]
+
+[project.scripts]
+densiffusion = "densiffusion.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.9,<1"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

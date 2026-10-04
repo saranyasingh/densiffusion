@@ -1,0 +1,8 @@
+generator = "densiffusion.generators.fbm:generate"
+seed = 42
+n_series = 1024
+n_steps = 256
+dt = 1.0
+
+[params]
+hurst = 0.7
