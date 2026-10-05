@@ -52,21 +52,35 @@ def covariance_factor(covariance: Array) -> Array:
     eigenvalues within roundoff of zero as zero. Invalid input is rejected,
     never altered.
     """
-    # Allow only roundoff-sized asymmetry, then make both triangles agree.
-    scale = np.abs(covariance).max()
-    if not np.allclose(covariance, covariance.T, rtol=0.0, atol=1e-10 * scale):
-        raise ValueError("Covariance must be symmetric")
-    covariance = (covariance + covariance.T) / 2
+    covariance = symmetrize(covariance)
     try:
         return np.linalg.cholesky(covariance)
     except np.linalg.LinAlgError:
         pass
+    eigenvalues, eigenvectors, _ = psd_eigh(covariance)
+    return eigenvectors * np.sqrt(eigenvalues)
+
+
+def symmetrize(covariance: Array) -> Array:
+    """Return covariance with both triangles equal, allowing only roundoff asymmetry."""
+    scale = np.abs(covariance).max()
+    if not np.allclose(covariance, covariance.T, rtol=0.0, atol=1e-10 * scale):
+        raise ValueError("Covariance must be symmetric")
+    return (covariance + covariance.T) / 2
+
+
+def psd_eigh(covariance: Array) -> tuple[Array, Array, float]:
+    """Return (eigenvalues, eigenvectors, roundoff) of a symmetric covariance.
+
+    Eigenvalues at or below roundoff are zero up to roundoff; negative ones are
+    clipped to zero. A materially negative eigenvalue raises ValueError.
+    """
     eigenvalues, eigenvectors = np.linalg.eigh(covariance)
     # Same roundoff threshold numpy.linalg.matrix_rank uses for "zero".
     roundoff = len(eigenvalues) * np.finfo(np.float64).eps * eigenvalues.max()
     if eigenvalues.min() < -roundoff:
         raise ValueError("Covariance must be positive semidefinite")
-    return eigenvectors * np.sqrt(np.clip(eigenvalues, 0.0, None))
+    return np.clip(eigenvalues, 0.0, None), eigenvectors, roundoff
 
 
 def generate(
