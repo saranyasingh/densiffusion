@@ -10,8 +10,10 @@ this module only generates full paths.
 | --- | --- |
 | `src/densiffusion/gp/kernels.py` | Kernel interface, `exponential`, `KERNELS` registry, `get_kernel` |
 | `src/densiffusion/gp/sampling.py` | `sample_gp`, `covariance_factor`, `generate` plug-in |
+| `src/densiffusion/gp/posterior.py` | `gp_posterior`: exact posterior mean and covariance |
 | `configs/gp.example.toml` | Example generation config |
 | `tests/test_gp.py` | Sampler checks |
+| `tests/test_gp_posterior.py` | Posterior checks |
 | `scripts/plot_gp_samples.py` | Demo plot |
 
 ## Usage
@@ -83,13 +85,20 @@ uv run --with matplotlib python scripts/plot_gp_samples.py
    unknown kernel, wrong-length mean, asymmetric or non-PSD covariance.
 6. The `generate` plug-in matches `sample_gp`, and the example config runs.
 
+## Posterior
+
+`gp_posterior(obs_times, obs_values, query_times, kernel, *, mean=0.0,
+**kernel_params)` conditions the same GP on noiseless observed values and
+returns the posterior `(mean, covariance)` at `query_times`. `obs_values` is
+`(n_obs,)` or `(batch, n_obs)`; the covariance depends only on the times, so all
+rows share it. Pass the saved dataset config (kernel, parameters, mean) to
+describe hidden points of generated data exactly. A singular `K` is handled with a pseudo-inverse (no jitter); noiseless observations
+`K` cannot produce, such as different values at a repeated time, raise
+`ValueError`.
+
 ## Open work for Nihar
 
 - **More kernels** in `kernels.py`: periodic and Matern (3/2, 5/2). Follow
   `exponential`: take `(t, s, *, ...)`, call `check_positive` on each
   parameter, and add the function to `KERNELS`. Sampling picks it up with no
   other changes.
-- **Exact posterior** (for example `gp/posterior.py`): import kernels from
-  `densiffusion.gp.kernels` (via `get_kernel`) so sampling and conditioning
-  share one formula. Use the config saved with each dataset (kernel, parameters,
-  mean) with zero observation noise and no jitter to match these samples.
