@@ -41,11 +41,13 @@ def brownian(t: Array, s: Array, *, variance: float) -> Array:
     return variance * np.minimum.outer(t, s)
 
 
-def fractional_brownian(t: Array, s: Array, *, variance: float, hurst: float) -> Array:
-    """Variance-scaled fractional Brownian motion covariance with Hurst exponent.
+def fractional_brownian(
+    t: Array, s: Array, *, variance: float, hurst: float
+) -> Array:
+    """Variance-scaled fractional Brownian motion covariance.
 
-    The covariance is k(t, s) = 0.5 * variance * (|t|^(2H) + |s|^(2H) - |t-s|^(2H)).
-    For H = 0.5 this reduces to Brownian motion started at 0.
+    The covariance is k(t, s) = 0.5 * variance * (|t|^(2H) + |s|^(2H)
+    - |t-s|^(2H)). For H = 0.5 this reduces to Brownian motion started at 0.
     """
     check_positive("variance", variance)
     if not np.isfinite(hurst) or not 0.0 < hurst < 1.0:
@@ -57,7 +59,9 @@ def fractional_brownian(t: Array, s: Array, *, variance: float, hurst: float) ->
     return 0.5 * variance * (t_abs**power + s_abs**power - time_delta**power)
 
 
-def matern_3_2(t: Array, s: Array, *, variance: float, lengthscale: float) -> Array:
+def matern_3_2(
+    t: Array, s: Array, *, variance: float, lengthscale: float
+) -> Array:
     """Matérn 3/2 kernel: variance * (1 + sqrt(3) r / ell) * exp(-sqrt(3) r / ell)."""
     check_positive("variance", variance)
     check_positive("lengthscale", lengthscale)
@@ -66,8 +70,12 @@ def matern_3_2(t: Array, s: Array, *, variance: float, lengthscale: float) -> Ar
     return variance * (1.0 + scale) * np.exp(-scale)
 
 
-def matern_5_2(t: Array, s: Array, *, variance: float, lengthscale: float) -> Array:
-    """Matérn 5/2 kernel: variance * (1 + sqrt(5) r / ell + 5 r^2 / (3 ell^2)) * exp(-sqrt(5) r / ell)."""
+def matern_5_2(
+    t: Array, s: Array, *, variance: float, lengthscale: float
+) -> Array:
+    """Matérn 5/2 kernel:
+    variance * (1 + sqrt(5) r / ell + 5 r^2 / (3 ell^2)) * exp(-sqrt(5) r / ell).
+    """
     check_positive("variance", variance)
     check_positive("lengthscale", lengthscale)
     dist = np.abs(np.subtract.outer(t, s))
@@ -77,7 +85,14 @@ def matern_5_2(t: Array, s: Array, *, variance: float, lengthscale: float) -> Ar
     )
 
 
-def periodic(t: Array, s: Array, *, variance: float, lengthscale: float, period: float) -> Array:
+def periodic(
+    t: Array,
+    s: Array,
+    *,
+    variance: float,
+    lengthscale: float,
+    period: float,
+) -> Array:
     """Periodic kernel based on the squared distance modulo the period."""
     check_positive("variance", variance)
     check_positive("lengthscale", lengthscale)

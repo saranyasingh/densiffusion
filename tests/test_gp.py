@@ -41,8 +41,14 @@ def test_matern_kernels_match_reference_forms():
     expected_32 = 2.0 * (1.0 + np.sqrt(3.0) * dt / lengthscale) * np.exp(
         -np.sqrt(3.0) * dt / lengthscale
     )
-    expected_52 = 2.0 * (1.0 + np.sqrt(5.0) * dt / lengthscale + 5.0 * dt**2 / (3.0 * lengthscale**2)) * np.exp(
-        -np.sqrt(5.0) * dt / lengthscale
+    expected_52 = (
+        2.0
+        * (
+            1.0
+            + np.sqrt(5.0) * dt / lengthscale
+            + 5.0 * dt**2 / (3.0 * lengthscale**2)
+        )
+        * np.exp(-np.sqrt(5.0) * dt / lengthscale)
     )
 
     np.testing.assert_allclose(
