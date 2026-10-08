@@ -30,7 +30,70 @@ def exponential(t: Array, s: Array, *, variance: float, lengthscale: float) -> A
     return variance * np.exp(-np.abs(np.subtract.outer(t, s)) / lengthscale)
 
 
-KERNELS: dict[str, Kernel] = {"exponential": exponential}
+def brownian(t: Array, s: Array, *, variance: float) -> Array:
+    """Variance-scaled Brownian motion covariance: min(t, s).
+
+    This is the covariance of standard Brownian motion started at 0, so the value
+    at t = 0 is known exactly and the matrix is singular when the process is
+    observed at a repeated or zero-variance timestamp.
+    """
+    check_positive("variance", variance)
+    return variance * np.minimum.outer(t, s)
+
+
+def fractional_brownian(t: Array, s: Array, *, variance: float, hurst: float) -> Array:
+    """Variance-scaled fractional Brownian motion covariance with Hurst exponent.
+
+    The covariance is k(t, s) = 0.5 * variance * (|t|^(2H) + |s|^(2H) - |t-s|^(2H)).
+    For H = 0.5 this reduces to Brownian motion started at 0.
+    """
+    check_positive("variance", variance)
+    if not np.isfinite(hurst) or not 0.0 < hurst < 1.0:
+        raise ValueError("hurst must be finite and strictly between 0 and 1")
+    t_abs = np.abs(np.asarray(t, dtype=float))[:, None]
+    s_abs = np.abs(np.asarray(s, dtype=float))[None, :]
+    time_delta = np.abs(np.subtract.outer(t, s))
+    power = 2.0 * hurst
+    return 0.5 * variance * (t_abs**power + s_abs**power - time_delta**power)
+
+
+def matern_3_2(t: Array, s: Array, *, variance: float, lengthscale: float) -> Array:
+    """Matérn 3/2 kernel: variance * (1 + sqrt(3) r / ell) * exp(-sqrt(3) r / ell)."""
+    check_positive("variance", variance)
+    check_positive("lengthscale", lengthscale)
+    dist = np.abs(np.subtract.outer(t, s))
+    scale = np.sqrt(3.0) * dist / lengthscale
+    return variance * (1.0 + scale) * np.exp(-scale)
+
+
+def matern_5_2(t: Array, s: Array, *, variance: float, lengthscale: float) -> Array:
+    """Matérn 5/2 kernel: variance * (1 + sqrt(5) r / ell + 5 r^2 / (3 ell^2)) * exp(-sqrt(5) r / ell)."""
+    check_positive("variance", variance)
+    check_positive("lengthscale", lengthscale)
+    dist = np.abs(np.subtract.outer(t, s))
+    scale = np.sqrt(5.0) * dist / lengthscale
+    return variance * (1.0 + scale + (5.0 / 3.0) * (dist / lengthscale) ** 2) * np.exp(
+        -scale
+    )
+
+
+def periodic(t: Array, s: Array, *, variance: float, lengthscale: float, period: float) -> Array:
+    """Periodic kernel based on the squared distance modulo the period."""
+    check_positive("variance", variance)
+    check_positive("lengthscale", lengthscale)
+    check_positive("period", period)
+    phase = np.abs(np.subtract.outer(t, s)) / period
+    return variance * np.exp(-2.0 * np.sin(np.pi * phase) ** 2 / lengthscale**2)
+
+
+KERNELS: dict[str, Kernel] = {
+    "exponential": exponential,
+    "brownian": brownian,
+    "fractional_brownian": fractional_brownian,
+    "matern_3_2": matern_3_2,
+    "matern_5_2": matern_5_2,
+    "periodic": periodic,
+}
 
 
 def get_kernel(kernel: str | Kernel) -> Kernel:

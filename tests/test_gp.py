@@ -20,6 +20,41 @@ def test_exponential_kernel_values():
     assert KERNELS["exponential"] is exponential
 
 
+def test_brownian_and_fractional_brownian_kernels():
+    t = np.array([0.0, 1.0, 2.0])
+    s = np.array([0.0, 1.5, 3.0])
+
+    brownian_cov = KERNELS["brownian"](t, s, variance=2.0)
+    expected_brownian = 2.0 * np.minimum.outer(t, s)
+    np.testing.assert_allclose(brownian_cov, expected_brownian)
+
+    fbm_cov = KERNELS["fractional_brownian"](t, s, variance=2.0, hurst=0.5)
+    np.testing.assert_allclose(fbm_cov, expected_brownian)
+
+
+def test_matern_kernels_match_reference_forms():
+    t = np.array([0.0, 1.0])
+    s = np.array([0.0, 0.5, 1.0])
+    dt = np.abs(np.subtract.outer(t, s))
+    lengthscale = 0.5
+
+    expected_32 = 2.0 * (1.0 + np.sqrt(3.0) * dt / lengthscale) * np.exp(
+        -np.sqrt(3.0) * dt / lengthscale
+    )
+    expected_52 = 2.0 * (1.0 + np.sqrt(5.0) * dt / lengthscale + 5.0 * dt**2 / (3.0 * lengthscale**2)) * np.exp(
+        -np.sqrt(5.0) * dt / lengthscale
+    )
+
+    np.testing.assert_allclose(
+        KERNELS["matern_3_2"](t, s, variance=2.0, lengthscale=lengthscale),
+        expected_32,
+    )
+    np.testing.assert_allclose(
+        KERNELS["matern_5_2"](t, s, variance=2.0, lengthscale=lengthscale),
+        expected_52,
+    )
+
+
 def test_same_seed_reproduces_and_new_seed_differs():
     times = np.linspace(0.0, 5.0, 11)
 
