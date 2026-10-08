@@ -80,17 +80,42 @@ def make_mask(
     *,
     step: int = 2,
     offset: int = 1,
+    random: bool = False,
+    probability: float | None = None,
+    rng: int | np.random.Generator | None = None,
 ) -> np.ndarray:
     """Return a boolean mask with True at hidden positions.
 
-    `step` controls the spacing; `offset` selects the first hidden position.
-    For example, `make_mask(4, step=2, offset=1)` yields `[False, True, False, True]`.
+    By default, the mask is deterministic: `step` controls the spacing and `offset`
+    selects the first hidden position. Set `random=True` to draw a Bernoulli mask with
+    `probability` of masking each element, optionally seeded by `rng`.
     """
     positive_int("length", length)
+    if random:
+        if probability is None:
+            probability = 0.5
+        if not 0.0 <= probability <= 1.0:
+            raise ValueError("probability must be between 0 and 1")
+        if isinstance(rng, np.random.Generator):
+            generator = rng
+        else:
+            generator = np.random.default_rng(rng)
+        return generator.random(length) < probability
+
     positive_int("step", step)
     if not 0 <= offset < step:
         raise ValueError("offset must satisfy 0 <= offset < step")
     return np.arange(length) % step == offset
+
+
+def make_random_mask(
+    length: int,
+    *,
+    probability: float = 0.5,
+    rng: int | np.random.Generator | None = None,
+) -> np.ndarray:
+    """Return a random Bernoulli mask with a tunable masking probability."""
+    return make_mask(length, random=True, probability=probability, rng=rng)
 
 
 def mask_data(
@@ -101,12 +126,17 @@ def mask_data(
     offset: int = 1,
     mask: np.ndarray | None = None,
     fill_value: float | None = np.nan,
+    random: bool = False,
+    probability: float | None = None,
+    rng: int | np.random.Generator | None = None,
 ) -> tuple[Array, np.ndarray]:
     """Return a masked copy and the boolean mask of hidden positions.
 
     `axis` selects which dimension to hide along; for `(batch, time, channels)` data,
     the time axis is the second dimension. The returned mask is `True` where the
     data were hidden and its shape matches the selected axis length.
+
+    Set `random=True` for Bernoulli masking with a tunable `probability` and RNG seed.
     """
     array = np.asarray(values)
     if array.ndim == 0:
@@ -115,7 +145,14 @@ def mask_data(
         raise ValueError("axis must be 'series' or 'time'")
     axis_index = 0 if axis == "series" else 1 if array.ndim > 1 else 0
     if mask is None:
-        mask = make_mask(array.shape[axis_index], step=step, offset=offset)
+        mask = make_mask(
+            array.shape[axis_index],
+            step=step,
+            offset=offset,
+            random=random,
+            probability=probability,
+            rng=rng,
+        )
     mask = np.asarray(mask, dtype=bool)
     if mask.shape != (array.shape[axis_index],):
         raise ValueError(

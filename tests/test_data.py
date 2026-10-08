@@ -62,6 +62,18 @@ def test_mask_data_hides_every_other_time_step():
     np.testing.assert_array_equal(make_mask(4, step=2, offset=1), expected_mask)
 
 
+def test_random_mask_uses_probability_and_seed():
+    expected_mask = np.random.default_rng(7).random(8) < 0.4
+    mask = make_mask(8, random=True, probability=0.4, rng=7)
+    np.testing.assert_array_equal(mask, expected_mask)
+
+    values = np.arange(24, dtype=float).reshape(3, 8, 1)
+    masked, mask = mask_data(values, axis="time", random=True, probability=0.4, rng=7)
+    np.testing.assert_array_equal(mask, expected_mask)
+    np.testing.assert_array_equal(masked[:, ~mask, :], values[:, ~mask, :])
+    assert np.isnan(masked[:, mask, :]).all()
+
+
 @pytest.mark.parametrize("error_type", [OSError, KeyboardInterrupt])
 def test_failed_dataset_write_is_removed(tmp_path, config, monkeypatch, error_type):
     def fail_write(output, **kwargs):
