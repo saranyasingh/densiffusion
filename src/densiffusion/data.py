@@ -75,6 +75,62 @@ def save_dataset(path: Path, values: Array, config: GenerationConfig) -> None:
         raise
 
 
+def make_mask(
+    length: int,
+    *,
+    step: int = 2,
+    offset: int = 1,
+) -> np.ndarray:
+    """Return a boolean mask with True at hidden positions.
+
+    `step` controls the spacing; `offset` selects the first hidden position.
+    For example, `make_mask(4, step=2, offset=1)` yields `[False, True, False, True]`.
+    """
+    positive_int("length", length)
+    positive_int("step", step)
+    if not 0 <= offset < step:
+        raise ValueError("offset must satisfy 0 <= offset < step")
+    return np.arange(length) % step == offset
+
+
+def mask_data(
+    values: Array,
+    *,
+    axis: Literal["series", "time"] = "time",
+    step: int = 2,
+    offset: int = 1,
+    mask: np.ndarray | None = None,
+    fill_value: float | None = np.nan,
+) -> tuple[Array, np.ndarray]:
+    """Return a masked copy and the boolean mask of hidden positions.
+
+    `axis` selects which dimension to hide along; for `(batch, time, channels)` data,
+    the time axis is the second dimension. The returned mask is `True` where the
+    data were hidden and its shape matches the selected axis length.
+    """
+    array = np.asarray(values)
+    if array.ndim == 0:
+        raise ValueError("values must have at least one dimension")
+    if axis not in {"series", "time"}:
+        raise ValueError("axis must be 'series' or 'time'")
+    axis_index = 0 if axis == "series" else 1 if array.ndim > 1 else 0
+    if mask is None:
+        mask = make_mask(array.shape[axis_index], step=step, offset=offset)
+    mask = np.asarray(mask, dtype=bool)
+    if mask.shape != (array.shape[axis_index],):
+        raise ValueError(
+            "mask must have the same length as the selected axis "
+            f"({array.shape[axis_index]}), got {mask.shape}"
+        )
+
+    masked = array.copy()
+    if fill_value is not None:
+        index = [slice(None)] * array.ndim
+        index[axis_index] = mask
+        masked[tuple(index)] = fill_value
+    return masked, mask
+
+
 def split_data(
     values: Array,
     *,

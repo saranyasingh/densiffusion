@@ -5,7 +5,13 @@ import numpy as np
 import pytest
 
 from densiffusion.cli import main
-from densiffusion.data import GenerationConfig, generate, save_dataset
+from densiffusion.data import (
+    GenerationConfig,
+    generate,
+    make_mask,
+    mask_data,
+    save_dataset,
+)
 
 
 def stub_generator(*, n_series, n_steps, dt, rng, offset=0.0):
@@ -43,6 +49,17 @@ def test_dataset_round_trip_and_no_overwrite(tmp_path, config):
     with pytest.raises(FileExistsError):
         save_dataset(path, values + 1, config)
     assert path.read_bytes() == original
+
+
+def test_mask_data_hides_every_other_time_step():
+    values = np.arange(12, dtype=float).reshape(3, 4, 1)
+    masked, mask = mask_data(values, axis="time", step=2, offset=1)
+
+    expected_mask = np.array([False, True, False, True])
+    np.testing.assert_array_equal(mask, expected_mask)
+    np.testing.assert_array_equal(masked[:, ~mask, :], values[:, ~mask, :])
+    assert np.isnan(masked[:, mask, :]).all()
+    np.testing.assert_array_equal(make_mask(4, step=2, offset=1), expected_mask)
 
 
 @pytest.mark.parametrize("error_type", [OSError, KeyboardInterrupt])
