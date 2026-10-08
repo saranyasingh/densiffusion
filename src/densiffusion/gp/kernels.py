@@ -41,9 +41,7 @@ def brownian(t: Array, s: Array, *, variance: float) -> Array:
     return variance * np.minimum.outer(t, s)
 
 
-def fractional_brownian(
-    t: Array, s: Array, *, variance: float, hurst: float
-) -> Array:
+def fractional_brownian(t: Array, s: Array, *, variance: float, hurst: float) -> Array:
     """Variance-scaled fractional Brownian motion covariance.
 
     The covariance is k(t, s) = 0.5 * variance * (|t|^(2H) + |s|^(2H)
@@ -59,9 +57,7 @@ def fractional_brownian(
     return 0.5 * variance * (t_abs**power + s_abs**power - time_delta**power)
 
 
-def matern_3_2(
-    t: Array, s: Array, *, variance: float, lengthscale: float
-) -> Array:
+def matern_3_2(t: Array, s: Array, *, variance: float, lengthscale: float) -> Array:
     """Matérn 3/2 kernel: variance * (1 + sqrt(3) r / ell) * exp(-sqrt(3) r / ell)."""
     check_positive("variance", variance)
     check_positive("lengthscale", lengthscale)
@@ -70,9 +66,7 @@ def matern_3_2(
     return variance * (1.0 + scale) * np.exp(-scale)
 
 
-def matern_5_2(
-    t: Array, s: Array, *, variance: float, lengthscale: float
-) -> Array:
+def matern_5_2(t: Array, s: Array, *, variance: float, lengthscale: float) -> Array:
     """Matérn 5/2 kernel:
     variance * (1 + sqrt(5) r / ell + 5 r^2 / (3 ell^2)) * exp(-sqrt(5) r / ell).
     """
@@ -80,8 +74,10 @@ def matern_5_2(
     check_positive("lengthscale", lengthscale)
     dist = np.abs(np.subtract.outer(t, s))
     scale = np.sqrt(5.0) * dist / lengthscale
-    return variance * (1.0 + scale + (5.0 / 3.0) * (dist / lengthscale) ** 2) * np.exp(
-        -scale
+    return (
+        variance
+        * (1.0 + scale + (5.0 / 3.0) * (dist / lengthscale) ** 2)
+        * np.exp(-scale)
     )
 
 
