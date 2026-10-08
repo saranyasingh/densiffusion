@@ -2,7 +2,9 @@
 
 Run from the repository root:
 
-    uv run --with matplotlib python scripts/plot_masked_gp_samples.py --random --probability 0.3 --seed 0
+    uv run --with matplotlib python \
+        scripts/plot_masked_gp_samples.py \
+        --random --probability 0.3 --seed 0
 
 Saves outputs/gp_masked_samples.png.
 """
@@ -98,7 +100,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Plot a masked GP sample.")
     parser.add_argument("--kernel", default=KERNEL, help="GP kernel name")
     parser.add_argument("--probability", type=float, default=DEFAULT_PROBABILITY)
-    parser.add_argument("--seed", type=int, default=0, help="Random seed for sampling and masking")
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=0,
+        help="Random seed for sampling and masking",
+    )
     parser.add_argument("--random", action="store_true", default=DEFAULT_RANDOM)
     parser.add_argument("--step", type=int, default=MASK_STEP)
     parser.add_argument("--offset", type=int, default=MASK_OFFSET)
