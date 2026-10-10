@@ -5,7 +5,13 @@ import numpy as np
 import pytest
 
 from densiffusion.cli import main
-from densiffusion.data import GenerationConfig, generate, save_dataset
+from densiffusion.data import (
+    GenerationConfig,
+    generate,
+    make_windows,
+    save_dataset,
+    split_data,
+)
 
 
 def stub_generator(*, n_series, n_steps, dt, rng, offset=0.0):
@@ -111,3 +117,54 @@ def test_missing_plugin_does_not_create_output(tmp_path, capsys):
         main(["generate", str(config_path), "--output", str(output)])
     assert "missing_densiffusion_plugin" in capsys.readouterr().err
     assert not output.exists()
+
+
+@pytest.mark.parametrize("axis, dimension", [("series", 0), ("time", 1)])
+def test_splits_preserve_order_and_isolate_partitions(axis, dimension):
+    values = np.arange(100).reshape(10, 10, 1)
+    parts = split_data(values, train_fraction=0.6, validation_fraction=0.2, axis=axis)
+    assert [part.shape[dimension] for part in parts] == [6, 2, 2]
+    np.testing.assert_array_equal(np.concatenate(parts, axis=dimension), values)
+    for part in parts:
+        assert not np.shares_memory(part, values)
+
+
+def test_windows_preserve_order_without_sharing_storage():
+    values = np.arange(2 * 9 * 2).reshape(2, 9, 2)
+    windows = make_windows(values, window_length=5, stride=2)
+    expected = np.stack(
+        [series[start : start + 5] for series in values for start in (0, 2, 4)]
+    )
+    np.testing.assert_array_equal(windows, expected)
+    windows[0, 2] = -1
+    np.testing.assert_array_equal(windows[1, 0], values[0, 2])
+    assert not np.shares_memory(windows, values)
+
+
+def test_time_split_windows_do_not_cross_boundaries():
+    values = np.arange(20).reshape(1, 20, 1)
+    parts = split_data(
+        values, train_fraction=0.5, validation_fraction=0.25, axis="time"
+    )
+    windows = [make_windows(part, window_length=4) for part in parts]
+    for window, part in zip(windows, parts, strict=True):
+        assert window.min() == part.min()
+        assert window.max() == part.max()
+    assert windows[0].max() < windows[1].min()
+    assert windows[1].max() < windows[2].min()
+
+
+@pytest.mark.parametrize(
+    "train, validation", [(0, 0.2), (0.8, 0.2), (np.nan, 0.1), (0.6, 0.01)]
+)
+def test_split_rejects_invalid_or_empty_partitions(train, validation):
+    with pytest.raises(ValueError):
+        split_data(
+            np.zeros((10, 10, 1)), train_fraction=train, validation_fraction=validation
+        )
+
+
+@pytest.mark.parametrize("length, stride", [(0, 1), (2.5, 1), (3, 0), (7, 1)])
+def test_windows_reject_invalid_lengths(length, stride):
+    with pytest.raises(ValueError):
+        make_windows(np.zeros((2, 6, 1)), window_length=length, stride=stride)

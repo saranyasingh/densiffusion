@@ -1,6 +1,6 @@
 # Densiffusion
 
-Densify, diffuse, and downsample for time-series forecasting.
+Diffusion-based time-series imputation research.
 
 Python 3.12+ and [uv](https://docs.astral.sh/uv/):
 
@@ -31,11 +31,15 @@ The `.npz` contains `values`, `times`, and a JSON `config` (including the seed),
 readable with `numpy.load(path, allow_pickle=False)`. Existing files are not
 overwritten; `data/` and `outputs/` are ignored by Git.
 
-`contracts.py` defines generator, densifier, and forecaster interfaces.
-`pipeline.forecast` pools sampled histories and futures, preserves observations,
-and returns forecasts on the original grid. `metrics.evaluate` is a placeholder.
-Generator implementations and model training are supplied separately;
-the example config is a template.
+`contracts.py` defines generator and imputation sampler interfaces.
+`pipeline.impute` samples intermediate points and checks observation preservation.
+Generator implementations are supplied separately; the example config is a template.
 
-`data.split_data`, `data.make_windows`, `training.train_densifier`,
-`training.train_forecaster`, and `experiments.run_experiment` are stubs.
+Use `data.split_data` before `data.make_windows` to keep partitions separate.
+`ImputationModel` supports a denoiser with an optional encoder. `run_experiment`
+trains with a supplied objective, samples held-out imputations, and reports CRPS.
+Supply the networks and sampler; see [docs/training.md](docs/training.md) for the
+interfaces. Run `uv run --extra research pytest` for the full test suite.
+
+Future forecasting interfaces are reserved in `Forecaster`, `make_forecast_windows`,
+`train_forecaster`, `forecast`, and `run_forecast_experiment`; the functions are stubs.

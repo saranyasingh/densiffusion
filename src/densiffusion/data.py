@@ -83,11 +83,41 @@ def split_data(
     axis: Literal["series", "time"] = "series",
 ) -> tuple[Array, Array, Array]:
     """Split train/validation/test before windowing, preserving order along axis."""
-    raise NotImplementedError("Dataset splitting is not implemented yet.")
+    values = validate_array(values, (None, None, None))
+    if axis not in {"series", "time"}:
+        raise ValueError("axis must be 'series' or 'time'")
+    if not (
+        0 < train_fraction < 1
+        and 0 < validation_fraction < 1
+        and train_fraction + validation_fraction < 1
+    ):
+        raise ValueError("Split fractions must be positive and sum to less than one")
+    dimension = 0 if axis == "series" else 1
+    length = values.shape[dimension]
+    n_train = int(length * train_fraction)
+    n_validation = int(length * validation_fraction)
+    if min(n_train, n_validation, length - n_train - n_validation) < 1:
+        raise ValueError("Each split must contain at least one series or time point")
+    train, validation, test = np.split(
+        values, [n_train, n_train + n_validation], axis=dimension
+    )
+    return train.copy(), validation.copy(), test.copy()
 
 
-def make_windows(
+def make_windows(values: Array, *, window_length: int, stride: int = 1) -> Array:
+    """Return copied windows shaped (windows, window_length, channels)."""
+    values = validate_array(values, (None, None, None))
+    positive_int("window_length", window_length)
+    positive_int("stride", stride)
+    if values.shape[1] < window_length:
+        raise ValueError("Each series must contain at least window_length points")
+    windows = np.lib.stride_tricks.sliding_window_view(values, window_length, axis=1)
+    windows = windows[:, ::stride].swapaxes(-1, -2)
+    return windows.reshape(-1, window_length, values.shape[2]).copy()
+
+
+def make_forecast_windows(
     values: Array, *, context_length: int, horizon: int, stride: int = 1
 ) -> tuple[Array, Array]:
-    """Return history/future arrays shaped (windows, steps, channels)."""
-    raise NotImplementedError("Time-series windowing is not implemented yet.")
+    """Return (history, future) windows on the input grid."""
+    raise NotImplementedError("Forecast windowing is not implemented yet.")
