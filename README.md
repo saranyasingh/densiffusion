@@ -38,8 +38,9 @@ Generator implementations are supplied separately; the example config is a templ
 Use `data.split_data` before `data.make_windows` to keep partitions separate.
 `ImputationModel` supports a denoiser with an optional encoder. `run_experiment`
 trains with a supplied objective, samples held-out imputations, and reports CRPS.
-Supply the networks and sampler; see [docs/training.md](docs/training.md) for the
-interfaces. Run `uv run --extra research pytest` for the full test suite.
+Supply the networks and use `DDPMSampler` or a custom sampler; see
+[docs/training.md](docs/training.md) for the interfaces. Run
+`uv run --extra research pytest` for the full test suite.
 
 Future forecasting interfaces are reserved in `Forecaster`, `make_forecast_windows`,
 `train_forecaster`, `forecast`, and `run_forecast_experiment`; the functions are stubs.

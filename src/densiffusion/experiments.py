@@ -5,12 +5,16 @@ import numpy as np
 import torch
 from torch import nn
 
+from densiffusion.conditioning import prepare_targets
 from densiffusion.contracts import (
     Array,
     Densifier,
     Forecaster,
+    Mask,
+    has_regular_spacing,
     positive_int,
     validate_array,
+    validate_times,
 )
 from densiffusion.metrics import evaluate
 from densiffusion.objectives import Objective, noise_mse
@@ -31,6 +35,10 @@ def run_experiment[T: nn.Module](
     dt: float = 1.0,
     seed: int = 0,
     checkpoint: Path | None = None,
+    train_mask: Mask | None = None,
+    validation_mask: Mask | None = None,
+    test_mask: Mask | None = None,
+    test_times: Array | None = None,
 ) -> dict[str, float]:
     """Train on prepared splits and evaluate hidden test points with CRPS.
 
@@ -41,6 +49,14 @@ def run_experiment[T: nn.Module](
     validation = validate_array(validation, (None, *train.shape[1:]))
     test = validate_array(test, (None, *train.shape[1:]))
     positive_int("n_samples", n_samples)
+    factor = 2 if test_mask is None else 1
+    if test_times is not None:
+        test_times = validate_times(test_times, test.shape[:2])
+        if not has_regular_spacing(test_times, dt):
+            raise ValueError("test_times must be regularly spaced by dt")
+    test, test_mask = prepare_targets(test, test_mask)
+    if test_times is not None:
+        test_times = test_times[:, : test.shape[1]]
     config = config or TrainingConfig()
     train_densifier(
         model,
@@ -51,27 +67,33 @@ def run_experiment[T: nn.Module](
         dt=dt,
         seed=seed,
         checkpoint=checkpoint,
+        train_mask=train_mask,
+        validation_mask=validation_mask,
     )
     sampler = sampler_factory(model, config)
-    test = test[:, : 2 * ((test.shape[1] - 1) // 2) + 1]
     rng = np.random.default_rng(np.random.SeedSequence(seed).spawn(1)[0])
     total = 0.0
     with torch.no_grad():
         for start in range(0, len(test), config.batch_size):
             target = test[start : start + config.batch_size]
+            mask = test_mask[start : start + config.batch_size]
+            options = {}
+            if factor == 1:
+                options["mask"] = mask
+            if test_times is not None:
+                options["times"] = test_times[start : start + len(target), ::factor]
             samples = impute(
-                target[:, ::2],
+                target[:, ::factor],
                 sampler,
-                factor=2,
+                factor=factor,
                 n_samples=n_samples,
-                dt=2 * dt,
+                dt=factor * dt,
                 seed=int(rng.integers(2**63)),
+                **options,
             )
-            mask = np.zeros(target.shape, dtype=bool)
-            mask[:, 1::2] = True
             scores = evaluate(samples, target, mask=mask)
-            total += scores["crps"] * len(target)
-    return {"crps": total / len(test)}
+            total += scores["crps"] * int(mask.sum())
+    return {"crps": total / int(test_mask.sum())}
 
 
 def run_forecast_experiment[T: nn.Module](

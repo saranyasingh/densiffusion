@@ -152,6 +152,62 @@ def test_validation_loss_weights_partial_batches(config, tmp_path):
     assert saved["validation_loss"] == pytest.approx(expected, rel=1e-6)
 
 
+def test_custom_masks_follow_shuffled_targets_and_weight_hidden_entries(
+    config, tmp_path
+):
+    values = np.broadcast_to(np.array([1.0, 2.0, 10.0])[:, None, None], (3, 4, 2))
+    mask = np.array(
+        [
+            [[False, False], [True, False], [False, False], [False, False]],
+            [[False, False], [False, False], [True, True], [False, False]],
+            [[False, False], [True, True], [True, True], [True, True]],
+        ]
+    )
+    model = Denoiser()
+    path = tmp_path / "masked.pt"
+
+    def objective(prediction, batch):
+        indices = [
+            np.flatnonzero(np.array([1.0, 2.0, 10.0]) == row[0, 0].item())[0]
+            for row in batch.clean
+        ]
+        torch.testing.assert_close(batch.mask, torch.as_tensor(mask[indices]))
+        assert batch.clean.shape[1] == 4
+        assert (batch.observed[batch.mask] == 0).all()
+        torch.testing.assert_close(batch.noisy[~batch.mask], batch.clean[~batch.mask])
+        return batch.clean[batch.mask].mean() + 0 * prediction.mean()
+
+    train_densifier(
+        model,
+        values,
+        values,
+        train_mask=mask,
+        validation_mask=mask,
+        config=replace(config, epochs=1),
+        objective=objective,
+        checkpoint=path,
+    )
+    saved = torch.load(path, weights_only=True)
+    expected = values[mask].mean()
+    assert saved["train_loss"] == pytest.approx(expected)
+    assert saved["validation_loss"] == pytest.approx(expected)
+    assert saved["factor"] is None
+
+
+def test_invalid_validation_mask_fails_before_training(config):
+    model = Denoiser()
+    values = np.zeros((2, 4, 1))
+    with pytest.raises(ValueError, match="both hidden and observed"):
+        train_densifier(
+            model,
+            values,
+            values,
+            config=config,
+            validation_mask=np.zeros(4, dtype=bool),
+        )
+    assert not model.calls and model.scale.item() == 0
+
+
 def test_failed_checkpoint_write_is_cleaned_up(config, tmp_path, monkeypatch):
     def fail_save(state, path):
         path.write_bytes(b"partial checkpoint")

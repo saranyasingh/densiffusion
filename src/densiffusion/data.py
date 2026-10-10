@@ -7,7 +7,13 @@ from typing import Any, Literal, Self
 
 import numpy as np
 
-from densiffusion.contracts import Array, Generator, positive_int, validate_array
+from densiffusion.contracts import (
+    Array,
+    Generator,
+    positive_int,
+    validate_array,
+    validate_times,
+)
 
 
 @dataclass(frozen=True)
@@ -81,8 +87,9 @@ def split_data(
     train_fraction: float,
     validation_fraction: float,
     axis: Literal["series", "time"] = "series",
-) -> tuple[Array, Array, Array]:
-    """Split train/validation/test before windowing, preserving order along axis."""
+    times: Array | None = None,
+) -> tuple[Array, Array, Array] | tuple[tuple[Array, Array], ...]:
+    """Split before windowing; supplied times return (values, times) per split."""
     values = validate_array(values, (None, None, None))
     if axis not in {"series", "time"}:
         raise ValueError("axis must be 'series' or 'time'")
@@ -98,14 +105,23 @@ def split_data(
     n_validation = int(length * validation_fraction)
     if min(n_train, n_validation, length - n_train - n_validation) < 1:
         raise ValueError("Each split must contain at least one series or time point")
-    train, validation, test = np.split(
-        values, [n_train, n_train + n_validation], axis=dimension
-    )
-    return train.copy(), validation.copy(), test.copy()
+    boundaries = [n_train, n_train + n_validation]
+    parts = tuple(part.copy() for part in np.split(values, boundaries, axis=dimension))
+    if times is None:
+        return parts
+    times = validate_times(times, values.shape[:2])
+    time_parts = np.split(times, boundaries, axis=dimension)
+    return tuple((part, t.copy()) for part, t in zip(parts, time_parts, strict=True))
 
 
-def make_windows(values: Array, *, window_length: int, stride: int = 1) -> Array:
-    """Return copied windows shaped (windows, window_length, channels)."""
+def make_windows(
+    values: Array,
+    *,
+    window_length: int,
+    stride: int = 1,
+    times: Array | None = None,
+) -> Array | tuple[Array, Array]:
+    """Return copied value windows, paired with time windows when supplied."""
     values = validate_array(values, (None, None, None))
     positive_int("window_length", window_length)
     positive_int("stride", stride)
@@ -113,7 +129,14 @@ def make_windows(values: Array, *, window_length: int, stride: int = 1) -> Array
         raise ValueError("Each series must contain at least window_length points")
     windows = np.lib.stride_tricks.sliding_window_view(values, window_length, axis=1)
     windows = windows[:, ::stride].swapaxes(-1, -2)
-    return windows.reshape(-1, window_length, values.shape[2]).copy()
+    windows = windows.reshape(-1, window_length, values.shape[2]).copy()
+    if times is None:
+        return windows
+    times = validate_times(times, values.shape[:2])
+    time_windows = np.lib.stride_tricks.sliding_window_view(
+        times, window_length, axis=1
+    )
+    return windows, time_windows[:, ::stride].reshape(-1, window_length).copy()
 
 
 def make_forecast_windows(
