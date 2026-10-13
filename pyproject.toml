@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "densiffusion"
 version = "0.1.0"
-description = "Densify, diffuse, and downsample for time-series forecasting."
+description = "Diffusion-based time-series imputation research."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = ["numpy>=2.0,<3"]

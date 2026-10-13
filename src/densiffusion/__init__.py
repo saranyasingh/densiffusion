@@ -1,1 +1,1 @@
-"""Densify, diffuse, and downsample for time-series forecasting."""
+"""Diffusion-based time-series imputation research."""

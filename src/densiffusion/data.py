@@ -7,7 +7,13 @@ from typing import Any, Literal, Self
 
 import numpy as np
 
-from densiffusion.contracts import Array, Generator, positive_int, validate_array
+from densiffusion.contracts import (
+    Array,
+    Generator,
+    positive_int,
+    validate_array,
+    validate_times,
+)
 
 
 @dataclass(frozen=True)
@@ -174,13 +180,60 @@ def split_data(
     train_fraction: float,
     validation_fraction: float,
     axis: Literal["series", "time"] = "series",
-) -> tuple[Array, Array, Array]:
-    """Split train/validation/test before windowing, preserving order along axis."""
-    raise NotImplementedError("Dataset splitting is not implemented yet.")
+    times: Array | None = None,
+) -> tuple[Array, Array, Array] | tuple[tuple[Array, Array], ...]:
+    """Split before windowing; supplied times return (values, times) per split."""
+    values = validate_array(values, (None, None, None))
+    if axis not in {"series", "time"}:
+        raise ValueError("axis must be 'series' or 'time'")
+    if not (
+        0 < train_fraction < 1
+        and 0 < validation_fraction < 1
+        and train_fraction + validation_fraction < 1
+    ):
+        raise ValueError("Split fractions must be positive and sum to less than one")
+    dimension = 0 if axis == "series" else 1
+    length = values.shape[dimension]
+    n_train = int(length * train_fraction)
+    n_validation = int(length * validation_fraction)
+    if min(n_train, n_validation, length - n_train - n_validation) < 1:
+        raise ValueError("Each split must contain at least one series or time point")
+    boundaries = [n_train, n_train + n_validation]
+    parts = tuple(part.copy() for part in np.split(values, boundaries, axis=dimension))
+    if times is None:
+        return parts
+    times = validate_times(times, values.shape[:2])
+    time_parts = np.split(times, boundaries, axis=dimension)
+    return tuple((part, t.copy()) for part, t in zip(parts, time_parts, strict=True))
 
 
 def make_windows(
+    values: Array,
+    *,
+    window_length: int,
+    stride: int = 1,
+    times: Array | None = None,
+) -> Array | tuple[Array, Array]:
+    """Return copied value windows, paired with time windows when supplied."""
+    values = validate_array(values, (None, None, None))
+    positive_int("window_length", window_length)
+    positive_int("stride", stride)
+    if values.shape[1] < window_length:
+        raise ValueError("Each series must contain at least window_length points")
+    windows = np.lib.stride_tricks.sliding_window_view(values, window_length, axis=1)
+    windows = windows[:, ::stride].swapaxes(-1, -2)
+    windows = windows.reshape(-1, window_length, values.shape[2]).copy()
+    if times is None:
+        return windows
+    times = validate_times(times, values.shape[:2])
+    time_windows = np.lib.stride_tricks.sliding_window_view(
+        times, window_length, axis=1
+    )
+    return windows, time_windows[:, ::stride].reshape(-1, window_length).copy()
+
+
+def make_forecast_windows(
     values: Array, *, context_length: int, horizon: int, stride: int = 1
 ) -> tuple[Array, Array]:
-    """Return history/future arrays shaped (windows, steps, channels)."""
-    raise NotImplementedError("Time-series windowing is not implemented yet.")
+    """Return (history, future) windows on the input grid."""
+    raise NotImplementedError("Forecast windowing is not implemented yet.")
