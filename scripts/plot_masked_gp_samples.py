@@ -147,9 +147,7 @@ def main() -> None:
     elif args.kernel == "fractional_brownian":
         kernel_params["hurst"] = 0.7
     if args.kernel == "periodic":
-        kernel_params["period"] = (
-            args.period if args.period is not None else 1.0
-        )
+        kernel_params["period"] = args.period if args.period is not None else 1.0
 
     output = plot_masked_gp(
         TIMES,
