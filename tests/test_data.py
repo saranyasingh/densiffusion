@@ -8,7 +8,9 @@ from densiffusion.cli import main
 from densiffusion.data import (
     GenerationConfig,
     generate,
+    make_mask,
     make_windows,
+    mask_data,
     save_dataset,
     split_data,
 )
@@ -49,6 +51,29 @@ def test_dataset_round_trip_and_no_overwrite(tmp_path, config):
     with pytest.raises(FileExistsError):
         save_dataset(path, values + 1, config)
     assert path.read_bytes() == original
+
+
+def test_mask_data_hides_every_other_time_step():
+    values = np.arange(12, dtype=float).reshape(3, 4, 1)
+    masked, mask = mask_data(values, axis="time", step=2, offset=1)
+
+    expected_mask = np.array([False, True, False, True])
+    np.testing.assert_array_equal(mask, expected_mask)
+    np.testing.assert_array_equal(masked[:, ~mask, :], values[:, ~mask, :])
+    assert np.isnan(masked[:, mask, :]).all()
+    np.testing.assert_array_equal(make_mask(4, step=2, offset=1), expected_mask)
+
+
+def test_random_mask_uses_probability_and_seed():
+    expected_mask = np.random.default_rng(7).random(8) < 0.4
+    mask = make_mask(8, random=True, probability=0.4, rng=7)
+    np.testing.assert_array_equal(mask, expected_mask)
+
+    values = np.arange(24, dtype=float).reshape(3, 8, 1)
+    masked, mask = mask_data(values, axis="time", random=True, probability=0.4, rng=7)
+    np.testing.assert_array_equal(mask, expected_mask)
+    np.testing.assert_array_equal(masked[:, ~mask, :], values[:, ~mask, :])
+    assert np.isnan(masked[:, mask, :]).all()
 
 
 @pytest.mark.parametrize("error_type", [OSError, KeyboardInterrupt])

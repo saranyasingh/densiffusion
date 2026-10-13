@@ -1,0 +1,11 @@
+generator = "densiffusion.gp.sampling:generate"
+seed = 42
+n_series = 1024
+n_steps = 256
+dt = 1.0
+
+[params]
+kernel = "exponential"
+mean = 0.0
+variance = 1.0
+lengthscale = 10.0
