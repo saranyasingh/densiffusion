@@ -46,6 +46,12 @@ Keep each paper's networks in `src/densiffusion/architectures/<paper>.py` and it
 tests in `tests/test_<paper>.py`. Import them directly into experiment scripts;
 the shared model, trainer, and sampler do not need per-architecture registration.
 
+For a concrete conditional noise predictor, use
+`ImputationModel(CSDIDenoiser(n_channels=1))` from
+`densiffusion.architectures.csdi`, with `noise_mse` and `DDPMSampler`.
+The [CSDI example and compatibility notes](csdi.md) describe a small GP experiment
+and the existing framework's differences from the paper.
+
 Value tensors and the boolean mask have shape `(batch, time, channels)`.
 `mask=True` marks hidden points; `observed` is zero at those positions.
 The encoder sees only `observed` and its mask. Only hidden points are noised.
@@ -58,7 +64,10 @@ window and must leave both hidden and observed entries in each example.
 Generate masks separately, keeping validation and test masks fixed for comparisons.
 Training and scoring require complete targets; do not replace their hidden values
 with NaNs. `steps` contains zero-based diffusion indices;
-`dt` passed to the networks is the target spacing. The beta schedule is linear.
+`dt` passed to the networks is the target spacing. The default beta schedule is
+linear; `TrainingConfig(schedule="quadratic")` uses squared linearly spaced
+square roots of the beta endpoints. Trainer and sampler both call
+`TrainingConfig.betas`, so the selected schedule is identical in both processes.
 
 Objectives implement `objective(prediction, batch) -> scalar_tensor` and return
 a differentiable mean loss over hidden points. `DenoisingBatch` exposes `clean`,
@@ -143,7 +152,18 @@ to `arange(time) * dt` when omitted; pass actual times for windows with an offse
 `run_experiment` also accepts `test_times` with spacing `dt`. For irregular GP
 queries, use `impute` directly with an explicit mask and time coordinates.
 
-Training uses Adam and gradient clipping. Seed network initialization separately;
+Training uses Adam and gradient clipping. Optional `weight_decay` defaults to zero.
+Set `lr_decay_fractions=(0.75, 0.9)` and `lr_decay_factor=0.1` to reduce the learning
+rate after those fractions of the total epochs (milestones round down, at least
+one epoch). Defaults use a constant learning rate.
+
+Set `validation_steps="all"` to average each validation batch over every diffusion
+step, with a fixed noise draw for each batch/step across validation rounds. The
+default `"sampled"` uses one fixed sampled step/noise per example.
+`validation_interval=10` validates every ten epochs and always on the final epoch;
+the default is every epoch. Checkpoint selection considers only validation rounds.
+
+Seed network initialization separately;
 the training seed controls shuffling and noise and resets PyTorch's RNG.
 Validation noise is fixed across epochs. Enable `densiffusion.training` at INFO
 for losses. Checkpoints save both networks, training configuration, objective name,

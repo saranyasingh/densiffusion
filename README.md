@@ -42,5 +42,21 @@ Supply the networks and use `DDPMSampler` or a custom sampler; see
 [docs/training.md](docs/training.md) for the interfaces. Run
 `uv run --extra research pytest` for the full test suite.
 
+CSDI is available as `densiffusion.architectures.csdi.CSDIDenoiser`. Run the small
+univariate GP training-and-sampling example locally with:
+
+```sh
+uv run python scripts/train_csdi_gp.py --output outputs/csdi-gp
+```
+
+See [docs/csdi.md](docs/csdi.md) for the held-out refinement comparison with
+interpolation and the exact GP posterior, configuration, and differences from
+the paper. Use a fresh output directory; this example evaluates the training
+resolution only.
+
+A [stronger training comparison](docs/csdi.md#stronger-training-comparison) uses
+more independent GP paths, quadratic noise scheduling, learning-rate decay,
+and validation-only selection before scoring fresh test trajectories.
+
 Future forecasting interfaces are reserved in `Forecaster`, `make_forecast_windows`,
 `train_forecaster`, `forecast`, and `run_forecast_experiment`; the functions are stubs.
