@@ -106,6 +106,29 @@ def test_ddpm_matches_gaussian_posterior_and_recovers_clean_target(prediction_ty
     np.testing.assert_allclose(samples[:, :, 1], 3, rtol=0, atol=1e-12)
 
 
+def test_quadratic_sampler_uses_the_reference_schedule():
+    expected_alpha = np.cumprod(1 - np.linspace(np.sqrt(0.1), np.sqrt(0.4), 4) ** 2)
+
+    class Oracle(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.anchor = torch.nn.Parameter(torch.zeros((), dtype=torch.float64))
+
+        def forward(self, noisy, steps, **conditions):
+            alpha = torch.as_tensor(expected_alpha)[steps, None, None]
+            return (noisy - alpha.sqrt() * 3.0) / (1 - alpha).sqrt()
+
+    config = TrainingConfig(
+        diffusion_steps=4, beta_start=0.1, beta_end=0.4, schedule="quadratic"
+    )
+    samples = impute(
+        np.array([[[0.1], [0.7]]]),
+        DDPMSampler(Oracle(), config),
+        n_samples=5,
+    )
+    np.testing.assert_allclose(samples[:, :, 1], 3, rtol=0, atol=1e-12)
+
+
 @pytest.mark.parametrize("length, factor", [(3, 1), (1, 2)])
 def test_no_hidden_points_skip_network_and_randomness(length, factor):
     observed = np.arange(2 * length, dtype=float).reshape(2, length, 1)
