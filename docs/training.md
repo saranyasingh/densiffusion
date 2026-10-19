@@ -107,6 +107,20 @@ windows = [make_windows(v, times=t, window_length=65) for v, t in splits]
 test_values, test_times = windows[2]
 ```
 
+`architectures/timeautodiff.py` provides `TimeAutoDiffEncoder` and
+`TimeAutoDiffDenoiser`, after [TimeAutoDiff](https://arxiv.org/abs/2406.16028).
+The encoder embeds observations with sine-cosine features and a bidirectional
+GRU; the denoiser is the reference bidirectional-LSTM score network and predicts
+noise, so it pairs with `noise_mse` and `DDPMSampler`. Unlike the reference, it
+diffuses hidden values directly rather than VAE latents. Pass the training
+`diffusion_steps` to the denoiser. `scripts/run_timeautodiff.py` trains it on a
+generated `.npz` and reports test CRPS, plus the exact GP posterior CRPS when the
+data came from the GP generator:
+
+```sh
+uv run --extra research python scripts/run_timeautodiff.py data/gp.npz --epochs 40
+```
+
 `GPPosteriorSampler` adapts a bound posterior function without a training step.
 Once the GP branch is merged, use its posterior implementation directly:
 
