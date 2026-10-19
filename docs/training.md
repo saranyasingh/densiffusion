@@ -58,6 +58,11 @@ from densiffusion.architectures.pristi import PriSTIDenoiser, PriSTIEncoder
 model = ImputationModel(PriSTIDenoiser(), encoder=PriSTIEncoder(channels=1))
 config = TrainingConfig(diffusion_steps=50, beta_end=0.2)  # linear schedule
 ```
+For a concrete conditional noise predictor, use
+`ImputationModel(CSDIDenoiser(n_channels=1))` from
+`densiffusion.architectures.csdi`, with `noise_mse` and `DDPMSampler`.
+The [CSDI example and compatibility notes](csdi.md) describe a small GP experiment
+and the existing framework's differences from the paper.
 
 Value tensors and the boolean mask have shape `(batch, time, channels)`.
 `mask=True` marks hidden points; `observed` is zero at those positions.
@@ -71,7 +76,10 @@ window and must leave both hidden and observed entries in each example.
 Generate masks separately, keeping validation and test masks fixed for comparisons.
 Training and scoring require complete targets; do not replace their hidden values
 with NaNs. `steps` contains zero-based diffusion indices;
-`dt` passed to the networks is the target spacing. The beta schedule is linear.
+`dt` passed to the networks is the target spacing. The default beta schedule is
+linear; `TrainingConfig(schedule="quadratic")` uses squared linearly spaced
+square roots of the beta endpoints. Trainer and sampler both call
+`TrainingConfig.betas`, so the selected schedule is identical in both processes.
 
 Objectives implement `objective(prediction, batch) -> scalar_tensor` and return
 a differentiable mean loss over hidden points. `DenoisingBatch` exposes `clean`,
@@ -120,6 +128,20 @@ windows = [make_windows(v, times=t, window_length=65) for v, t in splits]
 test_values, test_times = windows[2]
 ```
 
+`architectures/timeautodiff.py` provides `TimeAutoDiffEncoder` and
+`TimeAutoDiffDenoiser`, after [TimeAutoDiff](https://arxiv.org/abs/2406.16028).
+The encoder embeds observations with sine-cosine features and a bidirectional
+GRU; the denoiser is the reference bidirectional-LSTM score network and predicts
+noise, so it pairs with `noise_mse` and `DDPMSampler`. Unlike the reference, it
+diffuses hidden values directly rather than VAE latents. Pass the training
+`diffusion_steps` to the denoiser. `scripts/run_timeautodiff.py` trains it on a
+generated `.npz` and reports test CRPS, plus the exact GP posterior CRPS when the
+data came from the GP generator:
+
+```sh
+uv run --extra research python scripts/run_timeautodiff.py data/gp.npz --epochs 40
+```
+
 `GPPosteriorSampler` adapts a bound posterior function without a training step.
 Once the GP branch is merged, use its posterior implementation directly:
 
@@ -156,7 +178,18 @@ to `arange(time) * dt` when omitted; pass actual times for windows with an offse
 `run_experiment` also accepts `test_times` with spacing `dt`. For irregular GP
 queries, use `impute` directly with an explicit mask and time coordinates.
 
-Training uses Adam and gradient clipping. Seed network initialization separately;
+Training uses Adam and gradient clipping. Optional `weight_decay` defaults to zero.
+Set `lr_decay_fractions=(0.75, 0.9)` and `lr_decay_factor=0.1` to reduce the learning
+rate after those fractions of the total epochs (milestones round down, at least
+one epoch). Defaults use a constant learning rate.
+
+Set `validation_steps="all"` to average each validation batch over every diffusion
+step, with a fixed noise draw for each batch/step across validation rounds. The
+default `"sampled"` uses one fixed sampled step/noise per example.
+`validation_interval=10` validates every ten epochs and always on the final epoch;
+the default is every epoch. Checkpoint selection considers only validation rounds.
+
+Seed network initialization separately;
 the training seed controls shuffling and noise and resets PyTorch's RNG.
 Validation noise is fixed across epochs. Enable `densiffusion.training` at INFO
 for losses. Checkpoints save both networks, training configuration, objective name,

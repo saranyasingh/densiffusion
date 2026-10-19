@@ -3,6 +3,7 @@ from copy import deepcopy
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import Literal
 
 import numpy as np
 import torch
@@ -25,9 +26,15 @@ class TrainingConfig:
     beta_end: float = 0.02
     max_grad_norm: float = 1.0
     device: str = "cpu"
+    schedule: Literal["linear", "quadratic"] = "linear"
+    weight_decay: float = 0.0
+    lr_decay_fractions: tuple[float, ...] = ()
+    lr_decay_factor: float = 0.1
+    validation_steps: Literal["sampled", "all"] = "sampled"
+    validation_interval: int = 1
 
     def __post_init__(self) -> None:
-        for name in ("epochs", "batch_size", "diffusion_steps"):
+        for name in ("epochs", "batch_size", "diffusion_steps", "validation_interval"):
             positive_int(name, getattr(self, name))
         for name in ("learning_rate", "max_grad_norm"):
             value = getattr(self, name)
@@ -35,6 +42,39 @@ class TrainingConfig:
                 raise ValueError(f"{name} must be finite and positive")
         if not 0 < self.beta_start <= self.beta_end < 1:
             raise ValueError("Require 0 < beta_start <= beta_end < 1")
+        if self.schedule not in ("linear", "quadratic"):
+            raise ValueError("schedule must be 'linear' or 'quadratic'")
+        if not np.isfinite(self.weight_decay) or self.weight_decay < 0:
+            raise ValueError("weight_decay must be finite and nonnegative")
+        if not 0 < self.lr_decay_factor <= 1:
+            raise ValueError("lr_decay_factor must be in (0, 1]")
+        if any(not 0 < f < 1 for f in self.lr_decay_fractions) or any(
+            a >= b
+            for a, b in zip(
+                self.lr_decay_fractions, self.lr_decay_fractions[1:], strict=False
+            )
+        ):
+            raise ValueError("lr_decay_fractions must increase strictly within (0, 1)")
+        if self.validation_steps not in ("sampled", "all"):
+            raise ValueError("validation_steps must be 'sampled' or 'all'")
+
+    def betas(self, *, dtype: torch.dtype, device: torch.device | str) -> Tensor:
+        """The single schedule definition used by training and sampling."""
+        if self.schedule == "quadratic":
+            return torch.linspace(
+                self.beta_start**0.5,
+                self.beta_end**0.5,
+                self.diffusion_steps,
+                dtype=dtype,
+                device=device,
+            ).square()
+        return torch.linspace(
+            self.beta_start,
+            self.beta_end,
+            self.diffusion_steps,
+            dtype=dtype,
+            device=device,
+        )
 
 
 def train_densifier[T: nn.Module](
@@ -73,14 +113,15 @@ def train_densifier[T: nn.Module](
     if not parameters:
         raise ValueError("Model must have trainable parameters")
     dtype, device = parameters[0].dtype, parameters[0].device
-    optimizer = torch.optim.Adam(parameters, lr=config.learning_rate)
-    beta = torch.linspace(
-        config.beta_start,
-        config.beta_end,
-        config.diffusion_steps,
-        dtype=dtype,
-        device=device,
+    optimizer = torch.optim.Adam(
+        parameters, lr=config.learning_rate, weight_decay=config.weight_decay
     )
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(
+        optimizer,
+        milestones=[max(1, int(f * config.epochs)) for f in config.lr_decay_fractions],
+        gamma=config.lr_decay_factor,
+    )
+    beta = config.betas(dtype=dtype, device=device)
     alpha_bar = (1 - beta).cumprod(0)
     seeds = np.random.SeedSequence(seed).generate_state(3, dtype=np.uint64)
     order_rng = np.random.default_rng(seeds[0])
@@ -90,11 +131,15 @@ def train_densifier[T: nn.Module](
     best_state = None
 
     for epoch in range(1, config.epochs + 1):
+        learning_rate = optimizer.param_groups[0]["lr"]
+        validate = epoch % config.validation_interval == 0 or epoch == config.epochs
         losses = []
         for training, data, masks in (
             (True, train, train_mask),
             (False, validation, validation_mask),
         ):
+            if not training and not validate:
+                continue
             model.train(training)
             size = len(data)
             order = order_rng.permutation(size) if training else np.arange(size)
@@ -111,9 +156,27 @@ def train_densifier[T: nn.Module](
                 if training:
                     optimizer.zero_grad(set_to_none=True)
                 with torch.set_grad_enabled(training):
-                    loss = _loss(
-                        model, target, mask, alpha_bar, noise_rng, dt, objective
-                    )
+                    if not training and config.validation_steps == "all":
+                        loss = (
+                            sum(
+                                _loss(
+                                    model,
+                                    target,
+                                    mask,
+                                    alpha_bar,
+                                    noise_rng,
+                                    dt,
+                                    objective,
+                                    step=step,
+                                )
+                                for step in range(config.diffusion_steps)
+                            )
+                            / config.diffusion_steps
+                        )
+                    else:
+                        loss = _loss(
+                            model, target, mask, alpha_bar, noise_rng, dt, objective
+                        )
                 if not isinstance(loss, Tensor) or loss.ndim != 0:
                     raise ValueError("Objective must return a scalar tensor")
                 if not torch.isfinite(loss):
@@ -127,7 +190,18 @@ def train_densifier[T: nn.Module](
                 total += loss.item() * int(masks[indices].sum())
             losses.append(total / int(masks.sum()))
 
-        logger.info("epoch=%d train_loss=%.6g validation_loss=%.6g", epoch, *losses)
+        scheduler.step()
+        if not validate:
+            logger.info(
+                "epoch=%d train_loss=%.6g lr=%.6g", epoch, losses[0], learning_rate
+            )
+            continue
+        logger.info(
+            "epoch=%d train_loss=%.6g validation_loss=%.6g lr=%.6g",
+            epoch,
+            *losses,
+            learning_rate,
+        )
         if losses[1] < best_loss:
             best_loss = losses[1]
             best_state = deepcopy(model.state_dict())
@@ -147,6 +221,7 @@ def train_densifier[T: nn.Module](
                         "epoch": epoch,
                         "train_loss": losses[0],
                         "validation_loss": losses[1],
+                        "learning_rate": learning_rate,
                     },
                 )
     model.load_state_dict(best_state)
@@ -171,8 +246,12 @@ def train_forecaster[T: nn.Module](
     raise NotImplementedError("Forecaster training is not implemented yet.")
 
 
-def _loss(model, target, mask, alpha_bar, rng, dt, objective):
-    steps = torch.randint(len(alpha_bar), (len(target),), generator=rng, device="cpu")
+def _loss(model, target, mask, alpha_bar, rng, dt, objective, *, step=None):
+    steps = (
+        torch.randint(len(alpha_bar), (len(target),), generator=rng, device="cpu")
+        if step is None
+        else torch.full((len(target),), step, dtype=torch.long)
+    )
     noise = torch.randn(
         target.shape, generator=rng, dtype=target.dtype, device="cpu"
     ).to(target.device)

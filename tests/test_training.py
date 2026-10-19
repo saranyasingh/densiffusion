@@ -305,8 +305,107 @@ def test_invalid_predictions_are_rejected(config, wrong_shape):
         {"beta_start": 0},
         {"beta_end": 1},
         {"beta_end": np.nan},
+        {"schedule": "unknown"},
+        {"weight_decay": -1},
+        {"weight_decay": np.nan},
+        {"lr_decay_fractions": (0.9, 0.75)},
+        {"lr_decay_fractions": (np.nan,)},
+        {"lr_decay_factor": 0},
+        {"validation_steps": "unknown"},
+        {"validation_interval": 0},
     ],
 )
 def test_invalid_training_settings(config, updates):
     with pytest.raises(ValueError):
         replace(config, **updates)
+
+
+def test_all_step_validation_is_fixed_complete_and_weights_hidden_entries(tmp_path):
+    model = Denoiser()
+    values = np.broadcast_to(np.array([1.0, 2.0, 4.0])[:, None, None], (3, 5, 1))
+    mask = np.zeros_like(values, dtype=bool)
+    mask[0, 1] = True
+    mask[1, 1:3] = True
+    mask[2, 1:4] = True
+    calls = []
+    config = TrainingConfig(
+        epochs=3,
+        batch_size=2,
+        diffusion_steps=3,
+        schedule="quadratic",
+        beta_start=0.1,
+        beta_end=0.4,
+        validation_steps="all",
+        validation_interval=2,
+    )
+    expected_alpha = np.cumprod(1 - np.linspace(np.sqrt(0.1), np.sqrt(0.4), 3) ** 2)
+
+    def objective(prediction, batch):
+        np.testing.assert_allclose(
+            batch.alpha_bar[:, 0, 0].numpy(), expected_alpha[batch.steps], rtol=1e-6
+        )
+        if not torch.is_grad_enabled():
+            calls.append((batch.steps.clone(), batch.noisy.clone()))
+        return (
+            batch.clean[batch.mask].square().mean()
+            + batch.steps.float().mean()
+            + 0 * prediction.mean()
+        )
+
+    path = tmp_path / "all_steps.pt"
+    train_densifier(
+        model,
+        values,
+        values,
+        config=config,
+        objective=objective,
+        train_mask=mask,
+        validation_mask=mask,
+        checkpoint=path,
+    )
+    # Validate on epoch 2 and the final epoch 3: both batches cover every step.
+    assert [int(steps[0]) for steps, _ in calls] == [0, 1, 2] * 4
+    for first, second in zip(calls[:6], calls[6:], strict=True):
+        torch.testing.assert_close(first[1], second[1], rtol=0, atol=0)
+    state = torch.load(path, weights_only=True)
+    assert state["validation_loss"] == pytest.approx(np.square(values[mask]).mean() + 1)
+    assert state["config"]["schedule"] == "quadratic"
+
+
+def test_learning_rate_decays_change_actual_parameter_updates(tmp_path):
+    class Constant(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.value = torch.nn.Parameter(torch.tensor(1.0))
+
+        def forward(self, noisy, steps, **conditions):
+            return self.value.expand_as(noisy)
+
+    model = Constant()
+    data = np.ones((2, 5, 1))
+    path = tmp_path / "decayed.pt"
+    train_densifier(
+        model,
+        data,
+        data,
+        config=TrainingConfig(
+            epochs=4,
+            batch_size=2,
+            diffusion_steps=2,
+            learning_rate=0.1,
+            lr_decay_fractions=(0.5, 0.75),
+            lr_decay_factor=0.1,
+        ),
+        objective=lambda prediction, batch: prediction[batch.mask].mean(),
+        checkpoint=path,
+    )
+    assert model.value.item() == pytest.approx(1 - 0.1 - 0.1 - 0.01 - 0.001)
+    assert torch.load(path, weights_only=True)["learning_rate"] == pytest.approx(0.001)
+
+
+def test_weight_decay_regularizes_a_parameter_without_data_gradient(config):
+    model = Denoiser()
+    data = np.ones((2, 5, 1))
+    train_densifier(model, data, data, config=replace(config, weight_decay=0.01))
+    # visible_bias has zero data gradient because the objective scores hidden points.
+    assert model.visible_bias.item() < 100

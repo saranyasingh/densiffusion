@@ -52,13 +52,7 @@ class DDPMSampler:
         if parameter is None or not parameter.is_floating_point():
             raise ValueError("Model must have floating-point parameters")
         dtype, device = parameter.dtype, parameter.device
-        beta = torch.linspace(
-            self.config.beta_start,
-            self.config.beta_end,
-            self.config.diffusion_steps,
-            dtype=dtype,
-            device=device,
-        )
+        beta = self.config.betas(dtype=dtype, device=device)
         alpha = 1 - beta
         alpha_bar = alpha.cumprod(0)
         if not ((alpha > 0) & (alpha_bar < 1)).all():
