@@ -46,6 +46,18 @@ Keep each paper's networks in `src/densiffusion/architectures/<paper>.py` and it
 tests in `tests/test_<paper>.py`. Import them directly into experiment scripts;
 the shared model, trainer, and sampler do not need per-architecture registration.
 
+`architectures/pristi.py` implements [PriSTI](https://arxiv.org/abs/2302.09746)
+without its spatial components. The encoder linearly interpolates observations
+and extracts a conditional feature; the denoiser uses that feature for its
+temporal attention weights and predicts noise. Channels share weights but are
+modelled independently. The paper uses 50 quadratic-schedule steps up to 0.2:
+
+```python
+from densiffusion.architectures.pristi import PriSTIDenoiser, PriSTIEncoder
+
+model = ImputationModel(PriSTIDenoiser(), encoder=PriSTIEncoder(channels=1))
+config = TrainingConfig(diffusion_steps=50, beta_end=0.2)  # linear schedule
+```
 For a concrete conditional noise predictor, use
 `ImputationModel(CSDIDenoiser(n_channels=1))` from
 `densiffusion.architectures.csdi`, with `noise_mse` and `DDPMSampler`.
