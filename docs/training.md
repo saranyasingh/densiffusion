@@ -56,8 +56,12 @@ modelled independently. The paper uses 50 quadratic-schedule steps up to 0.2:
 from densiffusion.architectures.pristi import PriSTIDenoiser, PriSTIEncoder
 
 model = ImputationModel(PriSTIDenoiser(), encoder=PriSTIEncoder(channels=1))
-config = TrainingConfig(diffusion_steps=50, beta_end=0.2)  # linear schedule
+config = TrainingConfig(diffusion_steps=50, beta_end=0.2, schedule="quadratic")
 ```
+
+`architectures/pristi_densiffusion.py` adds a PriSTI-specific densify-and-forecast
+pipeline; `docs/pristi_experiments.md` describes the imputation and forecasting
+experiments and their results.
 For a concrete conditional noise predictor, use
 `ImputationModel(CSDIDenoiser(n_channels=1))` from
 `densiffusion.architectures.csdi`, with `noise_mse` and `DDPMSampler`.

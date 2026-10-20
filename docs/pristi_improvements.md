@@ -31,11 +31,14 @@ Open issues in `src/densiffusion/architectures/pristi.py` (temporal-only PriSTI)
      means.
    - Better: normalise each window by its observed increment scale, or
      condition on `dt` and train at several resolutions.
-4. **Noise schedule**
-   - The shared trainer and sampler support only a linear schedule; the paper
-     uses quadratic (1e-4 to 0.2, 50-100 steps).
-   - Adding a schedule option to `TrainingConfig` and `DDPMSampler` changes
-     shared code, so agree it with the team.
+   - `docs/pristi_experiments.md` tests the first option with training at three
+     strides: it transfers three halvings finer for Brownian motion and fBm,
+     but not for Matérn 5/2, which is not self-similar.
+4. **Noise schedule** (resolved)
+   - `TrainingConfig(schedule="quadratic")` now matches the paper's schedule
+     (1e-4 to 0.2, 50-100 steps).
+   - The experiments use the CSDI comparison's 50 steps to 0.5; the paper's
+     0.2 is untested.
 5. **Training masks are fixed per example**
    - The trainer uses one fixed mask per window; the paper redraws point,
      block, or hybrid masks every iteration.
@@ -54,11 +57,12 @@ Open issues in `src/densiffusion/architectures/pristi.py` (temporal-only PriSTI)
    - Caching the context per sampling batch in the shared sampler would save
      about 20-30% of sampling time (the encoder's measured share per step).
 8. **Training details differ from the paper**
-   - No learning-rate decay (the paper decays at 75% and 90% of training).
+   - Learning-rate decay at 75% and 90% and all-step validation are now
+     available (`lr_decay_fractions`, `validation_steps="all"`) and used in the
+     experiments.
    - Batch size 64 by default (paper: 16).
-   - Validation loss uses random diffusion steps (paper: averages all steps).
-   - Untuned: only a short Brownian-motion run so far (CRPS 0.047 vs. 0.040 for
-     the exact GP posterior).
+   - Untuned: see `docs/pristi_experiments.md` for the runs so far; most models
+     were still improving at the final epoch.
 9. **Minor**
    - The last layer's unused residual output leaves about 4,000 parameters
      without gradient (as in the reference; no effect on outputs).
