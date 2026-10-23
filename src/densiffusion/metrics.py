@@ -10,6 +10,24 @@ def evaluate(
     return {"crps": crps(samples, target, mask=mask)}
 
 
+def evaluate_forecast(samples: Array, target: Array) -> dict[str, float]:
+    """Score original-grid forecasts in data units, equally weighting entries.
+
+    MSE uses the ensemble mean. Coverage and width use empirical 5th and 95th
+    percentiles (linear interpolation), i.e. a central nominal 90% interval.
+    These are marginal forecast metrics, not joint trajectory coverage.
+    """
+    target = validate_array(target, (None, None, None))
+    samples = validate_array(samples, (len(target), None, *target.shape[1:]))
+    lower, upper = np.quantile(samples, [0.05, 0.95], axis=1)
+    return {
+        "crps": crps(samples, target),
+        "mse": float(np.square(samples.mean(axis=1) - target).mean()),
+        "coverage_90": float(((lower <= target) & (target <= upper)).mean()),
+        "interval_width_90": float((upper - lower).mean()),
+    }
+
+
 def crps(samples: Array, target: Array, *, mask: Mask | None = None) -> float:
     """Mean empirical-ensemble CRPS for (batch, samples, time, channels) draws."""
     target = validate_array(target, (None, None, None))

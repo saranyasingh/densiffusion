@@ -170,10 +170,13 @@ for losses. Checkpoints save both networks, training configuration, objective na
 seed, and best validation loss; use a new path for each run. Optimizer state is
 not saved. `train_densifier` is also available for training without sampling.
 
-Forecasting retains the `Forecaster.sample` contract and stubs for
-`data.make_forecast_windows`, `training.train_forecaster`, `pipeline.forecast`,
-and `experiments.run_forecast_experiment`. Windows use the original grid;
-`Forecaster.sample` returns fine-grid futures and `pipeline.forecast` will pool
-samples and downsample to the original grid. Training will keep the densifier
-fixed. The stub functions raise `NotImplementedError`; CRPS can reuse
-`metrics.evaluate` with future targets.
+Forecasting uses `data.make_forecast_windows`, `training.train_forecaster`,
+`pipeline.forecast`, and `experiments.run_forecast_experiment`. Windows use the
+original grid. The forecaster is trained with a hidden future suffix on fixed
+synthetic dense histories and futures, keeping the densifier frozen. Histories
+are densified from past observations only. `DDPMForecastSampler` implements the
+`Forecaster.sample` contract, returning fine-grid futures; `pipeline.forecast`
+pools draws and downsamples them to the original grid. `metrics.evaluate_forecast`
+reports CRPS, ensemble-mean MSE, 90% interval coverage, and interval width. See
+[forecasting.md](forecasting.md) for the two-stage example and comparison with
+direct CSDI and linear densification.

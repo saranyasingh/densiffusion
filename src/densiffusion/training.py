@@ -101,13 +101,37 @@ def train_densifier[T: nn.Module](
     factor = 2 if train_mask is None else None
     train, train_mask = prepare_targets(train, train_mask)
     validation, validation_mask = prepare_targets(validation, validation_mask)
-    if not np.isfinite(dt) or dt <= 0:
-        raise ValueError("dt must be finite and positive")
-    if type(seed) is not int or not 0 <= seed < 2**63:
-        raise ValueError("seed must be an integer in [0, 2**63)")
-    if checkpoint is not None and checkpoint.exists():
-        raise FileExistsError(f"Checkpoint already exists: {checkpoint}")
-    config = config or TrainingConfig()
+    _validate_training_options(dt, seed, checkpoint)
+    return _fit_masked(
+        model,
+        train,
+        validation,
+        train_mask,
+        validation_mask,
+        config=config or TrainingConfig(),
+        objective=objective,
+        dt=dt,
+        seed=seed,
+        checkpoint=checkpoint,
+        metadata={"stage": "densifier", "factor": factor, "target_dt": dt},
+    )
+
+
+def _fit_masked[T: nn.Module](
+    model: T,
+    train: Array,
+    validation: Array,
+    train_mask: Mask,
+    validation_mask: Mask,
+    *,
+    config: TrainingConfig,
+    objective: Objective,
+    dt: float,
+    seed: int,
+    checkpoint: Path | None,
+    metadata: dict,
+) -> T:
+    """Shared masked-diffusion optimizer for imputation and suffix forecasting."""
     model.to(config.device)
     parameters = [p for p in model.parameters() if p.requires_grad]
     if not parameters:
@@ -214,9 +238,7 @@ def train_densifier[T: nn.Module](
                         "objective": getattr(
                             objective, "__qualname__", type(objective).__qualname__
                         ),
-                        "stage": "densifier",
-                        "factor": factor,
-                        "target_dt": dt,
+                        **metadata,
                         "seed": seed,
                         "epoch": epoch,
                         "train_loss": losses[0],
@@ -241,9 +263,186 @@ def train_forecaster[T: nn.Module](
     dt: float = 1.0,
     seed: int = 0,
     checkpoint: Path | None = None,
+    n_augmentations: int = 1,
 ) -> T:
-    """Train on (history, future) windows with the trained densifier fixed."""
-    raise NotImplementedError("Forecaster training is not implemented yet.")
+    """Fit future-only diffusion to cached frozen-densifier augmentations.
+
+    Inputs are pairs of coarse (batch, time, channels) history/future arrays;
+    dt is their observed spacing. Histories are densified without future values.
+    Futures are densified with the final history point as a left bridge anchor,
+    then that anchor is removed. Thus dense futures have factor * horizon points
+    and measured targets occur at factor - 1 :: factor. Each window receives
+    n_augmentations independent paired draws, held fixed across training epochs.
+    Validation augmentation and diffusion noise are also fixed. At factor=1,
+    train directly on coarse windows without calling the densifier. Models may
+    not share parameters, including at factor=1, to preserve densifier weights.
+    """
+    positive_int("factor", factor)
+    positive_int("n_augmentations", n_augmentations)
+    _validate_training_options(dt, seed, checkpoint)
+    fine_dt = dt / factor
+    if not np.isfinite(fine_dt) or fine_dt <= 0:
+        raise ValueError("dt / factor must be finite and positive")
+    train = _validate_forecast_pair(train)
+    validation = _validate_forecast_pair(validation)
+    if any(
+        left.shape[1:] != right.shape[1:]
+        for left, right in zip(train, validation, strict=True)
+    ):
+        raise ValueError("Training and validation window dimensions must match")
+    if not any(parameter.requires_grad for parameter in model.parameters()):
+        raise ValueError("Model must have trainable parameters")
+    config = config or TrainingConfig()
+    frozen_model = getattr(densifier, "model", densifier)
+    if isinstance(frozen_model, nn.Module):
+        _reject_shared_parameters(model, frozen_model)
+        modes = [(module, module.training) for module in frozen_model.modules()]
+    else:
+        modes = []
+    seeds = np.random.SeedSequence(seed).spawn(4)
+    try:
+        if modes and factor != 1:
+            frozen_model.eval()
+        with torch.no_grad():
+            augmented_train = _augment_forecast_pair(
+                train,
+                densifier,
+                factor,
+                n_augmentations,
+                dt,
+                config.batch_size,
+                np.random.default_rng(seeds[0]),
+                np.random.default_rng(seeds[1]),
+            )
+            augmented_validation = _augment_forecast_pair(
+                validation,
+                densifier,
+                factor,
+                n_augmentations,
+                dt,
+                config.batch_size,
+                np.random.default_rng(seeds[2]),
+                np.random.default_rng(seeds[3]),
+            )
+    finally:
+        for module, training in modes:
+            module.training = training
+
+    context_length = train[0].shape[1]
+    horizon = train[1].shape[1]
+    dense_context_length = (context_length - 1) * factor + 1
+    train_mask = np.zeros(augmented_train.shape, dtype=bool)
+    validation_mask = np.zeros(augmented_validation.shape, dtype=bool)
+    train_mask[:, dense_context_length:] = True
+    validation_mask[:, dense_context_length:] = True
+    return _fit_masked(
+        model,
+        augmented_train,
+        augmented_validation,
+        train_mask,
+        validation_mask,
+        config=config,
+        objective=objective,
+        dt=fine_dt,
+        seed=seed,
+        checkpoint=checkpoint,
+        metadata={
+            "stage": "forecaster",
+            "factor": factor,
+            "observed_dt": dt,
+            "target_dt": fine_dt,
+            "context_length": context_length,
+            "horizon": horizon,
+            "dense_context_length": dense_context_length,
+            "dense_horizon": factor * horizon,
+            "n_augmentations": n_augmentations,
+            "augmentation": {
+                "cached": True,
+                "history_conditioning": "history_only",
+                "future_conditioning": "last_history_point_and_future",
+                "independent_history_future_draws": True,
+                "densifier_bypassed": factor == 1,
+            },
+        },
+    )
+
+
+def _validate_training_options(dt: float, seed: int, checkpoint: Path | None) -> None:
+    if not np.isfinite(dt) or dt <= 0:
+        raise ValueError("dt must be finite and positive")
+    if type(seed) is not int or not 0 <= seed < 2**63:
+        raise ValueError("seed must be an integer in [0, 2**63)")
+    if checkpoint is not None and checkpoint.exists():
+        raise FileExistsError(f"Checkpoint already exists: {checkpoint}")
+
+
+def _validate_forecast_pair(values: tuple[Array, Array]) -> tuple[Array, Array]:
+    if not isinstance(values, tuple) or len(values) != 2:
+        raise ValueError("Forecast data must be a (history, future) tuple")
+    history = validate_array(values[0], (None, None, None))
+    future = validate_array(values[1], (len(history), None, history.shape[2]))
+    return history, future
+
+
+def _reject_shared_parameters(model: nn.Module, frozen: nn.Module) -> None:
+    """Reject tied parameters, including distinct Parameters sharing storage."""
+    parameters = list(frozen.parameters())
+    identities = {id(parameter) for parameter in parameters}
+    storages = {
+        (parameter.device, parameter.untyped_storage().data_ptr())
+        for parameter in parameters
+        if parameter.numel()
+    }
+    for parameter in model.parameters():
+        if id(parameter) in identities or (
+            parameter.numel()
+            and (parameter.device, parameter.untyped_storage().data_ptr()) in storages
+        ):
+            raise ValueError("Forecaster and densifier must not share parameters")
+
+
+def _augment_forecast_pair(
+    data: tuple[Array, Array],
+    densifier: Densifier,
+    factor: int,
+    n_augmentations: int,
+    dt: float,
+    batch_size: int,
+    history_rng: np.random.Generator,
+    future_rng: np.random.Generator,
+) -> Array:
+    history, future = data
+    if factor == 1:
+        return np.repeat(np.concatenate((history, future), axis=1), n_augmentations, 0)
+    length = (history.shape[1] + future.shape[1] - 1) * factor + 1
+    augmented = np.empty((len(history) * n_augmentations, length, history.shape[2]))
+    for start in range(0, len(augmented), batch_size):
+        stop = min(start + batch_size, len(augmented))
+        indices = np.arange(start, stop) // n_augmentations
+        past = _sample_dense(densifier, history[indices], factor, dt, history_rng)
+        bridge = np.concatenate((history[indices, -1:], future[indices]), axis=1)
+        target = _sample_dense(densifier, bridge, factor, dt, future_rng)
+        augmented[start:stop] = np.concatenate((past, target[:, 1:]), axis=1)
+    return augmented
+
+
+def _sample_dense(
+    densifier: Densifier,
+    observed: Array,
+    factor: int,
+    dt: float,
+    rng: np.random.Generator,
+) -> Array:
+    samples = densifier.sample(
+        observed.copy(), factor=factor, n_samples=1, dt=dt, rng=rng
+    )
+    samples = validate_array(
+        samples,
+        (len(observed), 1, (observed.shape[1] - 1) * factor + 1, observed.shape[2]),
+    )[:, 0]
+    if not np.array_equal(samples[:, ::factor], observed):
+        raise ValueError("Densifier must preserve every observed value")
+    return samples.copy()
 
 
 def _loss(model, target, mask, alpha_bar, rng, dt, objective, *, step=None):

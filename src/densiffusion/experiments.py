@@ -16,10 +16,10 @@ from densiffusion.contracts import (
     validate_array,
     validate_times,
 )
-from densiffusion.metrics import evaluate
+from densiffusion.metrics import evaluate, evaluate_forecast
 from densiffusion.objectives import Objective, noise_mse
-from densiffusion.pipeline import impute
-from densiffusion.training import TrainingConfig, train_densifier
+from densiffusion.pipeline import forecast, impute
+from densiffusion.training import TrainingConfig, train_densifier, train_forecaster
 
 
 def run_experiment[T: nn.Module](
@@ -112,6 +112,68 @@ def run_forecast_experiment[T: nn.Module](
     dt: float = 1.0,
     seed: int = 0,
     checkpoint: Path | None = None,
+    n_augmentations: int = 1,
 ) -> dict[str, float]:
-    """Train a forecaster and evaluate (history, future) test windows."""
-    raise NotImplementedError("Forecast experiments are not implemented yet.")
+    """Fit a forecaster with a fixed densifier and score original-grid futures.
+
+    Split trajectories before windowing. Test futures only enter scoring, after
+    selecting the forecast checkpoint on validation noise loss. Pool all
+    n_histories * n_futures draws before computing marginal metrics.
+    """
+    for name, value in (
+        ("factor", factor),
+        ("n_histories", n_histories),
+        ("n_futures", n_futures),
+        ("n_augmentations", n_augmentations),
+    ):
+        positive_int(name, value)
+    if not np.isfinite(dt) or dt <= 0:
+        raise ValueError("dt must be finite and positive")
+    if type(seed) is not int or not 0 <= seed < 2**63:
+        raise ValueError("seed must be an integer in [0, 2**63)")
+    checked = []
+    for name, split in (("train", train), ("validation", validation), ("test", test)):
+        if not isinstance(split, tuple) or len(split) != 2:
+            raise ValueError(f"{name} must be a (history, future) tuple")
+        history = validate_array(split[0], (None, None, None))
+        future = validate_array(split[1], (len(history), None, history.shape[2]))
+        if checked:
+            validate_array(history, (None, *checked[0][0].shape[1:]))
+            validate_array(future, (None, *checked[0][1].shape[1:]))
+        checked.append((history, future))
+    train, validation, (test_history, test_future) = checked
+    config = config or TrainingConfig()
+    train_forecaster(
+        model,
+        densifier,
+        train,
+        validation,
+        config=config,
+        objective=objective,
+        factor=factor,
+        dt=dt,
+        seed=seed,
+        checkpoint=checkpoint,
+        n_augmentations=n_augmentations,
+    )
+    sampler = sampler_factory(model, config)
+    rng = np.random.default_rng(np.random.SeedSequence(seed).spawn(1)[0])
+    totals = {}
+    with torch.no_grad():
+        for start in range(0, len(test_history), config.batch_size):
+            history = test_history[start : start + config.batch_size]
+            target = test_future[start : start + config.batch_size]
+            samples = forecast(
+                history,
+                densifier,
+                sampler,
+                horizon=target.shape[1],
+                factor=factor,
+                n_histories=n_histories,
+                n_futures=n_futures,
+                dt=dt,
+                seed=int(rng.integers(2**63)),
+            )
+            for name, value in evaluate_forecast(samples, target).items():
+                totals[name] = totals.get(name, 0.0) + value * target.size
+    return {name: total / test_future.size for name, total in totals.items()}

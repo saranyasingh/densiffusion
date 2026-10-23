@@ -5,7 +5,13 @@ import torch
 from torch import nn
 
 from densiffusion.conditioning import prepare_observations
-from densiffusion.contracts import Array, Mask, has_regular_spacing, positive_int
+from densiffusion.contracts import (
+    Array,
+    Mask,
+    has_regular_spacing,
+    positive_int,
+    validate_array,
+)
 from densiffusion.training import TrainingConfig
 
 
@@ -122,3 +128,58 @@ class DDPMSampler:
 
         samples = samples.reshape(batch, n_samples, length, channels)
         return np.where(hidden[:, None], samples, observed[:, None])
+
+
+class DDPMForecastSampler(DDPMSampler):
+    """Forecast a hidden suffix conditioned on a completed history using DDPM.
+
+    Works with CSDIDenoiser wrapped in ImputationModel and trained with
+    train_forecaster. Original observations are an exactly preserved subset of
+    dense_history, so conditioning on the latter also supplies the former.
+    The reverse process, prediction type, and schedule are shared with imputation.
+    """
+
+    @torch.no_grad()
+    def sample(
+        self,
+        observed: Array,
+        dense_history: Array,
+        *,
+        horizon: int,
+        n_samples: int,
+        dt: float,
+        rng: np.random.Generator,
+    ) -> Array:
+        """Return fine-grid futures, starting dt after the history endpoint.
+
+        horizon counts fine steps, and dt is the fine spacing. The public
+        pipeline.forecast handles coarse horizons, mixtures and downsampling.
+        """
+        positive_int("horizon", horizon)
+        positive_int("n_samples", n_samples)
+        if not np.isfinite(dt) or dt <= 0:
+            raise ValueError("dt must be finite and positive")
+        observed = validate_array(observed, (None, None, None))
+        dense_history = validate_array(
+            dense_history, (len(observed), None, observed.shape[2])
+        )
+        coarse_length, dense_length = observed.shape[1], dense_history.shape[1]
+        if coarse_length == 1:
+            factor = 1
+            compatible = dense_length == 1
+        else:
+            factor, remainder = divmod(dense_length - 1, coarse_length - 1)
+            compatible = factor >= 1 and remainder == 0
+        if not compatible:
+            raise ValueError("dense_history must refine the original history grid")
+        if not np.array_equal(dense_history[:, ::factor], observed):
+            raise ValueError("dense_history must preserve every original observation")
+        full = np.concatenate(
+            (dense_history, np.zeros((len(observed), horizon, observed.shape[2]))),
+            axis=1,
+        )
+        mask = np.arange(full.shape[1]) >= dense_length
+        samples = super().sample(
+            full, factor=1, n_samples=n_samples, dt=dt, rng=rng, mask=mask
+        )
+        return samples[:, :, dense_length:].copy()

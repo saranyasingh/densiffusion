@@ -1,6 +1,6 @@
 # Densiffusion
 
-Diffusion-based time-series imputation research.
+Diffusion-based time-series imputation and forecasting research.
 
 Python 3.12+ and [uv](https://docs.astral.sh/uv/):
 
@@ -58,5 +58,13 @@ A [stronger training comparison](docs/csdi.md#stronger-training-comparison) uses
 more independent GP paths, quadratic noise scheduling, learning-rate decay,
 and validation-only selection before scoring fresh test trajectories.
 
-Future forecasting interfaces are reserved in `Forecaster`, `make_forecast_windows`,
-`train_forecaster`, `forecast`, and `run_forecast_experiment`; the functions are stubs.
+Forecasting implements Densiffusion's frozen-densifier augmentation and pooled
+CSDI future sampling, evaluated at the original observation times. Run the small
+comparison against direct CSDI and linear densification with:
+
+```sh
+uv run python scripts/train_csdi_forecast.py --output outputs/csdi-forecast
+```
+
+See [docs/forecasting.md](docs/forecasting.md) for the training/inference flow,
+leakage boundaries, baselines, saved artifacts, and forecast APIs.

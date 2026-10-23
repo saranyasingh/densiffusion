@@ -235,5 +235,15 @@ def make_windows(
 def make_forecast_windows(
     values: Array, *, context_length: int, horizon: int, stride: int = 1
 ) -> tuple[Array, Array]:
-    """Return (history, future) windows on the input grid."""
-    raise NotImplementedError("Forecast windowing is not implemented yet.")
+    """Return copied (history, future) windows on the input grid.
+
+    The first future value is immediately after the history endpoint. Split a
+    dataset into train/validation/test partitions before calling this function
+    so that overlapping windows cannot cross partition boundaries.
+    """
+    positive_int("context_length", context_length)
+    positive_int("horizon", horizon)
+    windows = make_windows(
+        values, window_length=context_length + horizon, stride=stride
+    )
+    return windows[:, :context_length].copy(), windows[:, context_length:].copy()

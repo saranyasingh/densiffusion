@@ -232,8 +232,12 @@ the original benchmarks include:
 - The paper's normalized, 19-quantile CRPS reporting, in addition to the
   repository's empirical ensemble CRPS in data units.
 
-The larger network sizes are already configurable. Forecasting linear attention
-and unconditional CSDI are separate architecture options not included here.
+The larger network sizes are already configurable.
+[Densiffusion forecasting](forecasting.md) now trains a separate CSDI model on
+densified histories and hidden future suffixes, retaining the existing full
+attention. The paper's
+forecasting linear attention and unconditional CSDI remain separate architecture
+options not included here.
 
 ## Checks
 
