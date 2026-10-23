@@ -64,6 +64,22 @@ For a concrete conditional noise predictor, use
 The [CSDI example and compatibility notes](csdi.md) describe a small GP experiment
 and the existing framework's differences from the paper.
 
+`architectures/mtsci.py` implements [MTSCI](https://arxiv.org/abs/2408.05740),
+a denoiser-only CSDI-family network trained with an extra intra-consistency
+loss. The loss needs the clean targets and noise, so it lives in a custom
+objective bound to the denoiser; it applies in training mode only, and
+validation scores noise MSE. See [mtsci.md](mtsci.md) for the differences from
+the paper.
+
+```python
+from densiffusion.architectures.mtsci import MTSCIDenoiser, MTSCIObjective
+
+denoiser = MTSCIDenoiser(n_channels=1)
+model = ImputationModel(denoiser)
+objective = MTSCIObjective(denoiser)  # pass to run_experiment / train_densifier
+config = TrainingConfig(diffusion_steps=50, beta_end=0.2, schedule="quadratic")
+```
+
 Value tensors and the boolean mask have shape `(batch, time, channels)`.
 `mask=True` marks hidden points; `observed` is zero at those positions.
 The encoder sees only `observed` and its mask. Only hidden points are noised.
