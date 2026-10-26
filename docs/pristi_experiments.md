@@ -169,3 +169,78 @@ a calibrated forecaster.
 - An independent code review found no leakage or indexing errors. It led to
   the fair CRPS, the range-coverage measure and a fixed draw-count bug before
   these results were produced.
+
+## 3. Quasi-periodic sweep: when could densification help?
+
+Section 2 found no gain on processes that look alike at every scale. This
+experiment uses a process where the sampling interval matters: a
+quasi-periodic GP whose paths oscillate with slowly drifting amplitude and
+phase. One quantity is varied: the period P divided by the coarse spacing dt.
+
+- **P/dt = 1.6:** fewer than two samples per cycle, so the coarse data look
+  like a slower wave (aliasing). This is the negative control.
+- **P/dt = 2.5-4:** the wave is barely resolved. The coarse history is a
+  jagged zig-zag, and a densified history would show the wave's shape. This
+  is where densification is most plausibly helpful.
+- **P/dt = 8-16:** the coarse points already trace the wave, so densifying
+  should add little.
+
+### Two data settings, two research questions
+
+Densification cannot add information at test time: a densified history is a
+function of the same coarse observations. Any gain must come from making the
+forecaster easier to learn. The two settings differ in what extra data, if
+any, the densifier can learn from.
+
+| | Coarse-only | Fine training data |
+|---|---|---|
+| **Question** | Can a densifier learned from coarse data alone help forecast coarse data? | If fine-resolution training data exists, does densifying coarse test histories help forecast? |
+| **Example use** | Only one sampling rate is ever recorded | A high-frequency archive, but a coarse live feed |
+| **Data the models see** | Coarse paths only | Fine (dt/8) paths for training; coarse test histories |
+| **Imputer** | One model, trained on coarse windows with alternate points hidden (2dt -> dt), applied three times (dt -> dt/2 -> dt/4 -> dt/8) | One model per level, each trained on fine paths at exactly the spacing it refines (dt -> dt/2, dt/2 -> dt/4, dt/4 -> dt/8) |
+| **Scale mismatch** | Every application is at least one halving finer than training; for P/dt <= 4 the training inputs (spacing 2dt) are themselves aliased | None: training and use match |
+| **Forecaster trained on** | Coarse windows densified by the imputer | True fine windows |
+| **Test history** | Densified by the coarse-trained imputer | Densified by the fine-trained imputers |
+| **Methods** | `learned_x2`, `learned_x8` | `fine_x2`, `fine_x8` |
+
+Shared by both settings:
+
+- **Sparse forecaster:** trained and tested on coarse windows. It is always
+  coarse-only, so it is the baseline for both questions.
+- **Oracle (`oracle_x2`, `oracle_x8`):** the fine-data forecaster, but with
+  test histories densified by the exact GP posterior. This is the best any
+  densifier could do. Comparing it with `fine_xK` shows what is lost by
+  learning the densifier; comparing it with sparse shows whether perfect
+  densification helps at all.
+- **Interpolated x8, the exact GP forecast and repeating the last value**, as
+  in section 2.
+
+In the coarse-only setting the imputer trains at stride 1 only. Thinning the
+coarse data, as section 2 did to teach several scales, would alias the wave.
+
+### Setup
+
+- **Kernel:** cos(2 pi tau / P) times Matérn 3/2 with lengthscale 12 dt,
+  variance 1, dt = 1. The cosine gives a single frequency, so P/dt alone
+  controls aliasing; the Matérn factor makes amplitude and phase drift.
+- **Sweep:** P/dt in {1.6, 2.5, 3, 4, 6, 8, 16}.
+- **Everything else as in section 2:** the same path counts, windows (9
+  history and 4 future coarse points), small PriSTI, training schedule,
+  epochs, 16 draws per test window and fair CRPS.
+- **Equal imputer data:** each fine-data imputer is trained on a random
+  subset of windows, the same number per path as the coarse imputer gets.
+- **Shared forecaster:** `fine_xK` and `oracle_xK` share one forecaster
+  trained on the true fine paths; only their test histories differ.
+
+```sh
+for task in qp_1.6 qp_2.5 qp_3 qp_4 qp_6 qp_8 qp_16; do
+    uv run --extra research python scripts/run_pristi_densiffusion.py run \
+        --task $task --output outputs/densiffusion_quasiperiodic --threads 1 &
+done; wait
+uv run --extra research --with matplotlib python \
+    scripts/run_pristi_densiffusion.py report \
+    --output outputs/densiffusion_quasiperiodic
+```
+
+The report adds `sweep.png`: CRPS relative to the exact GP, and gain over the
+sparse forecaster, against P/dt.

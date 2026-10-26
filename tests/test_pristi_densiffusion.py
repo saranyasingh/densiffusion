@@ -78,6 +78,17 @@ def test_densify_levels_double_resolution_and_keep_coarse_points():
     np.testing.assert_array_equal(levels[2][:, :, ::2], levels[1])
 
 
+def test_densify_accepts_one_imputer_per_level():
+    model = tiny_model()
+    series = np.random.default_rng(1).normal(size=(2, 5))
+    shared = densify(model, CONFIG, series, levels=2, n_samples=2, seed=3)
+    per_level = densify([model, model], CONFIG, series, levels=2, n_samples=2, seed=3)
+    for a, b in zip(shared, per_level, strict=True):
+        np.testing.assert_array_equal(a, b)
+    with pytest.raises(ValueError, match="per level"):
+        densify([model], CONFIG, series, levels=2, n_samples=1, seed=0)
+
+
 def test_interpolate_and_forecast_layout():
     np.testing.assert_allclose(
         interpolate(np.array([[0.0, 4.0, 0.0]]), 4)[0], [0, 1, 2, 3, 4, 3, 2, 1, 0]

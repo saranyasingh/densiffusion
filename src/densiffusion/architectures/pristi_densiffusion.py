@@ -121,14 +121,18 @@ def densify(model, config, series, *, levels: int, n_samples: int, seed: int):
 
     The first refinement draws n_samples realisations; each realisation is
     then refined once per level, so level k holds 2**k-times resolution.
+    `model` is one imputer for every level or a sequence of one per level.
     """
+    models = list(model) if isinstance(model, (list, tuple)) else [model] * levels
+    if len(models) != levels:
+        raise ValueError("Pass one imputer, or one per level")
     rng = np.random.default_rng(seed)
     windows = len(series)
     current, results = series, []
-    for level in range(levels):
+    for level, imputer in enumerate(models):
         draws = n_samples if level == 0 else 1
         fine = refine(
-            model, config, current, n_samples=draws, seed=int(rng.integers(2**62))
+            imputer, config, current, n_samples=draws, seed=int(rng.integers(2**62))
         )
         current = fine.reshape(-1, fine.shape[-1])
         results.append(current.reshape(windows, n_samples, -1))
