@@ -21,6 +21,11 @@ Each series is observed at every other step (spacing 2*dt). The script
 5. forecasts `horizon` steps past the end of every imputed series and saves
    the draws to OUTPUT/forecast.npz.
 
+With `--history observed`, steps 2 and 4 skip imputation: the forecaster is
+fine-tuned on, and forecasts from, the observed points alone (spacing 2*dt),
+and `context` and `horizon` count observed points. Scores then cover the
+observed times in the held-out tail.
+
 Existing checkpoints are reused, so later runs skip training.
 """
 
@@ -139,8 +144,14 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--window-length", type=int, default=65)
     parser.add_argument("--stride", type=int, default=64)
-    parser.add_argument("--context", type=int, default=33)
-    parser.add_argument("--horizon", type=int, default=32)
+    parser.add_argument(
+        "--history",
+        choices=("imputed", "observed"),
+        default="imputed",
+        help="Forecast from the imputed dt grid or the observed 2*dt grid",
+    )
+    parser.add_argument("--context", type=int, help="Default 33 imputed, 17 observed")
+    parser.add_argument("--horizon", type=int, help="Default 32 imputed, 16 observed")
     parser.add_argument("--forecast-stride", type=int, default=8)
     parser.add_argument("--epochs", type=int, default=40)
     parser.add_argument("--forecaster-epochs", type=int, default=20)
@@ -159,7 +170,11 @@ def main() -> None:
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
-    if args.horizon % 2:
+    imputed_history = args.history == "imputed"
+    step = 1 if imputed_history else 2
+    args.context = args.context or (33 if imputed_history else 17)
+    args.horizon = args.horizon or (32 if imputed_history else 16)
+    if imputed_history and args.horizon % 2:
         parser.error("--horizon must be even so test histories end on observations")
 
     args.output.mkdir(parents=True, exist_ok=True)
@@ -210,25 +225,29 @@ def main() -> None:
     )
     imputer_sampler = DDPMSampler(imputer, sample_config)
 
-    logging.info("Imputing %d series of length %d", len(values), length)
-    imputed = impute_alternate(
-        coarse,
-        imputer_sampler,
-        window=args.window_length,
-        n_samples=1,
-        dt=dt,
-        seed=seeds[0],
-    )[:, 0]
-    np.savez_compressed(
-        args.output / "imputed.npz",
-        values=imputed,
-        times=np.arange(length) * dt,
-        observed=~hidden[0, :, 0],
-    )
+    if imputed_history:
+        logging.info("Imputing %d series of length %d", len(values), length)
+        series = impute_alternate(
+            coarse,
+            imputer_sampler,
+            window=args.window_length,
+            n_samples=1,
+            dt=dt,
+            seed=seeds[0],
+        )[:, 0]
+        np.savez_compressed(
+            args.output / "imputed.npz",
+            values=series,
+            times=np.arange(length) * dt,
+            observed=~hidden[0, :, 0],
+        )
+    else:
+        series = values[:, ::2]
+    grid_dt = step * dt
 
     window = args.context + args.horizon
     forecast_mask = np.arange(window) >= args.context
-    imputed_train, imputed_validation, _ = split_data(imputed, **SPLITS)
+    series_train, series_validation, _ = split_data(series, **SPLITS)
     forecaster = build_model(channels, args)
     forecaster.load_state_dict(imputer.state_dict())
     forecaster = fit(
@@ -236,44 +255,51 @@ def main() -> None:
         args.output / "forecaster.pt",
         *(
             make_windows(split, window_length=window, stride=args.forecast_stride)
-            for split in (imputed_train, imputed_validation)
+            for split in (series_train, series_validation)
         ),
         config=replace(
             config,
             epochs=args.forecaster_epochs,
             learning_rate=args.forecaster_learning_rate,
         ),
-        dt=dt,
+        dt=grid_dt,
         seed=args.seed,
         mask=forecast_mask,
     )
     forecaster_sampler = DDPMSampler(forecaster, sample_config)
 
-    history_length = length - args.horizon
+    history_length = length - step * args.horizon
     logging.info(
-        "Backtesting %d test series: history %d, horizon %d",
+        "Backtesting %d test series: history %d, horizon %d (%s grid)",
         len(test),
         history_length,
         args.horizon,
+        args.history,
     )
-    histories = impute_alternate(
-        test_coarse[:, :history_length],
-        imputer_sampler,
-        window=args.window_length,
-        n_samples=args.n_histories,
-        dt=dt,
-        seed=seeds[1],
-    )
+    if imputed_history:
+        histories = impute_alternate(
+            test_coarse[:, :history_length],
+            imputer_sampler,
+            window=args.window_length,
+            n_samples=args.n_histories,
+            dt=dt,
+            seed=seeds[1],
+        ).reshape(-1, history_length, channels)
+        n_futures = args.n_futures
+    else:
+        histories = test[:, :history_length:2]
+        n_futures = args.n_histories * args.n_futures
     futures = forecast_tail(
-        histories.reshape(-1, history_length, channels),
+        histories,
         forecaster_sampler,
         context=args.context,
         horizon=args.horizon,
-        n_samples=args.n_futures,
-        dt=dt,
+        n_samples=n_futures,
+        dt=grid_dt,
         seed=seeds[2],
     ).reshape(len(test), -1, args.horizon, channels)
-    truth = test[:, history_length:]
+    scored = slice(history_length + step - 1, None, step)
+    truth = test[:, scored]
     last_value = np.broadcast_to(
         test[:, None, history_length - 1 : history_length],
         (len(test), 1, *truth.shape[1:]),
@@ -294,23 +320,23 @@ def main() -> None:
             dt=dt,
             seed=seeds[3],
         )
-        scores["gp_forecast_crps"] = crps(gp_samples[:, :, history_length:], truth)
+        scores["gp_forecast_crps"] = crps(gp_samples[:, :, scored], truth)
     logging.info("%s", scores)
 
     logging.info("Forecasting %d steps past the end of every series", args.horizon)
     forecast = forecast_tail(
-        imputed,
+        series,
         forecaster_sampler,
         context=args.context,
         horizon=args.horizon,
         n_samples=args.n_future_samples,
-        dt=dt,
+        dt=grid_dt,
         seed=seeds[4],
     )
     np.savez_compressed(
         args.output / "forecast.npz",
         samples=forecast,
-        times=(length + np.arange(args.horizon)) * dt,
+        times=(length - 1 + step * np.arange(1, args.horizon + 1)) * dt,
     )
     (args.output / "results.json").write_text(
         json.dumps({**scores, **vars(args)}, indent=2, default=str) + "\n"
