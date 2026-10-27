@@ -8,6 +8,10 @@ covariance is a repository kernel applied to the Euclidean distance between
 pixels (in pixel units). `--mask grid` keeps every other row and column, the
 2D analogue of 2*dt -> dt densification (x2 super-resolution, 3 of 4 pixels
 hidden); `--mask random` hides pixels independently with `--probability`.
+`--mask upsample` observes the whole SIZE x SIZE test image of the grid run
+(same seed) and adds a hidden pixel between every pair of neighbours, giving a
+(2*SIZE-1)-pixel grid. The lengthscale is doubled in fine pixels so observed
+pixels keep their distribution, and the hidden truth is an exact GP draw.
 
 CSDI needs no changes: an image is passed as (batch, time, channels) with rows
 as time and columns as channels, so its temporal and feature attention become
@@ -65,7 +69,7 @@ def sample_fields(covariance, size, n_images, rng) -> np.ndarray:
 
 def make_masks(n_images, size, args, rng) -> np.ndarray:
     """Boolean (images, size, size) masks with True at hidden pixels."""
-    if args.mask == "grid":
+    if args.mask in ("grid", "upsample"):
         mask = np.ones((size, size), dtype=bool)
         mask[::2, ::2] = False
         return np.broadcast_to(mask, (n_images, size, size)).copy()
@@ -131,12 +135,12 @@ def score(samples, images, masks) -> dict[str, float]:
     }
 
 
-def plot_examples(path, images, masks, samples, n_examples=4) -> None:
+def plot_examples(path, images, masks, samples, n_examples=4, observed=None) -> None:
     from matplotlib.figure import Figure
 
     columns = [
         ("Truth", images),
-        ("Observed", np.where(masks, np.nan, images)),
+        ("Observed", np.where(masks, np.nan, images) if observed is None else observed),
         ("Linear interp.", samples["linear_interpolation"][:, 0]),
         ("GP posterior mean", samples["gp_posterior"].mean(axis=1)),
         ("CSDI sample", samples["csdi"][:, 0]),
@@ -164,7 +168,9 @@ def main() -> None:
     parser.add_argument("--kernel", choices=STATIONARY_KERNELS, default="matern_3_2")
     parser.add_argument("--lengthscale", type=float, default=5.0)
     parser.add_argument("--variance", type=float, default=1.0)
-    parser.add_argument("--mask", choices=("grid", "random"), default="grid")
+    parser.add_argument(
+        "--mask", choices=("grid", "random", "upsample"), default="grid"
+    )
     parser.add_argument("--probability", type=float, default=0.75)
     parser.add_argument("--train-images", type=int, default=2000)
     parser.add_argument("--validation-images", type=int, default=200)
@@ -193,10 +199,20 @@ def main() -> None:
             logging.StreamHandler(),
         ],
     )
-    streams = np.random.SeedSequence(args.seed).spawn(5)
+    streams = np.random.SeedSequence(args.seed).spawn(6)
     covariance = pixel_covariance(
         args.size, args.kernel, variance=args.variance, lengthscale=args.lengthscale
     )
+    observed_size = args.size
+    if args.mask == "upsample":
+        coarse_covariance = covariance
+        args.size = 2 * observed_size - 1
+        covariance = pixel_covariance(
+            args.size,
+            args.kernel,
+            variance=args.variance,
+            lengthscale=2 * args.lengthscale,
+        )
     splits = {}
     for stream, (split, n_images) in zip(
         streams[:3],
@@ -208,8 +224,18 @@ def main() -> None:
         strict=True,
     ):
         rng = np.random.default_rng(stream)
-        images = sample_fields(covariance, args.size, n_images, rng)
-        splits[split] = (images, make_masks(n_images, args.size, args, rng))
+        if args.mask == "upsample" and split == "test":
+            coarse = sample_fields(coarse_covariance, observed_size, n_images, rng)
+            masks = make_masks(n_images, args.size, args, rng)
+            images = np.zeros((n_images, args.size, args.size))
+            images[:, ::2, ::2] = coarse
+            images = gp_posterior_samples(
+                images, masks, covariance, 1, np.random.default_rng(streams[5])
+            )[:, 0]
+        else:
+            images = sample_fields(covariance, args.size, n_images, rng)
+            masks = make_masks(n_images, args.size, args, rng)
+        splits[split] = (images, masks)
     (train, train_mask), (validation, validation_mask), (test, test_mask) = (
         splits[split] for split in ("train", "validation", "test")
     )
@@ -302,20 +328,29 @@ def main() -> None:
 
     if args.no_plot:
         return
-    plot_examples(args.output / "examples.png", test, test_mask, samples)
+    plot_examples(
+        args.output / "examples.png",
+        test,
+        test_mask,
+        samples,
+        observed=test[:, ::2, ::2] if args.mask == "upsample" else None,
+    )
     from plot_forecast_table import render_table
 
     best = scores["gp_posterior"]["crps"]
     rows = ("gp_posterior", "csdi", "linear_interpolation")
-    hidden = (
-        "every other row and column observed (x2 super-resolution)"
-        if args.mask == "grid"
-        else f"{100 * args.probability:.0f}% of pixels hidden at random"
-    )
+    hidden = {
+        "grid": "every other row and column observed (x2 super-resolution)",
+        "upsample": (
+            f"full {observed_size}×{observed_size} images observed, "
+            "new pixels added between them (x2 super-resolution)"
+        ),
+        "random": f"{100 * args.probability:.0f}% of pixels hidden at random",
+    }[args.mask]
     render_table(
         [
             "Exact GP posterior\n(best possible)",
-            "CSDI" + (" ×2\ndensified" if args.mask == "grid" else ""),
+            "CSDI" + (" ×2\ndensified" if args.mask != "random" else ""),
             "Linear interpolation",
         ],
         [
@@ -337,7 +372,8 @@ def main() -> None:
         title="CSDI image imputation",
         subtitle=(
             f"{KERNEL_NAMES[args.kernel]} Gaussian random field, lengthscale "
-            f"{args.lengthscale:g} px, variance {args.variance:g}\n"
+            f"{args.lengthscale:g} px of the {observed_size}×{observed_size} "
+            f"grid, variance {args.variance:g}\n"
             f"{len(test)} test images of {args.size}×{args.size} pixels; {hidden}"
         ),
         output=args.output / "table.png",

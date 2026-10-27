@@ -149,7 +149,30 @@ def render_table(
         min(candidates, key=lambda row, scores=scores: scores[row][1])
         for _, scores in datasets
     ]
-    width = max(7.0, 2.8 + 2.9 * len(datasets))
+    draw_table(
+        rows,
+        columns,
+        bold={
+            (winner, column)
+            for index, winner in enumerate(winners)
+            for column in (1 + 2 * index, 2 + 2 * index)
+        },
+        widths=[0.58, 0.42] * len(datasets),
+        title=title,
+        subtitle=subtitle,
+        footnote=footnote,
+        output=output,
+    )
+
+
+def draw_table(
+    rows, columns, *, bold, widths, title, subtitle, output, footnote=None
+) -> None:
+    """Draw text rows under bold column labels; `bold` holds (row, column) cells.
+
+    The first column holds row names; `widths` are relative widths of the rest.
+    """
+    width = max(7.0, 2.8 + 2.9 * sum(widths))
     subtitle_lines = subtitle.count("\n") + 1
     margin = 0.6 if footnote else 0.15
     header = 0.55 + 0.2 * subtitle_lines
@@ -168,8 +191,7 @@ def render_table(
     table = axes.table(
         cellText=rows,
         colLabels=columns,
-        colWidths=[first]
-        + [(1 - first) / len(datasets) * f for f in (0.58, 0.42)] * len(datasets),
+        colWidths=[first] + [(1 - first) * w / sum(widths) for w in widths],
         cellLoc="left",
         loc="upper center",
         bbox=(0, 0, 1, 1),
@@ -187,7 +209,7 @@ def render_table(
             text.set_weight("bold")
             text.set_horizontalalignment("center")
             cell._loc = "center"
-        elif column > 0 and row - 1 == winners[(column - 1) // 2]:
+        elif (row - 1, column) in bold:
             text.set_weight("bold")
     if footnote:
         figure.text(left, 0.15 / height, footnote, fontsize=9, color=TEXT, va="bottom")

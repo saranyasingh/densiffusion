@@ -9,6 +9,7 @@ build/
 dist/
 /data/
 /outputs/
+/logs/
 *.ckpt
 *.pt
 .env
