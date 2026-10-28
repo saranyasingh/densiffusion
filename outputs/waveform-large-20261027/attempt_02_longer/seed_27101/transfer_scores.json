@@ -1,0 +1,43 @@
+{
+  "data_seed": 2491000545,
+  "tasks": {
+    "history": {
+      "learned": {
+        "crps": 0.04804888412015493,
+        "mse": 0.007028577776939132,
+        "coverage_90": 0.69287109375,
+        "interval_width_90": 0.17290193453742445
+      },
+      "linear": {
+        "crps": 0.03269718887591592,
+        "mse": 0.0016735078073308377,
+        "coverage_90": 0.0,
+        "interval_width_90": 0.0
+      },
+      "sampling_seconds": 402.2143715839484,
+      "sampling_seed": 4033983955,
+      "observations_preserved": true,
+      "crps_ratio": 1.4695111650881632,
+      "mse_ratio": 4.19990737189889
+    },
+    "anchored_future": {
+      "learned": {
+        "crps": 0.06261674578141405,
+        "mse": 0.011589313860136374,
+        "coverage_90": 0.5830078125,
+        "interval_width_90": 0.16268548574923894
+      },
+      "linear": {
+        "crps": 0.03331990474267778,
+        "mse": 0.0017314956927718286,
+        "coverage_90": 0.0,
+        "interval_width_90": 0.0
+      },
+      "sampling_seconds": 134.7542760000215,
+      "sampling_seed": 2590484562,
+      "observations_preserved": true,
+      "crps_ratio": 1.8792594476181508,
+      "mse_ratio": 6.693238630922531
+    }
+  }
+}

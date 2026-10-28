@@ -1,0 +1,29 @@
+{
+  "raw": {
+    "observed_argument_sha256": "f25fafcf976bb79ca2912eff2511345c68c7d2ea4ecf225ed27c36e7581474e3",
+    "dense_history_argument_sha256": "f25fafcf976bb79ca2912eff2511345c68c7d2ea4ecf225ed27c36e7581474e3",
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 64,
+    "horizon": 8,
+    "sampling_seed": 191492941
+  },
+  "learned": {
+    "observed_argument_sha256": "747d05ca9def400328781fb861a65a26b3bfab539d96fb349115779b1c1c793e",
+    "dense_history_argument_sha256": "747d05ca9def400328781fb861a65a26b3bfab539d96fb349115779b1c1c793e",
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 64,
+    "horizon": 8,
+    "sampling_seed": 191492941
+  },
+  "median": {
+    "observed_argument_sha256": "cf57215e85d5be7fc981b3eba06b0f4dbc889f8289eb001e946bfe46cbb199f7",
+    "dense_history_argument_sha256": "cf57215e85d5be7fc981b3eba06b0f4dbc889f8289eb001e946bfe46cbb199f7",
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 64,
+    "horizon": 8,
+    "sampling_seed": 191492941
+  }
+}

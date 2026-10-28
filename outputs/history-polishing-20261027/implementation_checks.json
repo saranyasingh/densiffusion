@@ -1,0 +1,28 @@
+{
+  "recorded_utc": "2026-10-27T18:28:04.289650+00:00",
+  "full_suite": {
+    "command": "uv run --locked pytest -o addopts='' -q",
+    "passed": 517,
+    "seconds": 10.95,
+    "exit_code": 0
+  },
+  "ruff_check": {
+    "command": "uv run --locked ruff check src scripts tests",
+    "exit_code": 0
+  },
+  "ruff_format": {
+    "command": "uv run --locked ruff format --check src scripts tests",
+    "files": 80,
+    "exit_code": 0
+  },
+  "diff_check": {
+    "command": "git diff --check",
+    "exit_code": 0
+  },
+  "real_mps_smoke": {
+    "path": "smoke",
+    "independent_verification": "smoke/verification.json",
+    "analysis": "smoke/analysis.json",
+    "scope": "Integration only; accuracy is not scientific evidence"
+  }
+}

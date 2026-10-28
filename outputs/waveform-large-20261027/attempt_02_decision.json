@@ -1,0 +1,9 @@
+{
+  "validation_gate_passed": false,
+  "observed_issue": "Learned imputation is poor on both first32 training and validation trajectories. Permuting observations worsens CRPS, so conditioning has a measurable effect, but this does not establish useful interpolation. No concrete mask/schedule/sampler bug found.",
+  "diagnostic_only_data": "original training and validation observations; no test or fine truth",
+  "action": "Run the sole predeclared bounded adjustment: fresh600epoch models with same largerarchitecture/data/optimizer/diffusion recipe; LRdrops450/540; allstepvalidationevery10; fourCRPSopportunities150/300/450/600.",
+  "not_claimed": "Neither the diagnostic nor the longer budget proves the cause of failure or convergence.",
+  "config": "configs/waveform_imputation_large_longer.json",
+  "stop_rule": "If all-three-seed validation gate fails again, stop without fine-grid transfer or forecasting."
+}

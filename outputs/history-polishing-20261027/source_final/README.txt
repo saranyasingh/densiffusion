@@ -1,0 +1,1 @@
+Post-execution source snapshot, including finalized repository documentation. The original pre-training snapshot remains in primary/source.tar.gz; exact analysis-source provenance is recorded in ../runtime_source_check.json.

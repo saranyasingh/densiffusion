@@ -1,0 +1,39 @@
+History polishing forecast analysis
+Protocol completeness: complete
+Targets: saved noisy future observations; no clean signals.
+
+Equal-seed mean scores (seed SD and range are descriptive):
+raw
+  crps: 0.487591; SD=None; range=[0.487591, 0.487591]
+  mse: 0.553169; SD=None; range=[0.553169, 0.553169]
+  coverage_90: 0.593750; SD=None; range=[0.593750, 0.593750]
+  interval_width_90: 1.331258; SD=None; range=[1.331258, 1.331258]
+learned
+  crps: 0.489365; SD=None; range=[0.489365, 0.489365]
+  mse: 0.541361; SD=None; range=[0.541361, 0.541361]
+  coverage_90: 0.500000; SD=None; range=[0.500000, 0.500000]
+  interval_width_90: 1.195341; SD=None; range=[1.195341, 1.195341]
+median
+  crps: 0.482795; SD=None; range=[0.482795, 0.482795]
+  mse: 0.546377; SD=None; range=[0.546377, 0.546377]
+  coverage_90: 0.531250; SD=None; range=[0.531250, 0.531250]
+  interval_width_90: 1.301976; SD=None; range=[1.301976, 1.301976]
+
+Per-seed paired CRPS differences (first minus second):
+  seed_29199 learned-minus-raw: +0.001775, 95% CI [-0.042555, +0.053193]
+  seed_29199 learned-minus-median: +0.006570, 95% CI [-0.010722, +0.025461]
+  seed_29199 median-minus-raw: -0.004796, 95% CI [-0.060564, +0.057928]
+
+Costs (mean worker seconds across available seeds):
+  mediator_training_seconds: 0.032
+  preprocessing_seconds: raw=0.000, learned=0.000, median=0.005
+  forecaster_training_seconds: raw=0.832, learned=0.841, median=0.829
+  validation_sampling_seconds: raw=0.045, learned=0.046, median=0.045
+  test_preprocessing_seconds: raw=0.000, learned=0.000, median=0.000
+  test_inference_seconds: raw=0.022, learned=0.022, median=0.022
+  method_total_seconds: raw=0.854, learned=0.896, median=0.856
+Validation sampling is already included in forecaster training totals.
+Paired trajectory intervals condition on models, preprocessing, and saved draws; they are unadjusted across comparisons/metrics. Seed variation is separate.
+Finite ensembles affect quantiles and CRPS. Validation checkpoint selection and completed budgets do not establish convergence.
+Full per-horizon, per-trajectory, cost, and paired results: analysis.json
+Plots: plots/representative_forecasts.svg, plots/per_horizon.svg, plots/validation_crps.svg

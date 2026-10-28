@@ -1,0 +1,32 @@
+{
+  "frozen_utc": "2026-10-27T16:06:35.928400+00:00",
+  "config_sha256": "83c26f1e7b0583ad01aaabf47ee1d88a7887d38944dca605346c673b554d73ae",
+  "analysis_sha256": "112315edb497d09919575260e18a4a49e56577787c4771dd7aa69da2cc4f3ce2",
+  "checkpoint_sha256": {
+    "seed_27101/densifier.pt": "eecb6976ae85903927b7213423ef99f4f542223027c5cf3935e292afeadd8077"
+  },
+  "validation_gate": {
+    "passed": false,
+    "criteria": {
+      "exactly_three_paired_seeds": false,
+      "configured_seed_inventory_complete": true,
+      "learned_crps_lower_in_every_seed": false,
+      "mean_relative_crps_reduction_at_least_threshold": false,
+      "every_seed_ci95_upper_below_zero": false
+    },
+    "minimum_relative_improvement": 0.05,
+    "mean_learned_crps": 0.6644206350244048,
+    "mean_linear_crps": 0.0981464699494771,
+    "relative_crps_reduction": -5.769684486527422,
+    "observed_seeds": [
+      27101
+    ],
+    "expected_seeds": [
+      27101
+    ],
+    "scope": "Predeclared validation-only development decision, not a confirmatory test claim.",
+    "ratio_definition": "1 - equal-seed mean learned trajectory CRPS / equal-seed mean linear trajectory CRPS",
+    "transfer_scores_used": false
+  },
+  "fine_grid_truth_generated": false
+}

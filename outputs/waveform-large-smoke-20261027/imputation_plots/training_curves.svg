@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="405" viewBox="0 0 1120 405">
+<title>Imputation training and validation curves</title>
+<rect width="100%" height="100%" fill="white"/>
+<style>text {font-family:Arial,sans-serif;fill:#263238;font-size:12px}</style>
+<text x="32" y="30" style="font-size:20px;font-weight:bold">Imputation training and validation curves</text>
+<text x="32" y="53">Left: train noise MSE (green), validation noise MSE (gray). Right: original-grid validation CRPS candidates.</text>
+<text x="54" y="92">seed_27101</text>
+<path d="M 54 330.0 h 487" stroke="#e9ecef"/>
+<text x="47" y="334.0" text-anchor="end">0.99</text>
+<path d="M 54 273.24999999999983 h 487" stroke="#e9ecef"/>
+<text x="47" y="277.24999999999983" text-anchor="end">1.02</text>
+<path d="M 54 216.5 h 487" stroke="#e9ecef"/>
+<text x="47" y="220.5" text-anchor="end">1.06</text>
+<path d="M 54 159.7500000000002 h 487" stroke="#e9ecef"/>
+<text x="47" y="163.7500000000002" text-anchor="end">1.09</text>
+<path d="M 54 103.0 h 487" stroke="#e9ecef"/>
+<text x="47" y="107.0" text-anchor="end">1.13</text>
+<text x="54.0" y="349" text-anchor="middle">1.00</text>
+<text x="175.75" y="349" text-anchor="middle">1.25</text>
+<text x="297.5" y="349" text-anchor="middle">1.50</text>
+<text x="419.25" y="349" text-anchor="middle">1.75</text>
+<text x="541.0" y="349" text-anchor="middle">2.00</text>
+<path d="M 54 103 v 227 h 487" stroke="#868e96" fill="none"/>
+<text x="297.5" y="374" text-anchor="middle">Epoch</text>
+<text transform="translate(13,216.5) rotate(-90)" text-anchor="middle">noise MSE</text>
+<polyline points="54.00,119.76 541.00,191.98" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<polyline points="54.00,313.02 541.00,313.24" fill="none" stroke="#495057" stroke-width="1.8"/>
+<text x="614" y="92">seed_27101</text>
+<path d="M 614 330.0 h 487" stroke="#e9ecef"/>
+<text x="607" y="334.0" text-anchor="end">0.65</text>
+<path d="M 614 273.25 h 487" stroke="#e9ecef"/>
+<text x="607" y="277.25" text-anchor="end">0.66</text>
+<path d="M 614 216.5 h 487" stroke="#e9ecef"/>
+<text x="607" y="220.5" text-anchor="end">0.66</text>
+<path d="M 614 159.75 h 487" stroke="#e9ecef"/>
+<text x="607" y="163.75" text-anchor="end">0.67</text>
+<path d="M 614 103.0 h 487" stroke="#e9ecef"/>
+<text x="607" y="107.0" text-anchor="end">0.67</text>
+<text x="614.0" y="349" text-anchor="middle">1.00</text>
+<text x="735.75" y="349" text-anchor="middle">1.25</text>
+<text x="857.5" y="349" text-anchor="middle">1.50</text>
+<text x="979.25" y="349" text-anchor="middle">1.75</text>
+<text x="1101.0" y="349" text-anchor="middle">2.00</text>
+<path d="M 614 103 v 227 h 487" stroke="#868e96" fill="none"/>
+<text x="857.5" y="374" text-anchor="middle">Epoch</text>
+<text transform="translate(573,216.5) rotate(-90)" text-anchor="middle">validation CRPS</text>
+<polyline points="614.00,216.15 1101.00,216.85" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<circle cx="614.0" cy="216.145239932471" r="3" fill="#087f5b"/>
+<circle cx="1101.0" cy="216.854760067529" r="3" fill="#087f5b"/>
+</svg>

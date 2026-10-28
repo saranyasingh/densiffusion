@@ -1,0 +1,226 @@
+{
+  "small_cpu_33_forward": {
+    "batch": 256,
+    "seconds_per_batch": [
+      0.010730985998331258,
+      0.010812500006674478,
+      0.010806916669631997,
+      0.010686472000088543,
+      0.010736555326730013
+    ],
+    "median_seconds_per_batch": 0.010736555326730013,
+    "scope": "native forward",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "small_cpu_33_train": {
+    "batch": 64,
+    "seconds_per_batch": [
+      0.01055570833462601,
+      0.01143988900973151,
+      0.011150597323042652,
+      0.011106319337462386,
+      0.011350222009544572
+    ],
+    "median_seconds_per_batch": 0.011150597323042652,
+    "scope": "native forward/backward/Adam/clip",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "small_cpu_65_forward": {
+    "batch": 256,
+    "seconds_per_batch": [
+      0.022569374996237457,
+      0.0224554863331529,
+      0.021893444665086765,
+      0.021662875001008313,
+      0.02181011133749659
+    ],
+    "median_seconds_per_batch": 0.021893444665086765,
+    "scope": "native forward",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "small_cpu_65_train": {
+    "batch": 64,
+    "seconds_per_batch": [
+      0.020710749997912597,
+      0.02085383333421002,
+      0.020032069315978635,
+      0.020343958322579663,
+      0.0211740416707471
+    ],
+    "median_seconds_per_batch": 0.020710749997912597,
+    "scope": "native forward/backward/Adam/clip",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "small_mps_33_forward": {
+    "batch": 256,
+    "seconds_per_batch": [
+      0.004538722336292267,
+      0.004437111007670562,
+      0.0039255556572849555,
+      0.0038240973372012377,
+      0.0038084306676561632
+    ],
+    "median_seconds_per_batch": 0.0039255556572849555,
+    "scope": "native forward",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "small_mps_33_train": {
+    "batch": 64,
+    "seconds_per_batch": [
+      0.010728347328646729,
+      0.01054895834143584,
+      0.01053293066797778,
+      0.010506485996302217,
+      0.010550971996660033
+    ],
+    "median_seconds_per_batch": 0.01054895834143584,
+    "scope": "native forward/backward/Adam/clip",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "small_mps_65_forward": {
+    "batch": 256,
+    "seconds_per_batch": [
+      0.005005360988434404,
+      0.004859763993105541,
+      0.0049229583237320185,
+      0.004881833350130667,
+      0.004912791676664104
+    ],
+    "median_seconds_per_batch": 0.004912791676664104,
+    "scope": "native forward",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "small_mps_65_train": {
+    "batch": 64,
+    "seconds_per_batch": [
+      0.011119194348187497,
+      0.010960888660823306,
+      0.012163180663871268,
+      0.011508138986149183,
+      0.011478471996573111
+    ],
+    "median_seconds_per_batch": 0.011478471996573111,
+    "scope": "native forward/backward/Adam/clip",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "large_cpu_33_forward": {
+    "batch": 256,
+    "seconds_per_batch": [
+      0.07628900000903134,
+      0.07737366666939731,
+      0.07651972233240183,
+      0.0762024443441381,
+      0.07667302767125268
+    ],
+    "median_seconds_per_batch": 0.07651972233240183,
+    "scope": "native forward",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "large_cpu_33_train": {
+    "batch": 64,
+    "seconds_per_batch": [
+      0.06688995833974332,
+      0.06563194466677184,
+      0.06704429166469102,
+      0.06870565299565594,
+      0.06610765265456091
+    ],
+    "median_seconds_per_batch": 0.06688995833974332,
+    "scope": "native forward/backward/Adam/clip",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "large_cpu_65_forward": {
+    "batch": 256,
+    "seconds_per_batch": [
+      0.15771212498657405,
+      0.15474612500596172,
+      0.15543148598711318,
+      0.15478586098955324,
+      0.15310159733053297
+    ],
+    "median_seconds_per_batch": 0.15478586098955324,
+    "scope": "native forward",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "large_cpu_65_train": {
+    "batch": 64,
+    "seconds_per_batch": [
+      0.13593826400271306,
+      0.13661637500626966,
+      0.13627227766361708,
+      0.13609136099694297,
+      0.13735544466180727
+    ],
+    "median_seconds_per_batch": 0.13627227766361708,
+    "scope": "native forward/backward/Adam/clip",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "large_mps_33_forward": {
+    "batch": 256,
+    "seconds_per_batch": [
+      0.011609194664439807,
+      0.011519888998009264,
+      0.011646485984480629,
+      0.0118676806644847,
+      0.01175115267202879
+    ],
+    "median_seconds_per_batch": 0.011646485984480629,
+    "scope": "native forward",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "large_mps_33_train": {
+    "batch": 64,
+    "seconds_per_batch": [
+      0.02140620832021038,
+      0.020199513994157314,
+      0.01999859733041376,
+      0.020446472335606813,
+      0.020501833331460755
+    ],
+    "median_seconds_per_batch": 0.020446472335606813,
+    "scope": "native forward/backward/Adam/clip",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "large_mps_65_forward": {
+    "batch": 256,
+    "seconds_per_batch": [
+      0.027890958338199805,
+      0.02784576367897292,
+      0.028023958341994632,
+      0.027902208326850086,
+      0.027790152991656214
+    ],
+    "median_seconds_per_batch": 0.027890958338199805,
+    "scope": "native forward",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  },
+  "large_mps_65_train": {
+    "batch": 64,
+    "seconds_per_batch": [
+      0.02453700000963484,
+      0.02501966666507845,
+      0.02511255567272504,
+      0.02503062499454245,
+      0.02503716666251421
+    ],
+    "median_seconds_per_batch": 0.02503062499454245,
+    "scope": "native forward/backward/Adam/clip",
+    "warmup_steps": 3,
+    "steps_per_repetition": 3
+  }
+}

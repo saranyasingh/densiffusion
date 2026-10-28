@@ -1,0 +1,38 @@
+{
+  "frozen_utc": "2026-10-27T17:01:54.908199+00:00",
+  "config_sha256": "f1c05956a1718cd0cc3c332f980e10bc3b54aabd17c7a2fca92c8881d8db9495",
+  "analysis_sha256": "c8212d1cc8888e2b3af34d3142e78b7f616657e28773a0bdb7d04e00ced64445",
+  "checkpoint_sha256": {
+    "seed_27101/densifier.pt": "5aec83059188992946807a0a569368cf28c56fb468ff7b771899b909c1b1a693",
+    "seed_27102/densifier.pt": "5fe728a9f1f465f1932243bd55cb42b62800380aac70639622f310c43679432c",
+    "seed_27103/densifier.pt": "29c3351b5502cab6f146d0e487ca5341932eb50973ac079757f5637eee2061e5"
+  },
+  "validation_gate": {
+    "passed": true,
+    "criteria": {
+      "exactly_three_paired_seeds": true,
+      "configured_seed_inventory_complete": true,
+      "learned_crps_lower_in_every_seed": true,
+      "mean_relative_crps_reduction_at_least_threshold": true,
+      "every_seed_ci95_upper_below_zero": true
+    },
+    "minimum_relative_improvement": 0.05,
+    "mean_learned_crps": 0.018464459432685404,
+    "mean_linear_crps": 0.09763851499722616,
+    "relative_crps_reduction": 0.810889591743484,
+    "observed_seeds": [
+      27101,
+      27102,
+      27103
+    ],
+    "expected_seeds": [
+      27101,
+      27102,
+      27103
+    ],
+    "scope": "Predeclared validation-only development decision, not a confirmatory test claim.",
+    "ratio_definition": "1 - equal-seed mean learned trajectory CRPS / equal-seed mean linear trajectory CRPS",
+    "transfer_scores_used": false
+  },
+  "fine_grid_truth_generated": false
+}

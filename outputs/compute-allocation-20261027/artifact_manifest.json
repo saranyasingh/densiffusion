@@ -1,0 +1,24 @@
+{
+  "files": {
+    "REPORT.md": "a3294a40296f75bdaea220427a990f5e0d2aa3c0cfca24bc9b6600a5a29620dd",
+    "audit.json": "afd7bb11340ab99a969b1c0a8c4e4fd806b47c631502f373a065ec206a4032f8",
+    "audit_compute_allocation.py": "d4c8bd36d6ea47e5d93e7d29c328e950b8ca36b91762325de90b4a26e60107fc",
+    "budget_frontiers.svg": "3a921793f8e121d35d1a522c5f9d88220265a380d3097f489558b9300f3e41df",
+    "budget_frontiers.svg.png": "4b9c6346b6fe780f54a15ba2fed05259460aef06d1a08aeb7b64fbdd7c16a694",
+    "final_checks.json": "2ae52ffc3167b97ad95daf59d9bfaac545f5d0830dc3e8fe62ccc3ea4bd45087",
+    "git_diff.patch": "e564e3975f8d3c33fda36eb9e5066eced2e0f7a44225561234b758f718ac8d36",
+    "git_head.txt": "2f9590a9a8e92bcb4f09c1bd3ecd586acc23eeed3aec66b283ac3b8781a3c1f0",
+    "kernel_benchmarks.json": "e5ff202d91e7d0441b76b0317c60e7b404009f6b540456e73a2998819398d6f3",
+    "protected_artifacts.json": "93934ebd87ec0aaefea80e23e1bd5181b5cae7c9bd0cc6ef490739fd8f4a32fd",
+    "protocol.json": "87ca5ad2d56b6902d471ba0b6934119354358d7539fc2f8dd6f5d8a0f14655e4",
+    "source.tar.gz": "ccc3dbf43e7d4f526fde9f2ba707b6f02bf9656a11954a6344959d5c1765b58c",
+    "source_final/NOTES.txt": "3190c1aa2d6dcde59903db705a2a5db277c065413c0deebd6eff998c4504873f",
+    "source_final/git_diff.patch": "e564e3975f8d3c33fda36eb9e5066eced2e0f7a44225561234b758f718ac8d36",
+    "source_final/git_head.txt": "2f9590a9a8e92bcb4f09c1bd3ecd586acc23eeed3aec66b283ac3b8781a3c1f0",
+    "source_final/source.tar.gz": "80f83f702e08012bd5361d1fe2c8cc60a0ecfad71b333787431e69b252fa4022",
+    "verification.json": "b6c1c4c3876e89e9ae2e2de05e26977eebf83f6b91f9ef15cfd66ae6613bda7e",
+    "work_profiles.json": "af86c2ed080008051b89e1aac48b5a1dc154b74d736599be5024f1d8f5cb26e0"
+  },
+  "file_count": 18,
+  "scope": "all delivered audit files except this manifest"
+}

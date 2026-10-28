@@ -1,0 +1,156 @@
+{
+  "recorded_utc": "2026-10-28T02:02:31.571361+00:00",
+  "status": "fixed before scientific data generation or fitting",
+  "configuration": {
+    "seeds": [
+      29101,
+      29102,
+      29103
+    ],
+    "namespace": 2026102801,
+    "n_train": 256,
+    "n_validation": 256,
+    "n_test": 2048,
+    "context_length": 32,
+    "horizon": 8,
+    "dt": 1.0,
+    "base_epochs": 1200,
+    "batch_size": 64,
+    "validation_interval": 10,
+    "validation_epochs_prefix": [
+      10,
+      50,
+      100,
+      200,
+      400,
+      800
+    ],
+    "samples": 64,
+    "sample_batch_size": 1024,
+    "diffusion_steps": 50,
+    "device": "mps",
+    "threads": 1,
+    "smoke": false
+  },
+  "reference_plan_selected_width_64": {
+    "ceiling": 173320595046400.0,
+    "auxiliary": {
+      "candidate_training": 117650227200.0,
+      "candidate_validation": 4590665728.0,
+      "train_validation_preprocessing": 161480704.0,
+      "total": 122402373632.0
+    },
+    "methods": {
+      "raw": {
+        "epochs": 1200,
+        "optimizer_updates": 4800,
+        "validation_epochs": [
+          10,
+          50,
+          100,
+          200,
+          400,
+          800,
+          1200
+        ],
+        "noise_validation_count": 120,
+        "work": {
+          "setup": 0.0,
+          "optimization": 19486841241600.0,
+          "noise_validation": 32500088832000.0,
+          "forecast_validation": 121333664972800.0,
+          "total": 173320595046400.0
+        },
+        "unused_work": 0.0,
+        "unused_fraction": 0.0
+      },
+      "learned": {
+        "epochs": 1192,
+        "optimizer_updates": 4768,
+        "validation_epochs": [
+          10,
+          50,
+          100,
+          200,
+          400,
+          800,
+          1192
+        ],
+        "noise_validation_count": 120,
+        "work": {
+          "setup": 122402373632.0,
+          "optimization": 19356928966656.0,
+          "noise_validation": 32500088832000.0,
+          "forecast_validation": 121333664972800.0,
+          "total": 173313085145088.0
+        },
+        "unused_work": 7509901312.0,
+        "unused_fraction": 4.3329538015891934e-05
+      },
+      "median": {
+        "epochs": 1200,
+        "optimizer_updates": 4800,
+        "validation_epochs": [
+          10,
+          50,
+          100,
+          200,
+          400,
+          800,
+          1200
+        ],
+        "noise_validation_count": 120,
+        "work": {
+          "setup": 0.0,
+          "optimization": 19486841241600.0,
+          "noise_validation": 32500088832000.0,
+          "forecast_validation": 121333664972800.0,
+          "total": 173320595046400.0
+        },
+        "unused_work": 0.0,
+        "unused_fraction": 0.0
+      }
+    }
+  },
+  "mediator_candidates": {
+    "widths": [
+      32,
+      64
+    ],
+    "losses": [
+      "mse",
+      "huber_delta_0.2"
+    ],
+    "epochs_each": 200,
+    "selection": "masked noisy-center validation reconstruction MSE",
+    "entire_search_charged": true
+  },
+  "forecast_selection": "7 original-grid validation CRPS scores with 64 draws each, including early checkpoints; ties first",
+  "checkpoint_rule": "minimum validation CRPS, never denoising loss",
+  "all_choices_frozen_before_test_generation": true,
+  "primary_comparisons": [
+    "learned-minus-raw CRPS",
+    "learned-minus-median CRPS"
+  ],
+  "secondary_metrics": [
+    "MSE",
+    "coverage_90",
+    "interval_width_90",
+    "per_horizon"
+  ],
+  "bootstrap": {
+    "replicates": 10000,
+    "unit": "whole test trajectory, paired methods and all horizons",
+    "scope": "conditional on fitted models and saved draws",
+    "multiple_comparisons": "unadjusted"
+  },
+  "conclusion_rule": "report all seed directions and paired intervals; no universal optimality or convergence claim",
+  "compute_definition": "full in-run dense matrix FLOPs, one multiply plus add=2; raw/median epochs1200, learned maximal affordable whole epochs, residual less than0.01%; wall and deployment recorded separately",
+  "not_equal_energy_memory_or_wall_time": true,
+  "scientific_run_has_no_quality_based_adjustments": true,
+  "script_sha256": {
+    "src/densiffusion/budgeted_polishing.py": "a137f8585262734890bfe94d2bab50ca56fefef41ce10f0174ad723ea4f285a0",
+    "scripts/train_budgeted_polishing.py": "4d17da63ec43eb049ce6033b25141c455192b68fed2696e7872b027af7fe4aa4",
+    "scripts/verify_budgeted_polishing.py": "3e960c21583cf6e9d1f5fd3046c2b4ae96cbc2bff3e4d96799244e804031bcc1"
+  }
+}

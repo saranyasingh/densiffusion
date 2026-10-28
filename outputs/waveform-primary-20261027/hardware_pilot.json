@@ -1,0 +1,10 @@
+{
+  "purpose": "hardware timing only; no forecast tuning or test evaluation",
+  "cpu_seconds": 1.0457204169942997,
+  "mps_seconds": 2.957577000022866,
+  "setup": "16-channel 2-layer model; 4epochs;256 random65-point trajectories;batch64;1 CPUthread;includes setup/warmup",
+  "decision": "CPU; three independent seed processes each one Torch thread",
+  "cpu": "Apple M1 Max",
+  "logical_cpus": 10,
+  "memory_bytes": 68719476736
+}

@@ -1,0 +1,174 @@
+diff --git a/src/densiffusion/training.py b/src/densiffusion/training.py
+index 8a33928..2eae1b8 100644
+--- a/src/densiffusion/training.py
++++ b/src/densiffusion/training.py
+@@ -1,4 +1,6 @@
+ import logging
++from collections.abc import Callable
++from contextlib import contextmanager
+ from copy import deepcopy
+ from dataclasses import asdict, dataclass
+ from pathlib import Path
+@@ -89,12 +91,18 @@ def train_densifier[T: nn.Module](
+     checkpoint: Path | None = None,
+     train_mask: Mask | None = None,
+     validation_mask: Mask | None = None,
++    validation_score: Callable[[T, int], float] | None = None,
++    epoch_callback: Callable[[dict], None] | None = None,
+ ) -> T:
+     """Fit masked imputation and return the best validation weights.
+ 
+     forward(noisy, steps, *, observed, mask, dt) returns objective predictions.
+     Value tensors are (batch, time, channels); mask is True at hidden points.
+     Without masks, use alternate interior points, cropping even-length series.
++    An optional validation_score(model, epoch) selects checkpoints by a finite
++    lower-is-better score, evaluated without gradients in evaluation mode at
++    validation intervals. Its Torch RNG use and module modes are isolated from
++    training. epoch_callback receives one metrics dictionary per epoch.
+     """
+     train = validate_array(train, (None, None, None))
+     validation = validate_array(validation, (None, *train.shape[1:]))
+@@ -114,6 +122,8 @@ def train_densifier[T: nn.Module](
+         seed=seed,
+         checkpoint=checkpoint,
+         metadata={"stage": "densifier", "factor": factor, "target_dt": dt},
++        validation_score=validation_score,
++        epoch_callback=epoch_callback,
+     )
+ 
+ 
+@@ -130,6 +140,8 @@ def _fit_masked[T: nn.Module](
+     seed: int,
+     checkpoint: Path | None,
+     metadata: dict,
++    validation_score: Callable[[T, int], float] | None = None,
++    epoch_callback: Callable[[dict], None] | None = None,
+ ) -> T:
+     """Shared masked-diffusion optimizer for imputation and suffix forecasting."""
+     model.to(config.device)
+@@ -151,8 +163,13 @@ def _fit_masked[T: nn.Module](
+     order_rng = np.random.default_rng(seeds[0])
+     train_noise = torch.Generator().manual_seed(int(seeds[1]))
+     torch.manual_seed(seed)
+-    best_loss = float("inf")
++    best_score = float("inf")
+     best_state = None
++    selection_metric = (
++        getattr(validation_score, "__qualname__", type(validation_score).__qualname__)
++        if validation_score is not None
++        else "validation_loss"
++    )
+ 
+     for epoch in range(1, config.epochs + 1):
+         learning_rate = optimizer.param_groups[0]["lr"]
+@@ -215,19 +232,44 @@ def _fit_masked[T: nn.Module](
+             losses.append(total / int(masks.sum()))
+ 
+         scheduler.step()
++        record = {
++            "epoch": epoch,
++            "train_loss": losses[0],
++            "learning_rate": learning_rate,
++        }
+         if not validate:
+             logger.info(
+                 "epoch=%d train_loss=%.6g lr=%.6g", epoch, losses[0], learning_rate
+             )
++            if epoch_callback is not None:
++                with _isolated_hook(model, device):
++                    epoch_callback(record)
+             continue
++        score = losses[1]
++        if validation_score is not None:
++            with _isolated_hook(model, device):
++                model.eval()
++                score = validation_score(model, epoch)
++            if isinstance(score, (Tensor, np.ndarray)) and score.ndim != 0:
++                raise ValueError("validation_score must return a scalar")
++            score = float(score)
++            if not np.isfinite(score):
++                raise FloatingPointError("Non-finite validation_score")
++        record.update(
++            validation_loss=losses[1],
++            selection_metric=selection_metric,
++            selection_score=score,
++        )
+         logger.info(
+-            "epoch=%d train_loss=%.6g validation_loss=%.6g lr=%.6g",
++            "epoch=%d train_loss=%.6g validation_loss=%.6g lr=%.6g "
++            "selection_score=%.6g",
+             epoch,
+             *losses,
+             learning_rate,
++            score,
+         )
+-        if losses[1] < best_loss:
+-            best_loss = losses[1]
++        if score < best_score:
++            best_score = score
+             best_state = deepcopy(model.state_dict())
+             if checkpoint is not None:
+                 _save_checkpoint(
+@@ -240,12 +282,12 @@ def _fit_masked[T: nn.Module](
+                         ),
+                         **metadata,
+                         "seed": seed,
+-                        "epoch": epoch,
+-                        "train_loss": losses[0],
+-                        "validation_loss": losses[1],
+-                        "learning_rate": learning_rate,
++                        **record,
+                     },
+                 )
++        if epoch_callback is not None:
++            with _isolated_hook(model, device):
++                epoch_callback(record)
+     model.load_state_dict(best_state)
+     model.eval()
+     return model
+@@ -264,6 +306,8 @@ def train_forecaster[T: nn.Module](
+     seed: int = 0,
+     checkpoint: Path | None = None,
+     n_augmentations: int = 1,
++    validation_score: Callable[[T, int], float] | None = None,
++    epoch_callback: Callable[[dict], None] | None = None,
+ ) -> T:
+     """Fit future-only diffusion to cached frozen-densifier augmentations.
+ 
+@@ -276,6 +320,8 @@ def train_forecaster[T: nn.Module](
+     Validation augmentation and diffusion noise are also fixed. At factor=1,
+     train directly on coarse windows without calling the densifier. Models may
+     not share parameters, including at factor=1, to preserve densifier weights.
++    validation_score and epoch_callback behave as in train_densifier; scoring
++    can evaluate forecasts at original-grid times instead of denoising loss.
+     """
+     positive_int("factor", factor)
+     positive_int("n_augmentations", n_augmentations)
+@@ -364,9 +410,27 @@ def train_forecaster[T: nn.Module](
+                 "densifier_bypassed": factor == 1,
+             },
+         },
++        validation_score=validation_score,
++        epoch_callback=epoch_callback,
+     )
+ 
+ 
++@contextmanager
++def _isolated_hook(model: nn.Module, device: torch.device):
++    """Prevent optional monitoring from changing dropout RNG or module modes."""
++    modes = [(module, module.training) for module in model.modules()]
++    cuda_devices = [device.index] if device.type == "cuda" else []
++    mps_state = torch.mps.get_rng_state() if device.type == "mps" else None
++    try:
++        with torch.random.fork_rng(devices=cuda_devices), torch.no_grad():
++            yield
++    finally:
++        if mps_state is not None:
++            torch.mps.set_rng_state(mps_state)
++        for module, training in modes:
++            module.training = training
++
++
+ def _validate_training_options(dt: float, seed: int, checkpoint: Path | None) -> None:
+     if not np.isfinite(dt) or dt <= 0:
+         raise ValueError("dt must be finite and positive")

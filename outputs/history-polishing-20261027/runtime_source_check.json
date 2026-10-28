@@ -1,0 +1,21 @@
+{
+  "checked_utc": "2026-10-27T22:05:55.767947+00:00",
+  "status": "reviewed_analysis_validation_guards_only",
+  "training_snapshot": "primary/source.tar.gz",
+  "checked_count": 89,
+  "identical_files": 88,
+  "different_file": "src/densiffusion/polishing_analysis.py",
+  "difference_scope": "Additional analysis input/type/finite-score and timing-subset validation guards only; no training, sampling, metric formula, or bootstrap changes.",
+  "modified_utc": "2026-10-27T18:27:28.206759+00:00",
+  "analysis_used_sha256": "f271d215165c474aedda0afb5eb2d747222ccf3d16f339892c06cbd6717e003d",
+  "supplemental_snapshot": "analysis_source/polishing_analysis.py",
+  "exact_patch": "analysis_source/validation_guards.patch",
+  "targeted_validation": {
+    "command": "uv run --locked pytest -o addopts='' -q tests/test_polishing_analysis.py",
+    "passed": 13
+  },
+  "original_frozen_archive_preserved": true,
+  "documentation_excluded": "Documentation and README finalized after evaluation.",
+  "archived_analysis_source_sha256": "668348866feec5b24fbfbcff5f21c04393c6231cbed91e8e100503a5e2c47ac5",
+  "training_archive_sha256": "9a0894f74cedcb4d4da0bbbdeed4122ae05f45a94781353e908d41fe7bde207f"
+}

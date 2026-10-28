@@ -1,0 +1,27 @@
+{
+  "recorded_utc": "2026-10-27T17:04:34.241231+00:00",
+  "checks": [
+    {
+      "command": "uv run --locked pytest -q",
+      "exit_code": 0,
+      "passed": 434,
+      "result": "All 434 collected tests passed; pytest addopts suppress the textual summary."
+    },
+    {
+      "command": "uv run --locked ruff check src scripts tests",
+      "exit_code": 0,
+      "result": "All checks passed!"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "No whitespace errors."
+    },
+    {
+      "command": "uv run --locked ruff format --check src scripts tests",
+      "exit_code": 0,
+      "result": "70 files already formatted. One test file received formatting-only corrections after the passing full test run."
+    }
+  ],
+  "scope": "Current repository implementation including larger imputation and conditional forecast verifier. Scientific artifact checks are separate."
+}

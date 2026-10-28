@@ -1,0 +1,56 @@
+{
+  "development_experiment": true,
+  "split_trajectory_counts": [
+    716,
+    153,
+    155
+  ],
+  "split_window_counts": [
+    1432,
+    306,
+    310
+  ],
+  "test_shape": [
+    310,
+    4,
+    1
+  ],
+  "all_samples_finite": true,
+  "scores_recomputed_exactly_from_saved_samples": true,
+  "saved_data_reproduced_exactly": true,
+  "all_forecasts_reproduced_exactly_from_saved_checkpoints": true,
+  "sampler_observation_preservation": {
+    "calls": 4,
+    "draws": 31000,
+    "observed_values_checked": 437720
+  },
+  "checkpoints": {
+    "densifier.pt": {
+      "epoch": 399,
+      "train_loss": 0.16116292608183855,
+      "validation_loss": 0.13985095421473184,
+      "stage": "densifier"
+    },
+    "densiffusion_forecaster.pt": {
+      "epoch": 394,
+      "train_loss": 0.15475860758367196,
+      "validation_loss": 0.16800517413546057,
+      "stage": "forecaster"
+    },
+    "direct_csdi_forecaster.pt": {
+      "epoch": 393,
+      "train_loss": 0.1566034055954917,
+      "validation_loss": 0.12428626023671206,
+      "stage": "forecaster"
+    },
+    "linear_densification_forecaster.pt": {
+      "epoch": 394,
+      "train_loss": 0.12120315977814478,
+      "validation_loss": 0.13591779651595096,
+      "stage": "forecaster"
+    }
+  },
+  "replay_seconds": 56.24582037500022,
+  "assessment_seconds": 56.287114166999345,
+  "git_commit": "007d3629b2ba3a78368d9ce3d5c8476e4a6b6837"
+}

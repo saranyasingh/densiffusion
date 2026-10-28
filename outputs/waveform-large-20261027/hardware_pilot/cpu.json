@@ -1,0 +1,82 @@
+{
+  "device": "cpu",
+  "torch_threads": 1,
+  "worker_count": 1,
+  "architecture": {
+    "n_channels": 1,
+    "hidden_channels": 64,
+    "residual_layers": 4,
+    "attention_heads": 8,
+    "diffusion_embedding_dim": 128,
+    "time_embedding_dim": 128,
+    "feature_embedding_dim": 16,
+    "feedforward_dim": 64,
+    "dropout": 0.1
+  },
+  "training_config": {
+    "epochs": 200,
+    "batch_size": 256,
+    "learning_rate": 0.001,
+    "diffusion_steps": 50,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "cpu",
+    "schedule": "quadratic",
+    "weight_decay": 1e-06,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "all",
+    "validation_interval": 10
+  },
+  "cases": [
+    {
+      "sequence_length": 33,
+      "context_length": 25,
+      "hidden_suffix_length": 8,
+      "dt": 0.1,
+      "n_input_histories": 4,
+      "draws_per_history": 64,
+      "effective_sample_batch": 256,
+      "diffusion_steps": 50,
+      "input_sha256": "16666e2bc7d7cfe7d51eaa984c65f47970e1c9d4919b1c18c82f201200751617",
+      "output_shape": [
+        4,
+        64,
+        8,
+        1
+      ],
+      "finite_outputs": true,
+      "warmup_seconds": 4.3115609170054086,
+      "timed_seconds": 4.12900512496708,
+      "timed_seconds_per_draw": 0.016128926269402655
+    },
+    {
+      "sequence_length": 65,
+      "context_length": 49,
+      "hidden_suffix_length": 16,
+      "dt": 0.05,
+      "n_input_histories": 4,
+      "draws_per_history": 64,
+      "effective_sample_batch": 256,
+      "diffusion_steps": 50,
+      "input_sha256": "ff55f9b56c21b53905ab2c2378c59efaa32954ce39fd4388f9130e504b04d853",
+      "output_shape": [
+        4,
+        64,
+        16,
+        1
+      ],
+      "finite_outputs": true,
+      "warmup_seconds": 8.299741875031032,
+      "timed_seconds": 8.339545291964896,
+      "timed_seconds_per_draw": 0.032576348796737875
+    }
+  ],
+  "status": "complete",
+  "initial_weights_sha256": "1a119fa6ead9f941b8153bcfe22e4e8b7b83f338ab8ba148f5c6a5f88d07252d",
+  "parameter_count": 413521
+}

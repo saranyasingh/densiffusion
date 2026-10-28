@@ -1,0 +1,108 @@
+{
+  "status": "completed",
+  "scope": "prospective matrix-work-matched polishing comparison",
+  "mean_scores": {
+    "raw": {
+      "crps": 0.28481340368986263,
+      "mse": 0.4856609811035229,
+      "coverage_90": 0.7399698893229166,
+      "interval_width_90": 1.0397676488336514
+    },
+    "learned": {
+      "crps": 0.2725096746995743,
+      "mse": 0.4925946596931003,
+      "coverage_90": 0.7547810872395834,
+      "interval_width_90": 0.9290231442656669
+    },
+    "median": {
+      "crps": 0.27505724695577366,
+      "mse": 0.47404880438452907,
+      "coverage_90": 0.8074951171875,
+      "interval_width_90": 1.1589067948399614
+    }
+  },
+  "contrasts": {
+    "learned-minus-raw": {
+      "seed_crps_differences": [
+        -0.012816015279893928,
+        -0.013054483456497127,
+        -0.011040688234473852
+      ],
+      "seed_crps_ci95": [
+        [
+          -0.01642557630439947,
+          -0.009111016252527403
+        ],
+        [
+          -0.016616893194320612,
+          -0.009551017373125092
+        ],
+        [
+          -0.014067749217544563,
+          -0.008004485087689585
+        ]
+      ],
+      "seeds_negative": 3,
+      "seeds_negative_ci_upper": 3
+    },
+    "learned-minus-median": {
+      "seed_crps_differences": [
+        -0.0009651163202940847,
+        -0.0019050940329105059,
+        -0.004772506415393517
+      ],
+      "seed_crps_ci95": [
+        [
+          -0.003719595095865824,
+          0.0017812665414925698
+        ],
+        [
+          -0.005414136439157945,
+          0.0016122055080491817
+        ],
+        [
+          -0.007420825404827405,
+          -0.002096757084591595
+        ]
+      ],
+      "seeds_negative": 3,
+      "seeds_negative_ci_upper": 1
+    },
+    "median-minus-raw": {
+      "seed_crps_differences": [
+        -0.011850898959599843,
+        -0.011149389423586623,
+        -0.006268181819080334
+      ],
+      "seed_crps_ci95": [
+        [
+          -0.015155459711730886,
+          -0.008571347577914647
+        ],
+        [
+          -0.014557400331182338,
+          -0.007806050561300452
+        ],
+        [
+          -0.008888474133361171,
+          -0.0036934856213457893
+        ]
+      ],
+      "seeds_negative": 3,
+      "seeds_negative_ci_upper": 3
+    }
+  },
+  "primary_ceiling": 173320595046400.0,
+  "maximum_unused_fraction": 4.3329538015891934e-05,
+  "same_wall_time_claim": false,
+  "optimal_allocation_claim": false,
+  "convergence_claim": false,
+  "densification_claim": false,
+  "interpretation": "The learned model's CRPS advantage over raw inputs survives this resource definition in all three fresh seeds. The additional CRPS advantage over median filtering is small: its paired interval includes zero in two seeds. This does not establish a consistently superior learned preprocessing method. Learned polishing also has higher average ensemble-mean MSE than both baselines, while median filtering has better average coverage. All three methods substantially under-cover nominal 90% intervals. The learned model's narrower intervals are therefore not evidence of better calibration.",
+  "relative_crps_reduction": {
+    "raw": 0.04319926250270867,
+    "median": 0.009261971042009876
+  },
+  "all_methods_undercover_nominal_90": true,
+  "visual_review": "plot_review.json"
+}

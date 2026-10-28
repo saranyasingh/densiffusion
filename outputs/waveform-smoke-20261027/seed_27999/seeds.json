@@ -1,0 +1,12 @@
+{
+  "train_data": 3989765641,
+  "validation_data": 3263993449,
+  "test_data": 2433717907,
+  "densifier_initialization": 188670962,
+  "densifier_training": 1045701910,
+  "forecaster_initialization": 1706521794,
+  "forecaster_training": 251623061,
+  "validation_sampling": 284550611,
+  "test_sampling": 3784832136,
+  "diagnostic_sampling": 1184121182
+}

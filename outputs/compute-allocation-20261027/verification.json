@@ -1,0 +1,261 @@
+{
+  "protected_files_unchanged": 625,
+  "work_profile_batch_linearity": true,
+  "polishing_validation_ensembles_recomputed": [
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/raw_validation_epoch_0010.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/raw_validation_epoch_0050.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/raw_validation_epoch_0100.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/raw_validation_epoch_0200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/raw_validation_epoch_0400.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/raw_validation_epoch_0800.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/raw_validation_epoch_1200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/learned_validation_epoch_0010.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/learned_validation_epoch_0050.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/learned_validation_epoch_0100.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/learned_validation_epoch_0200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/learned_validation_epoch_0400.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/learned_validation_epoch_0800.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/learned_validation_epoch_1200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/median_validation_epoch_0010.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/median_validation_epoch_0050.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/median_validation_epoch_0100.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/median_validation_epoch_0200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/median_validation_epoch_0400.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/median_validation_epoch_0800.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28101/median_validation_epoch_1200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/raw_validation_epoch_0010.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/raw_validation_epoch_0050.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/raw_validation_epoch_0100.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/raw_validation_epoch_0200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/raw_validation_epoch_0400.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/raw_validation_epoch_0800.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/raw_validation_epoch_1200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/learned_validation_epoch_0010.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/learned_validation_epoch_0050.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/learned_validation_epoch_0100.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/learned_validation_epoch_0200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/learned_validation_epoch_0400.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/learned_validation_epoch_0800.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/learned_validation_epoch_1200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/median_validation_epoch_0010.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/median_validation_epoch_0050.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/median_validation_epoch_0100.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/median_validation_epoch_0200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/median_validation_epoch_0400.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/median_validation_epoch_0800.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28102/median_validation_epoch_1200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/raw_validation_epoch_0010.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/raw_validation_epoch_0050.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/raw_validation_epoch_0100.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/raw_validation_epoch_0200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/raw_validation_epoch_0400.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/raw_validation_epoch_0800.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/raw_validation_epoch_1200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/learned_validation_epoch_0010.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/learned_validation_epoch_0050.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/learned_validation_epoch_0100.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/learned_validation_epoch_0200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/learned_validation_epoch_0400.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/learned_validation_epoch_0800.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/learned_validation_epoch_1200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/median_validation_epoch_0010.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/median_validation_epoch_0050.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/median_validation_epoch_0100.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/median_validation_epoch_0200.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/median_validation_epoch_0400.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/median_validation_epoch_0800.npz",
+      "all_metrics_recomputed": true
+    },
+    {
+      "path": "outputs/history-polishing-20261027/primary/seed_28103/median_validation_epoch_1200.npz",
+      "all_metrics_recomputed": true
+    }
+  ],
+  "waveform_validation_scope": "Scores checked against training logs; old runner saved no checkpoint validation ensembles",
+  "new_test_data_generated": false,
+  "existing_test_ensembles_loaded": false
+}

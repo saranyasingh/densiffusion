@@ -1,0 +1,185 @@
+{
+  "recorded_utc": "2026-10-27T18:19:16.900493+00:00",
+  "question": "Does history polishing improve noisy-target forecasting beyond raw observations and a seven-point median?",
+  "seeds": [
+    28101,
+    28102,
+    28103
+  ],
+  "distribution": {
+    "amplitude": [
+      0.7,
+      1.3
+    ],
+    "period": [
+      24.0,
+      40.0
+    ],
+    "phase": [
+      0.0,
+      6.283185307179586
+    ],
+    "harmonic_amplitude": 0.2,
+    "harmonic_phase": 0.4,
+    "gaussian_noise_std": 0.15,
+    "spike_probability": 0.1,
+    "spike_std": 2.0
+  },
+  "data": {
+    "train": 256,
+    "validation": 256,
+    "fresh_test": 2048,
+    "history_points": 32,
+    "future_points": 8,
+    "dt": 1.0,
+    "one_window_per_independent_trajectory": true,
+    "clean_or_latent_outputs_exposed": false,
+    "normalization": "none"
+  },
+  "mediator": {
+    "input_offsets": [
+      -3,
+      -2,
+      -1,
+      1,
+      2,
+      3
+    ],
+    "unavailable": "zero value and zero availability indicator",
+    "features": "six neighbor values and six availability indicators; no center or residual",
+    "hidden_width_candidates": [
+      32,
+      64
+    ],
+    "hidden_layers": 2,
+    "activation": "ReLU",
+    "loss_candidates": [
+      "mse",
+      "huber_delta_0.2"
+    ],
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 256,
+    "epochs": 200,
+    "validation_epochs": [
+      1,
+      5,
+      10,
+      20,
+      30,
+      40,
+      50,
+      60,
+      70,
+      80,
+      90,
+      100,
+      110,
+      120,
+      130,
+      140,
+      150,
+      160,
+      170,
+      180,
+      190,
+      200
+    ],
+    "selection": "lowest masked noisy-center validation reconstruction MSE; no forecasting scores used",
+    "training_targets": "noisy historical observations only",
+    "freeze": "all selected mediators before any forecaster training"
+  },
+  "median": {
+    "width": 7,
+    "padding": "edge",
+    "available_history_only": true
+  },
+  "recovered_gp_recipe": {
+    "architecture": {
+      "n_channels": 1,
+      "hidden_channels": 64,
+      "residual_layers": 4,
+      "attention_heads": 8,
+      "diffusion_embedding_dim": 128,
+      "time_embedding_dim": 128,
+      "feature_embedding_dim": 16,
+      "feedforward_dim": 64,
+      "dropout": 0.1
+    },
+    "training": {
+      "epochs": 200,
+      "batch_size": 64,
+      "learning_rate": 0.001,
+      "diffusion_steps": 50,
+      "beta_start": 0.0001,
+      "beta_end": 0.5,
+      "max_grad_norm": 1.0,
+      "device": "cpu",
+      "schedule": "quadratic",
+      "weight_decay": 1e-06,
+      "lr_decay_fractions": [
+        0.75,
+        0.9
+      ],
+      "lr_decay_factor": 0.1,
+      "validation_steps": "all",
+      "validation_interval": 10
+    }
+  },
+  "forecast": {
+    "architecture": {
+      "n_channels": 1,
+      "hidden_channels": 64,
+      "residual_layers": 4,
+      "attention_heads": 8,
+      "diffusion_embedding_dim": 128,
+      "time_embedding_dim": 128,
+      "feature_embedding_dim": 16,
+      "feedforward_dim": 64,
+      "dropout": 0.1
+    },
+    "epochs": 1200,
+    "updates_per_method_per_seed": 4800,
+    "batch_size": 64,
+    "validation_noise_interval": 10,
+    "validation_noise_steps": "all",
+    "validation_crps_epochs": [
+      10,
+      50,
+      100,
+      200,
+      400,
+      800,
+      1200
+    ],
+    "validation_samples": 64,
+    "test_samples": 64,
+    "sample_batch_size": 256,
+    "device": "mps",
+    "workers": 1,
+    "threads": 1,
+    "selection": "minimum original-grid noisy-future validation CRPS",
+    "future_targets": "original noisy observations unchanged, no densification",
+    "budget_rationale": "Common 4800-update budget; same recovered optimizer/diffusion recipe with LR fractions .75/.9. Early and later validation checkpoints protect against assuming late training is optimal. No convergence claim."
+  },
+  "evaluation": {
+    "freeze_all_models_before_generating_test": true,
+    "primary_metric": "empirical ensemble CRPS",
+    "other_metrics": [
+      "ensemble-mean MSE",
+      "empirical central90%coverage",
+      "central90%width"
+    ],
+    "bootstrap": "10000 paired whole-test-trajectory percentile replicates per seed and comparison, retaining all horizons/draws",
+    "seed_variation": "sample SD and range separate from within-seed bootstrap",
+    "comparisons": [
+      "learned-raw",
+      "learned-median",
+      "median-raw"
+    ],
+    "no_test_based_tuning": true
+  },
+  "no_gp_weights_reused": true,
+  "no_commit_or_push": true
+}

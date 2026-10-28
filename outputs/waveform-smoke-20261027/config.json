@@ -1,0 +1,106 @@
+{
+  "experiment": {
+    "seeds": [
+      27999
+    ],
+    "n_train": 16,
+    "n_validation": 8,
+    "n_test": 8,
+    "context_length": 25,
+    "horizon": 8,
+    "dt": 0.1,
+    "factor": 2,
+    "epochs": 2,
+    "densifier_epochs": 2,
+    "validation_interval": 1,
+    "densifier_validation_interval": 1,
+    "batch_size": 8,
+    "sample_batch_size": 64,
+    "diffusion_steps": 4,
+    "n_histories": 8,
+    "n_futures": 8,
+    "n_augmentations": 1,
+    "device": "cpu",
+    "threads": 1,
+    "label": "smoke"
+  },
+  "architecture": {
+    "n_channels": 1,
+    "hidden_channels": 16,
+    "residual_layers": 2,
+    "attention_heads": 2,
+    "diffusion_embedding_dim": 32,
+    "time_embedding_dim": 32,
+    "feature_embedding_dim": 8,
+    "feedforward_dim": 32,
+    "dropout": 0.1
+  },
+  "forecaster_training": {
+    "epochs": 2,
+    "batch_size": 8,
+    "learning_rate": 0.001,
+    "diffusion_steps": 4,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "cpu",
+    "schedule": "quadratic",
+    "weight_decay": 1e-06,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "sampled",
+    "validation_interval": 1
+  },
+  "densifier_training": {
+    "epochs": 2,
+    "batch_size": 8,
+    "learning_rate": 0.001,
+    "diffusion_steps": 4,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "cpu",
+    "schedule": "quadratic",
+    "weight_decay": 1e-06,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "sampled",
+    "validation_interval": 1
+  },
+  "created_utc": "2026-10-27T14:37:56.283358+00:00",
+  "versions": {
+    "python": "3.12.15",
+    "numpy": "2.5.3",
+    "torch": "2.14.1",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  },
+  "normalization": "none",
+  "fine_grid_truth_before_freeze": false,
+  "test_data_generated_before_all_models_frozen": false,
+  "model_selection": "original-grid validation forecast CRPS, fixed ensemble seeds; draw count equals test draw count",
+  "densifier_selection": "original-grid alternating-mask validation noise MSE",
+  "augmentation": "existing independent history-only and anchored-future draws; cached once",
+  "resolution_transfer": "densifier learns 0.2 to 0.1; applies at 0.1 to 0.05 for primary settings",
+  "joint_fine_truth_assumption": false,
+  "budget_rationale": "primary: 600 forecaster epochs and 400 densifier epochs, based on prior 400-epoch repository runs; assess convergence from curves",
+  "seeds": {
+    "27999": {
+      "train_data": 3989765641,
+      "validation_data": 3263993449,
+      "test_data": 2433717907,
+      "densifier_initialization": 188670962,
+      "densifier_training": 1045701910,
+      "forecaster_initialization": 1706521794,
+      "forecaster_training": 251623061,
+      "validation_sampling": 284550611,
+      "test_sampling": 3784832136,
+      "diagnostic_sampling": 1184121182
+    }
+  }
+}

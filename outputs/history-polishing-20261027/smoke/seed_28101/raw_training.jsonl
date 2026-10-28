@@ -1,0 +1,2 @@
+{"epoch": 1, "train_loss": 1.2444133758544922, "learning_rate": 0.001, "validation_loss": 1.1283082962036133, "selection_metric": "_train_forecasters.<locals>.score", "selection_score": 0.7975434490529789, "elapsed_seconds": 1.3714905829983763}
+{"epoch": 2, "train_loss": 0.8261791467666626, "learning_rate": 1.0000000000000003e-05, "validation_loss": 1.1282299757003784, "selection_metric": "_train_forecasters.<locals>.score", "selection_score": 0.7975193150685538, "elapsed_seconds": 1.4630865000071935}

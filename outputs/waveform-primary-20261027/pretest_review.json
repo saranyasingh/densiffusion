@@ -1,0 +1,45 @@
+{
+  "recorded_utc": "2026-10-27T15:09:36.472386+00:00",
+  "test_samples_exist": false,
+  "all_forecasters_selected_epoch_600": true,
+  "configuration_changes_after_training": false,
+  "decision": "Evaluate pre-specified fixed-budget comparison; do not claim convergence or change hyperparameters.",
+  "selection": {
+    "seed_27101/densiffusion_forecaster.pt": {
+      "epoch": 600,
+      "validation_crps": 0.3624334851574365
+    },
+    "seed_27101/direct_csdi_forecaster.pt": {
+      "epoch": 600,
+      "validation_crps": 0.15256805672555462
+    },
+    "seed_27101/linear_densification_forecaster.pt": {
+      "epoch": 600,
+      "validation_crps": 0.14511437966925395
+    },
+    "seed_27102/densiffusion_forecaster.pt": {
+      "epoch": 600,
+      "validation_crps": 0.3615696800989081
+    },
+    "seed_27102/direct_csdi_forecaster.pt": {
+      "epoch": 600,
+      "validation_crps": 0.1305548962537187
+    },
+    "seed_27102/linear_densification_forecaster.pt": {
+      "epoch": 600,
+      "validation_crps": 0.12499657143300584
+    },
+    "seed_27103/densiffusion_forecaster.pt": {
+      "epoch": 600,
+      "validation_crps": 0.37256278896966727
+    },
+    "seed_27103/direct_csdi_forecaster.pt": {
+      "epoch": 600,
+      "validation_crps": 0.14578767740746165
+    },
+    "seed_27103/linear_densification_forecaster.pt": {
+      "epoch": 600,
+      "validation_crps": 0.11763404650449855
+    }
+  }
+}

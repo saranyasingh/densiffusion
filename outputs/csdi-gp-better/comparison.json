@@ -1,0 +1,35 @@
+{
+  "selected": "reference_size",
+  "fresh_test_crps": {
+    "original_csdi": 0.4472654811510982,
+    "improved_csdi": 0.18843732411096287,
+    "linear_interpolation": 0.2543182375825344,
+    "exact_gp_posterior": 0.18606367652756253
+  },
+  "fresh_test_improvement": {
+    "original_minus_improved": 0.25882815704013534,
+    "paired_trajectory_bootstrap_95pct": [
+      0.2401839838232875,
+      0.2783028301830728
+    ],
+    "independent_test_trajectories": 128,
+    "note": "Conditional on these trained models and sampled ensembles; not training-seed uncertainty."
+  },
+  "original_test_crps": {
+    "improved_csdi": 0.19768197576300983,
+    "linear_interpolation": 0.26418792649919565,
+    "exact_gp_posterior": 0.19653954105219296
+  },
+  "original_test_historical_crps": {
+    "csdi": {
+      "crps": 0.4648397001901279
+    },
+    "linear_interpolation": {
+      "crps": 0.26418792649919565
+    },
+    "exact_gp_posterior": {
+      "crps": 0.19073080940514725
+    }
+  },
+  "note": "Candidates selected using validation only; original test has been examined previously. Fresh test is the primary comparison."
+}

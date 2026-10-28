@@ -1,0 +1,33 @@
+{
+  "seeds": {
+    "29199": {
+      "raw": {
+        "epochs": 20,
+        "charged_work": 23684218880,
+        "unused_fraction": 0.0,
+        "selected_epoch": 10,
+        "validation_crps": 0.6848407230613196
+      },
+      "learned": {
+        "epochs": 19,
+        "charged_work": 22873718784,
+        "unused_fraction": 0.03422110309428115,
+        "selected_epoch": 19,
+        "validation_crps": 0.6708777293298501
+      },
+      "median": {
+        "epochs": 20,
+        "charged_work": 23684218880,
+        "unused_fraction": 0.0,
+        "selected_epoch": 20,
+        "validation_crps": 0.6583350984339821
+      }
+    }
+  },
+  "ceiling": 23684218880,
+  "training_only": false,
+  "verified_utc": "2026-10-28T01:59:12.591605+00:00",
+  "passed": true,
+  "independent_work_formula": true,
+  "no_new_diffusion_sampling": true
+}

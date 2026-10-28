@@ -1,0 +1,119 @@
+{
+  "experiment": {
+    "seeds": [
+      28101
+    ],
+    "namespace": 2026102799,
+    "n_train": 16,
+    "n_validation": 8,
+    "n_test": 8,
+    "context_length": 32,
+    "horizon": 8,
+    "dt": 1.0,
+    "epochs": 2,
+    "batch_size": 64,
+    "validation_interval": 1,
+    "validation_epochs": [
+      1,
+      2
+    ],
+    "samples": 4,
+    "sample_batch_size": 256,
+    "diffusion_steps": 2,
+    "device": "mps",
+    "threads": 1,
+    "label": "smoke"
+  },
+  "architecture": {
+    "n_channels": 1,
+    "hidden_channels": 64,
+    "residual_layers": 4,
+    "attention_heads": 8,
+    "diffusion_embedding_dim": 128,
+    "time_embedding_dim": 128,
+    "feature_embedding_dim": 16,
+    "feedforward_dim": 64,
+    "dropout": 0.1
+  },
+  "recovered_gp_recipe": {
+    "source": "/Users/kaanbaykara/densiffusion/outputs/csdi-gp-better",
+    "selected": "reference_size",
+    "architecture": {
+      "n_channels": 1,
+      "hidden_channels": 64,
+      "residual_layers": 4,
+      "attention_heads": 8,
+      "diffusion_embedding_dim": 128,
+      "time_embedding_dim": 128,
+      "feature_embedding_dim": 16,
+      "feedforward_dim": 64,
+      "dropout": 0.1
+    },
+    "training": {
+      "epochs": 200,
+      "batch_size": 64,
+      "learning_rate": 0.001,
+      "diffusion_steps": 50,
+      "beta_start": 0.0001,
+      "beta_end": 0.5,
+      "max_grad_norm": 1.0,
+      "device": "cpu",
+      "schedule": "quadratic",
+      "weight_decay": 1e-06,
+      "lr_decay_fractions": [
+        0.75,
+        0.9
+      ],
+      "lr_decay_factor": 0.1,
+      "validation_steps": "all",
+      "validation_interval": 10
+    },
+    "source_sha256": {
+      "plan.json": "7441c2ab014e23d608d152b7278f518fc0384723d16d76cd323866bbd6df9b34",
+      "selection.json": "04981641722804892872d35bf0fcc7916460fc6fc2cfc9c7ae7fa91ea15e7c73"
+    },
+    "gp_weights_reused": false
+  },
+  "forecaster_training": {
+    "epochs": 2,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "diffusion_steps": 2,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "mps",
+    "schedule": "quadratic",
+    "weight_decay": 1e-06,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "all",
+    "validation_interval": 1
+  },
+  "seeds": {
+    "28101": {
+      "train_data": 1783874707,
+      "validation_data": 1352978677,
+      "test_data": 261496649,
+      "mediator_training": 3225508222,
+      "forecaster_initialization": 1306447570,
+      "forecaster_training": 940869732,
+      "validation_sampling": 4149832781,
+      "test_sampling": 3827809470
+    }
+  },
+  "methods": [
+    "raw",
+    "learned",
+    "median"
+  ],
+  "normalization": "none",
+  "future_targets": "unchanged noisy observations",
+  "history_only_preprocessing": true,
+  "no_clean_signal_exposed": true,
+  "no_densification": true,
+  "created_utc": "2026-10-27T18:23:18.344881+00:00"
+}

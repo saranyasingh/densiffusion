@@ -1,0 +1,488 @@
+{
+  "check": "shared optimization prefix and exact saved validation ensembles",
+  "epoch": 150,
+  "checked_utc": "2026-10-27T16:36:22.049492+00:00",
+  "expected_reason": "Both runs train epochs 1..150 at the same learning rate. The 200-epoch run's first LR drop occurs after epoch150, affecting epoch151 onward. Extra epoch50/100 CRPS calls should leave training RNG and model modes unchanged. The 600-epoch run first changes LR after epoch450.",
+  "scope": "Exact saved output and training-loss-prefix check; parameter-by-parameter weight equality is not claimed because both epoch150 checkpoints were not separately archived. No new training, sampling, test or fine truth.",
+  "manifest_conditions": {
+    "identical_architecture": true,
+    "identical_training_settings_except_total_epochs": true,
+    "identical_learning_rates_during_epochs_1_through_150": true,
+    "identical_sampling_settings": true,
+    "identical_dataset_hash_manifest": true,
+    "neither_attempt_reuses_gp_weights": true
+  },
+  "config_sha256": {
+    "attempt_01_gp_recipe": "9d96abf4b6e120c4fd54f070eecf1fec657e4b3de0994499812b4859bd9949c6",
+    "attempt_02_longer": "f1c05956a1718cd0cc3c332f980e10bc3b54aabd17c7a2fca92c8881d8db9495"
+  },
+  "score_intervals": [
+    50,
+    150
+  ],
+  "seeds": {
+    "27101": {
+      "identical_seed_plans": true,
+      "identical_training_loss_lr_validation_loss_prefix": true,
+      "identical_reported_scores": true,
+      "identical_reported_linear_scores": true,
+      "data_files_match_manifest": true,
+      "reported_crps": [
+        0.42120225700836733,
+        0.42120225700836733
+      ],
+      "arrays": {
+        "learned": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256,
+              64,
+              33,
+              1
+            ],
+            [
+              256,
+              64,
+              33,
+              1
+            ]
+          ],
+          "dtypes": [
+            "<f8",
+            "<f8"
+          ],
+          "array_sha256": [
+            "2fe0830ab36328dd1c9edaaa3bd3e3e2137fb00cc1496030e6c510839fc282ff",
+            "2fe0830ab36328dd1c9edaaa3bd3e3e2137fb00cc1496030e6c510839fc282ff"
+          ],
+          "max_absolute_difference": 0.0
+        },
+        "linear": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256,
+              64,
+              33,
+              1
+            ],
+            [
+              256,
+              64,
+              33,
+              1
+            ]
+          ],
+          "dtypes": [
+            "<f8",
+            "<f8"
+          ],
+          "array_sha256": [
+            "48b59c7f1cb20d7dfecdc44ce0b2f784dab931f50f4a07dee95878f9fa328621",
+            "48b59c7f1cb20d7dfecdc44ce0b2f784dab931f50f4a07dee95878f9fa328621"
+          ],
+          "max_absolute_difference": 0.0
+        },
+        "mask": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256,
+              33,
+              1
+            ],
+            [
+              256,
+              33,
+              1
+            ]
+          ],
+          "dtypes": [
+            "|b1",
+            "|b1"
+          ],
+          "array_sha256": [
+            "b70aac098b93e60f2c9fc736b72116bf45706fd09f055d037ada5f923b31c8a5",
+            "b70aac098b93e60f2c9fc736b72116bf45706fd09f055d037ada5f923b31c8a5"
+          ]
+        },
+        "target": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256,
+              33,
+              1
+            ],
+            [
+              256,
+              33,
+              1
+            ]
+          ],
+          "dtypes": [
+            "<f8",
+            "<f8"
+          ],
+          "array_sha256": [
+            "405f588ab7be7b20475f97ed7e8ec4bdc4d605cd0b4f9a6b1a06de6ec20cb8c8",
+            "405f588ab7be7b20475f97ed7e8ec4bdc4d605cd0b4f9a6b1a06de6ec20cb8c8"
+          ],
+          "max_absolute_difference": 0.0
+        },
+        "times": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              33
+            ],
+            [
+              33
+            ]
+          ],
+          "dtypes": [
+            "<f8",
+            "<f8"
+          ],
+          "array_sha256": [
+            "48d32afd87b27dba89f678460853460f9cce43a0c33f6b1863ff78b47db33a99",
+            "48d32afd87b27dba89f678460853460f9cce43a0c33f6b1863ff78b47db33a99"
+          ],
+          "max_absolute_difference": 0.0
+        },
+        "trajectory_ids": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256
+            ],
+            [
+              256
+            ]
+          ],
+          "dtypes": [
+            "<i8",
+            "<i8"
+          ],
+          "array_sha256": [
+            "0aa9cc072f92588884806c73d457ac794834124c4d16f4754e2ad8919492bb66",
+            "0aa9cc072f92588884806c73d457ac794834124c4d16f4754e2ad8919492bb66"
+          ],
+          "max_absolute_difference": 0.0
+        }
+      },
+      "identical_archive_keys": true,
+      "passed": true
+    },
+    "27102": {
+      "identical_seed_plans": true,
+      "identical_training_loss_lr_validation_loss_prefix": true,
+      "identical_reported_scores": true,
+      "identical_reported_linear_scores": true,
+      "data_files_match_manifest": true,
+      "reported_crps": [
+        0.4155102121920038,
+        0.4155102121920038
+      ],
+      "arrays": {
+        "learned": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256,
+              64,
+              33,
+              1
+            ],
+            [
+              256,
+              64,
+              33,
+              1
+            ]
+          ],
+          "dtypes": [
+            "<f8",
+            "<f8"
+          ],
+          "array_sha256": [
+            "15f62efdaef904f03a2b0c108ffb37561eb59c004fe11fa138e4a011225ccce5",
+            "15f62efdaef904f03a2b0c108ffb37561eb59c004fe11fa138e4a011225ccce5"
+          ],
+          "max_absolute_difference": 0.0
+        },
+        "linear": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256,
+              64,
+              33,
+              1
+            ],
+            [
+              256,
+              64,
+              33,
+              1
+            ]
+          ],
+          "dtypes": [
+            "<f8",
+            "<f8"
+          ],
+          "array_sha256": [
+            "b1de96b1ca72fe942da6c03faab7be98c56552efc0246dfa512643d8f039aec0",
+            "b1de96b1ca72fe942da6c03faab7be98c56552efc0246dfa512643d8f039aec0"
+          ],
+          "max_absolute_difference": 0.0
+        },
+        "mask": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256,
+              33,
+              1
+            ],
+            [
+              256,
+              33,
+              1
+            ]
+          ],
+          "dtypes": [
+            "|b1",
+            "|b1"
+          ],
+          "array_sha256": [
+            "b70aac098b93e60f2c9fc736b72116bf45706fd09f055d037ada5f923b31c8a5",
+            "b70aac098b93e60f2c9fc736b72116bf45706fd09f055d037ada5f923b31c8a5"
+          ]
+        },
+        "target": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256,
+              33,
+              1
+            ],
+            [
+              256,
+              33,
+              1
+            ]
+          ],
+          "dtypes": [
+            "<f8",
+            "<f8"
+          ],
+          "array_sha256": [
+            "bd6f9430931fcaafe3905c982cb4a6fbd0372bc17181879bd03684bc3720d0f2",
+            "bd6f9430931fcaafe3905c982cb4a6fbd0372bc17181879bd03684bc3720d0f2"
+          ],
+          "max_absolute_difference": 0.0
+        },
+        "times": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              33
+            ],
+            [
+              33
+            ]
+          ],
+          "dtypes": [
+            "<f8",
+            "<f8"
+          ],
+          "array_sha256": [
+            "48d32afd87b27dba89f678460853460f9cce43a0c33f6b1863ff78b47db33a99",
+            "48d32afd87b27dba89f678460853460f9cce43a0c33f6b1863ff78b47db33a99"
+          ],
+          "max_absolute_difference": 0.0
+        },
+        "trajectory_ids": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256
+            ],
+            [
+              256
+            ]
+          ],
+          "dtypes": [
+            "<i8",
+            "<i8"
+          ],
+          "array_sha256": [
+            "0aa9cc072f92588884806c73d457ac794834124c4d16f4754e2ad8919492bb66",
+            "0aa9cc072f92588884806c73d457ac794834124c4d16f4754e2ad8919492bb66"
+          ],
+          "max_absolute_difference": 0.0
+        }
+      },
+      "identical_archive_keys": true,
+      "passed": true
+    },
+    "27103": {
+      "identical_seed_plans": true,
+      "identical_training_loss_lr_validation_loss_prefix": true,
+      "identical_reported_scores": true,
+      "identical_reported_linear_scores": true,
+      "data_files_match_manifest": true,
+      "reported_crps": [
+        0.42400725336312883,
+        0.42400725336312883
+      ],
+      "arrays": {
+        "learned": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256,
+              64,
+              33,
+              1
+            ],
+            [
+              256,
+              64,
+              33,
+              1
+            ]
+          ],
+          "dtypes": [
+            "<f8",
+            "<f8"
+          ],
+          "array_sha256": [
+            "c97fd5c6a292c24e147f6da367ba910efaafce3ced6829f0e7a6095a6cd95555",
+            "c97fd5c6a292c24e147f6da367ba910efaafce3ced6829f0e7a6095a6cd95555"
+          ],
+          "max_absolute_difference": 0.0
+        },
+        "linear": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256,
+              64,
+              33,
+              1
+            ],
+            [
+              256,
+              64,
+              33,
+              1
+            ]
+          ],
+          "dtypes": [
+            "<f8",
+            "<f8"
+          ],
+          "array_sha256": [
+            "988838d78609442baf505379ad27b7026b0cd98c68d478161b31da7b5df9510b",
+            "988838d78609442baf505379ad27b7026b0cd98c68d478161b31da7b5df9510b"
+          ],
+          "max_absolute_difference": 0.0
+        },
+        "mask": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256,
+              33,
+              1
+            ],
+            [
+              256,
+              33,
+              1
+            ]
+          ],
+          "dtypes": [
+            "|b1",
+            "|b1"
+          ],
+          "array_sha256": [
+            "b70aac098b93e60f2c9fc736b72116bf45706fd09f055d037ada5f923b31c8a5",
+            "b70aac098b93e60f2c9fc736b72116bf45706fd09f055d037ada5f923b31c8a5"
+          ]
+        },
+        "target": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256,
+              33,
+              1
+            ],
+            [
+              256,
+              33,
+              1
+            ]
+          ],
+          "dtypes": [
+            "<f8",
+            "<f8"
+          ],
+          "array_sha256": [
+            "1767289908e8f77b51daa39704cff031b85ec4f70e78231b8ea4173cc78226ba",
+            "1767289908e8f77b51daa39704cff031b85ec4f70e78231b8ea4173cc78226ba"
+          ],
+          "max_absolute_difference": 0.0
+        },
+        "times": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              33
+            ],
+            [
+              33
+            ]
+          ],
+          "dtypes": [
+            "<f8",
+            "<f8"
+          ],
+          "array_sha256": [
+            "48d32afd87b27dba89f678460853460f9cce43a0c33f6b1863ff78b47db33a99",
+            "48d32afd87b27dba89f678460853460f9cce43a0c33f6b1863ff78b47db33a99"
+          ],
+          "max_absolute_difference": 0.0
+        },
+        "trajectory_ids": {
+          "exactly_equal": true,
+          "shapes": [
+            [
+              256
+            ],
+            [
+              256
+            ]
+          ],
+          "dtypes": [
+            "<i8",
+            "<i8"
+          ],
+          "array_sha256": [
+            "0aa9cc072f92588884806c73d457ac794834124c4d16f4754e2ad8919492bb66",
+            "0aa9cc072f92588884806c73d457ac794834124c4d16f4754e2ad8919492bb66"
+          ],
+          "max_absolute_difference": 0.0
+        }
+      },
+      "identical_archive_keys": true,
+      "passed": true
+    }
+  },
+  "passed": true
+}

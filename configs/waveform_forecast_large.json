@@ -1,0 +1,28 @@
+{
+  "seeds": [
+    27101,
+    27102,
+    27103
+  ],
+  "epochs": 600,
+  "validation_interval": 10,
+  "validation_score_interval": 150,
+  "n_train": 1024,
+  "n_validation": 256,
+  "n_test": 1024,
+  "context_length": 25,
+  "horizon": 8,
+  "dt": 0.1,
+  "factor": 2,
+  "batch_size": 64,
+  "sample_batch_size": 256,
+  "n_histories": 8,
+  "n_futures": 8,
+  "n_augmentations": 1,
+  "diffusion_steps": 50,
+  "device": "mps",
+  "threads": 1,
+  "workers": 1,
+  "test_namespace": 2026102702,
+  "label": "large_forecast"
+}

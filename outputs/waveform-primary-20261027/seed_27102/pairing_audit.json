@@ -1,0 +1,14 @@
+{
+  "initial_state_sha256": {
+    "direct_csdi": "c35b93d6ed4a992f7a6d04c1fffad5268397b65e71b0299d447391352cec166f",
+    "linear_densification": "c35b93d6ed4a992f7a6d04c1fffad5268397b65e71b0299d447391352cec166f",
+    "densiffusion": "c35b93d6ed4a992f7a6d04c1fffad5268397b65e71b0299d447391352cec166f"
+  },
+  "forecaster_parameter_count": 17273,
+  "additional_densifier_parameters": 17273,
+  "updates_per_forecaster": 9600,
+  "shared_training_seed": 2599596461,
+  "example_order": "same NumPy permutation stream, same example and augmentation counts",
+  "diffusion_noise": "same seed; shapes differ across grids, so noise entries are not fully paired",
+  "all_original_observations_preserved": true
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "epoch": 10,
+    "crps": 0.6792075988470749,
+    "scores": {
+      "crps": 0.6792075988470749,
+      "mse": 1.75116527527276,
+      "coverage_90": 0.484375,
+      "interval_width_90": 1.2042214892482659
+    },
+    "sampling_seconds": 0.023627541959285736,
+    "samples": "learned_validation_epoch_0010.npz"
+  },
+  {
+    "epoch": 19,
+    "crps": 0.6708777293298501,
+    "scores": {
+      "crps": 0.6708777293298501,
+      "mse": 1.7041278209993311,
+      "coverage_90": 0.4375,
+      "interval_width_90": 1.0842063643784057
+    },
+    "sampling_seconds": 0.02212845900794491,
+    "samples": "learned_validation_epoch_0019.npz"
+  }
+]

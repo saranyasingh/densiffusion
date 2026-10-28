@@ -1,0 +1,106 @@
+{
+  "task": "held_out_0.2_to_0.1_refinement; no finer ground truth",
+  "gp": {
+    "kernel": "exponential",
+    "mean": 0.0,
+    "variance": 1.0,
+    "lengthscale": 1.0
+  },
+  "dt": 0.1,
+  "data_seeds": {
+    "train": 22001,
+    "validation": 22002,
+    "test": 22003
+  },
+  "paths": {
+    "train": 512,
+    "validation": 64,
+    "test": 128
+  },
+  "path_length": 33,
+  "window_length": 17,
+  "stride": 16,
+  "normalization": "none; population mean 0 and variance 1",
+  "seed": 42,
+  "draws": 32,
+  "threads": 1,
+  "selection": "best all-step validation-MSE checkpoint per candidate, then lowest validation ensemble CRPS",
+  "baseline": "/Users/kaanbaykara/densiffusion/outputs/csdi-gp-verified",
+  "candidates": {
+    "small_longer": {
+      "architecture": {
+        "n_channels": 1,
+        "hidden_channels": 16,
+        "residual_layers": 2,
+        "attention_heads": 2,
+        "diffusion_embedding_dim": 32,
+        "time_embedding_dim": 32,
+        "feature_embedding_dim": 8,
+        "feedforward_dim": 32,
+        "dropout": 0.1
+      },
+      "training": {
+        "epochs": 400,
+        "batch_size": 64,
+        "learning_rate": 0.001,
+        "diffusion_steps": 50,
+        "beta_start": 0.0001,
+        "beta_end": 0.5,
+        "max_grad_norm": 1.0,
+        "device": "cpu",
+        "schedule": "quadratic",
+        "weight_decay": 1e-06,
+        "lr_decay_fractions": [
+          0.75,
+          0.9
+        ],
+        "lr_decay_factor": 0.1,
+        "validation_steps": "all",
+        "validation_interval": 10
+      }
+    },
+    "reference_size": {
+      "architecture": {
+        "n_channels": 1,
+        "hidden_channels": 64,
+        "residual_layers": 4,
+        "attention_heads": 8,
+        "diffusion_embedding_dim": 128,
+        "time_embedding_dim": 128,
+        "feature_embedding_dim": 16,
+        "feedforward_dim": 64,
+        "dropout": 0.1
+      },
+      "training": {
+        "epochs": 200,
+        "batch_size": 64,
+        "learning_rate": 0.001,
+        "diffusion_steps": 50,
+        "beta_start": 0.0001,
+        "beta_end": 0.5,
+        "max_grad_norm": 1.0,
+        "device": "cpu",
+        "schedule": "quadratic",
+        "weight_decay": 1e-06,
+        "lr_decay_fractions": [
+          0.75,
+          0.9
+        ],
+        "lr_decay_factor": 0.1,
+        "validation_steps": "all",
+        "validation_interval": 10
+      }
+    }
+  },
+  "versions": {
+    "python": "3.12.15",
+    "numpy": "2.5.3",
+    "torch": "2.14.1"
+  },
+  "source_sha256": {
+    "/Users/kaanbaykara/densiffusion/scripts/compare_csdi_training.py": "31dbd4c9d5958a654393cdee0029fba52a0271a5aeeb8dd4c8302f210022ae09",
+    "src/densiffusion/architectures/csdi.py": "289ceba4b9b2c99910db3fff3f3fdc4b579623543939cd07c352d275e36eeca5",
+    "src/densiffusion/training.py": "c92704b5621f08ca7876ef7229d9fcda2c780536dc8bd2fcd5a739e5e325c8de",
+    "src/densiffusion/samplers.py": "456eeacb5287ce060886c758d4e26255e3e81f3b163e24b6a7b567e91322f491"
+  }
+}

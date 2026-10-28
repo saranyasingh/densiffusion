@@ -1,0 +1,8 @@
+{
+  "files": {
+    "seed_29199/budget_plan.json": "0fd19aa7f8e50998b99408a61a41850082c6f5c3ebc09d7732f4e62c49ecc7c1"
+  },
+  "frozen_utc": "2026-10-28T01:55:08.810367+00:00",
+  "before_any_forecaster_training": true,
+  "configuration_sha256": "88587e925070d64616350401c54df239eeaac7ec4ef4216e725d05e93fbe2d52"
+}

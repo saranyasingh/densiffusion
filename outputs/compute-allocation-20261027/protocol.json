@@ -1,0 +1,22 @@
+{
+  "created_utc": "2026-10-28T00:50:03.311606+00:00",
+  "scope": "Retrospective validation-only allocation audit plus synthetic-tensor work/timing benchmarks",
+  "new_model_fitting": false,
+  "test_forecasts_read_for_selection": false,
+  "matrix_work_definition": "Counted dense matrix multiply/add FLOPs, one multiply plus one addition equals two; math SDPA exposes attention",
+  "exclusions": [
+    "activation, softmax, normalization, loss, RNG, reductions, Adam, clipping, data movement, I/O",
+    "median comparisons and NumPy interpolation",
+    "researcher time and earlier experiment search"
+  ],
+  "cost_scope": "Each method's complete in-run search, preprocessing, optimization, noise validation, and all preceding forecast validations",
+  "deployment": "Separate per-forecast 64-draw work, not inside fit/selection ceiling",
+  "opportunities": "Historical schedules retained; equal resource ceilings can afford different candidate counts",
+  "limits": "Not a prospectively matched trial; unused budget, missing checkpoints, fixed old LR schedules, and selected validation optimism remain",
+  "environment": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "python": "3.12.15",
+    "torch": "2.14.1",
+    "threads": 1
+  }
+}

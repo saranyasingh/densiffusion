@@ -1,0 +1,30 @@
+{
+  "activation": "relu",
+  "batch_size": 256,
+  "device": "cpu",
+  "epochs": 5,
+  "feature_order": "six_neighbor_values_then_six_availability_indicators",
+  "hidden_channels": 64,
+  "hidden_layers": 2,
+  "history_length": 32,
+  "huber_delta": 0.2,
+  "init_seed": 129403151,
+  "learning_rate": 0.001,
+  "loss": "mse",
+  "offsets": [
+    -3,
+    -2,
+    -1,
+    1,
+    2,
+    3
+  ],
+  "optimizer": "Adam",
+  "score_epochs": [
+    1,
+    5
+  ],
+  "shuffle_seed": 3140803639,
+  "smoke": true,
+  "weight_decay": 0.0001
+}

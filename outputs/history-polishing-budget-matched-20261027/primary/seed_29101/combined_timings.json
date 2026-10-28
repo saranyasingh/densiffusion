@@ -1,0 +1,28 @@
+{
+  "mediator_training_seconds": 5.974048291041981,
+  "preprocessing_seconds": {
+    "raw": 5.04200579598546e-06,
+    "learned": 0.001550957967992872,
+    "median": 0.006287041993346065
+  },
+  "forecaster_training_seconds": {
+    "raw": 754.0302269580425,
+    "learned": 742.5811706249951,
+    "median": 754.792229957995
+  },
+  "validation_sampling_seconds": {
+    "raw": 336.3780827501323,
+    "learned": 325.29301679105265,
+    "median": 336.7993946670322
+  },
+  "test_preprocessing_seconds": {
+    "raw": 2.170802326872945e-05,
+    "learned": 0.0074770000064745545,
+    "median": 0.004175584006588906
+  },
+  "test_inference_seconds": {
+    "raw": 374.91062799998326,
+    "learned": 371.2839644170017,
+    "median": 371.78380133298924
+  }
+}

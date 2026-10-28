@@ -1,0 +1,13 @@
+Visual QA completed for the actual saved history-polishing forecasts, horizon metrics and validation curves.
+
+Rendered all three original SVGs with macOS Quick Look through preview-only square-viewport copies, then inspected each resulting PNG individually. All three original SVG SHA-256 values match before/after rendering; render_metadata.json records source/PNG hashes. No original scientific artifact was modified. Also rendered and individually inspected an explicitly labeled detail plot of the saved validation candidates from epoch 50 onward; full-range original is retained.
+
+Representative forecasts: all six fixed trajectories (IDs 512 through 517, seed 28101) and all three method columns are visible. Titles, tick labels, raw/processed history traces, noisy target, boundary and empirical interval bands are legible and unclipped. Learned histories attenuate visible history spikes; the median preserves the raw endpoint, as required. Learned bands in these examples are often wider and jagged, consistent with finite empirical quantiles; no clean-truth interpretation is implied. Similar forecast directions and individual future outliers are visible. These six cases are illustrative, not a substitute for aggregate scoring.
+
+Per-horizon plot: all four panels and legends are intact. Green mean CRPS and MSE curves lie below both baselines at each horizon, while all mean coverage curves lie below the dashed 0.9 line. Learned interval widths are larger on average. Shaded regions are explicitly labeled descriptive seed ranges, not confidence intervals; they overlap substantially.
+
+Validation curves: full-range plot correctly includes poor epoch-10 values, compressing later differences. The separately labeled epoch>=50 detail makes the later minima and small reversals visible without changing the original. Both plots have intact labels. Selected epochs and exact values are tabulated in REPORT.md; apparent stabilization does not certify convergence.
+
+Square previews have intentional unused white space. No clipping, missing panels, or overlapping labels were observed in individual-image inspection.
+
+Root independently inspected all three original previews and the labeled epoch>=50 detail individually and accepted visual QA.

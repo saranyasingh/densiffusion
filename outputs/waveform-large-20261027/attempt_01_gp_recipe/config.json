@@ -1,0 +1,115 @@
+{
+  "experiment": {
+    "seeds": [
+      27101,
+      27102,
+      27103
+    ],
+    "epochs": 200,
+    "score_interval": 50,
+    "samples": 64,
+    "sample_batch_size": 256,
+    "device": "cpu",
+    "threads": 1,
+    "workers": 3,
+    "transfer_examples": 256,
+    "diagnostic_namespace": 2026102701,
+    "label": "gp_recipe"
+  },
+  "architecture": {
+    "n_channels": 1,
+    "hidden_channels": 64,
+    "residual_layers": 4,
+    "attention_heads": 8,
+    "diffusion_embedding_dim": 128,
+    "time_embedding_dim": 128,
+    "feature_embedding_dim": 16,
+    "feedforward_dim": 64,
+    "dropout": 0.1
+  },
+  "training": {
+    "epochs": 200,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "diffusion_steps": 50,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "cpu",
+    "schedule": "quadratic",
+    "weight_decay": 1e-06,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "all",
+    "validation_interval": 10
+  },
+  "recovered_gp_recipe": {
+    "source": "/Users/kaanbaykara/densiffusion/outputs/csdi-gp-better",
+    "selected": "reference_size",
+    "architecture": {
+      "n_channels": 1,
+      "hidden_channels": 64,
+      "residual_layers": 4,
+      "attention_heads": 8,
+      "diffusion_embedding_dim": 128,
+      "time_embedding_dim": 128,
+      "feature_embedding_dim": 16,
+      "feedforward_dim": 64,
+      "dropout": 0.1
+    },
+    "training": {
+      "epochs": 200,
+      "batch_size": 64,
+      "learning_rate": 0.001,
+      "diffusion_steps": 50,
+      "beta_start": 0.0001,
+      "beta_end": 0.5,
+      "max_grad_norm": 1.0,
+      "device": "cpu",
+      "schedule": "quadratic",
+      "weight_decay": 1e-06,
+      "lr_decay_fractions": [
+        0.75,
+        0.9
+      ],
+      "lr_decay_factor": 0.1,
+      "validation_steps": "all",
+      "validation_interval": 10
+    },
+    "source_sha256": {
+      "plan.json": "7441c2ab014e23d608d152b7278f518fc0384723d16d76cd323866bbd6df9b34",
+      "selection.json": "04981641722804892872d35bf0fcc7916460fc6fc2cfc9c7ae7fa91ea15e7c73"
+    },
+    "gp_weights_reused": false,
+    "source_selection": "best all-step validation-MSE checkpoint per candidate, then lowest validation ensemble CRPS"
+  },
+  "data_source": "/Users/kaanbaykara/densiffusion/outputs/waveform-primary-20261027",
+  "data_sha256": {
+    "27101": "5dd4e5ece495e5a020fa1dfe372e4c314edc370d341b00a1adf40d0390effd75",
+    "27102": "d1145fb2b9cf29321a39c6c0368c2a40482926037ffbe50b74dc220dfbd72e96",
+    "27103": "89280516e46320ff758ad5520b974bb54e6c464a83a171f1380182fe1073b1ba"
+  },
+  "created_utc": "2026-10-27T16:01:51.956819+00:00",
+  "selection": "all original-grid validation trajectories; hidden-point empirical CRPS",
+  "normalization": "none",
+  "fine_truth_used": false,
+  "gate": {
+    "seeds_required": 3,
+    "minimum_relative_mean_crps_reduction": 0.05,
+    "every_seed_lower_crps": true,
+    "every_seed_paired_95pct_upper_below_zero": true
+  },
+  "transfer_gate": {
+    "maximum_crps_ratio_to_linear": 1.25,
+    "maximum_mse_ratio_to_linear": 1.5,
+    "required_tasks": [
+      "history",
+      "anchored_future"
+    ],
+    "required_each_seed": true,
+    "no_tuning_after_fine_truth": true
+  }
+}

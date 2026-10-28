@@ -1,0 +1,421 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1505" viewBox="0 0 1320 1505">
+<title>Representative held-out forecasts</title>
+<rect width="100%" height="100%" fill="white"/>
+<style>text {font-family:Arial,sans-serif;fill:#263238;font-size:12px}</style>
+<text x="32" y="30" style="font-size:20px;font-weight:bold">Representative held-out forecasts</text>
+<text x="32" y="53">First six distinct trajectories of the first seed; black: observed history; dashed black: truth; color: forecast mean; band: empirical central 90% interval.</text>
+<text x="54" y="93">Direct CSDI | trajectory 24</text>
+<path d="M 54 261.0 h 367" stroke="#e9ecef"/>
+<text x="47" y="265.0" text-anchor="end">-3.72</text>
+<path d="M 54 221.75 h 367" stroke="#e9ecef"/>
+<text x="47" y="225.75" text-anchor="end">-1.73</text>
+<path d="M 54 182.5 h 367" stroke="#e9ecef"/>
+<text x="47" y="186.5" text-anchor="end">0.25</text>
+<path d="M 54 143.25 h 367" stroke="#e9ecef"/>
+<text x="47" y="147.25" text-anchor="end">2.24</text>
+<path d="M 54 104.0 h 367" stroke="#e9ecef"/>
+<text x="47" y="108.0" text-anchor="end">4.22</text>
+<text x="54.0" y="280" text-anchor="middle">0.00</text>
+<text x="145.75" y="280" text-anchor="middle">0.80</text>
+<text x="237.5" y="280" text-anchor="middle">1.60</text>
+<text x="329.25000000000006" y="280" text-anchor="middle">2.40</text>
+<text x="421.0" y="280" text-anchor="middle">3.20</text>
+<path d="M 54 104 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="237.5" y="305" text-anchor="middle">Time</text>
+<text transform="translate(13,182.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="340.72,232.18 352.19,243.92 363.66,224.93 375.12,242.35 386.59,218.37 398.06,243.27 409.53,240.94 421.00,228.27 421.00,126.71 409.53,126.35 398.06,114.83 386.59,132.51 375.12,133.05 363.66,136.00 352.19,118.66 340.72,122.01" fill="#1864ab" fill-opacity="0.16"/>
+<polyline points="54.00,200.44 65.47,199.56 76.94,198.36 88.41,194.89 99.88,188.91 111.34,179.13 122.81,169.40 134.28,163.81 145.75,165.01 157.22,172.28 168.69,182.78 180.16,193.73 191.63,200.38 203.09,202.67 214.56,201.70 226.03,200.61 237.50,199.44 248.97,198.34 260.44,195.59 271.91,189.02 283.38,178.89 294.84,169.65 306.31,163.90 317.78,163.89 329.25,171.66" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="329.25,171.66 340.72,183.35 352.19,193.33 363.66,201.24 375.12,202.17 386.59,201.97 398.06,200.17 409.53,198.90 421.00,198.11" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="340.72,175.72 352.19,181.08 363.66,184.25 375.12,180.90 386.59,180.00 398.06,182.80 409.53,182.27 421.00,176.30" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<text x="494" y="93">Linear densification | trajectory 24</text>
+<path d="M 494 261.0 h 367" stroke="#e9ecef"/>
+<text x="487" y="265.0" text-anchor="end">-3.72</text>
+<path d="M 494 221.75 h 367" stroke="#e9ecef"/>
+<text x="487" y="225.75" text-anchor="end">-1.73</text>
+<path d="M 494 182.5 h 367" stroke="#e9ecef"/>
+<text x="487" y="186.5" text-anchor="end">0.25</text>
+<path d="M 494 143.25 h 367" stroke="#e9ecef"/>
+<text x="487" y="147.25" text-anchor="end">2.24</text>
+<path d="M 494 104.0 h 367" stroke="#e9ecef"/>
+<text x="487" y="108.0" text-anchor="end">4.22</text>
+<text x="494.0" y="280" text-anchor="middle">0.00</text>
+<text x="585.75" y="280" text-anchor="middle">0.80</text>
+<text x="677.5" y="280" text-anchor="middle">1.60</text>
+<text x="769.25" y="280" text-anchor="middle">2.40</text>
+<text x="861.0" y="280" text-anchor="middle">3.20</text>
+<path d="M 494 104 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="677.5" y="305" text-anchor="middle">Time</text>
+<text transform="translate(453,182.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="780.72,227.43 792.19,222.58 803.66,228.31 815.12,237.05 826.59,247.66 838.06,214.23 849.53,250.17 861.00,244.97 861.00,127.43 849.53,136.63 838.06,131.46 826.59,124.61 815.12,130.52 803.66,130.51 792.19,122.44 780.72,132.50" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="494.00,200.44 505.47,199.56 516.94,198.36 528.41,194.89 539.88,188.91 551.34,179.13 562.81,169.40 574.28,163.81 585.75,165.01 597.22,172.28 608.69,182.78 620.16,193.73 631.62,200.38 643.09,202.67 654.56,201.70 666.03,200.61 677.50,199.44 688.97,198.34 700.44,195.59 711.91,189.02 723.38,178.89 734.84,169.65 746.31,163.90 757.78,163.89 769.25,171.66" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="769.25,171.66 780.72,183.35 792.19,193.33 803.66,201.24 815.12,202.17 826.59,201.97 838.06,200.17 849.53,198.90 861.00,198.11" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="780.72,185.77 792.19,176.39 803.66,172.48 815.12,178.02 826.59,182.76 838.06,174.54 849.53,191.73 861.00,186.38" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<text x="934" y="93">Densiffusion | trajectory 24</text>
+<path d="M 934 261.0 h 367" stroke="#e9ecef"/>
+<text x="927" y="265.0" text-anchor="end">-3.72</text>
+<path d="M 934 221.75 h 367" stroke="#e9ecef"/>
+<text x="927" y="225.75" text-anchor="end">-1.73</text>
+<path d="M 934 182.5 h 367" stroke="#e9ecef"/>
+<text x="927" y="186.5" text-anchor="end">0.25</text>
+<path d="M 934 143.25 h 367" stroke="#e9ecef"/>
+<text x="927" y="147.25" text-anchor="end">2.24</text>
+<path d="M 934 104.0 h 367" stroke="#e9ecef"/>
+<text x="927" y="108.0" text-anchor="end">4.22</text>
+<text x="934.0" y="280" text-anchor="middle">0.00</text>
+<text x="1025.75" y="280" text-anchor="middle">0.80</text>
+<text x="1117.5" y="280" text-anchor="middle">1.60</text>
+<text x="1209.25" y="280" text-anchor="middle">2.40</text>
+<text x="1301.0" y="280" text-anchor="middle">3.20</text>
+<path d="M 934 104 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="1117.5" y="305" text-anchor="middle">Time</text>
+<text transform="translate(893,182.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="1220.72,227.40 1232.19,222.54 1243.66,228.28 1255.12,237.00 1266.59,247.62 1278.06,214.19 1289.53,250.13 1301.00,244.93 1301.00,127.45 1289.53,136.66 1278.06,131.48 1266.59,124.64 1255.12,130.55 1243.66,130.55 1232.19,122.47 1220.72,132.52" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="934.00,200.44 945.47,199.56 956.94,198.36 968.41,194.89 979.88,188.91 991.34,179.13 1002.81,169.40 1014.28,163.81 1025.75,165.01 1037.22,172.28 1048.69,182.78 1060.16,193.73 1071.62,200.38 1083.09,202.67 1094.56,201.70 1106.03,200.61 1117.50,199.44 1128.97,198.34 1140.44,195.59 1151.91,189.02 1163.38,178.89 1174.84,169.65 1186.31,163.90 1197.78,163.89 1209.25,171.66" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="1209.25,171.66 1220.72,183.35 1232.19,193.33 1243.66,201.24 1255.12,202.17 1266.59,201.97 1278.06,200.17 1289.53,198.90 1301.00,198.11" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="1220.72,185.75 1232.19,176.37 1243.66,172.48 1255.12,178.01 1266.59,182.75 1278.06,174.53 1289.53,191.71 1301.00,186.37" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<text x="54" y="328">Direct CSDI | trajectory 25</text>
+<path d="M 54 496.0 h 367" stroke="#e9ecef"/>
+<text x="47" y="500.0" text-anchor="end">-4.04</text>
+<path d="M 54 456.75 h 367" stroke="#e9ecef"/>
+<text x="47" y="460.75" text-anchor="end">-1.92</text>
+<path d="M 54 417.5 h 367" stroke="#e9ecef"/>
+<text x="47" y="421.5" text-anchor="end">0.21</text>
+<path d="M 54 378.25 h 367" stroke="#e9ecef"/>
+<text x="47" y="382.25" text-anchor="end">2.33</text>
+<path d="M 54 339.0 h 367" stroke="#e9ecef"/>
+<text x="47" y="343.0" text-anchor="end">4.46</text>
+<text x="54.0" y="515" text-anchor="middle">0.00</text>
+<text x="145.75" y="515" text-anchor="middle">0.80</text>
+<text x="237.5" y="515" text-anchor="middle">1.60</text>
+<text x="329.25000000000006" y="515" text-anchor="middle">2.40</text>
+<text x="421.0" y="515" text-anchor="middle">3.20</text>
+<path d="M 54 339 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="237.5" y="540" text-anchor="middle">Time</text>
+<text transform="translate(13,417.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="340.72,474.11 352.19,466.81 363.66,468.15 375.12,480.70 386.59,485.17 398.06,460.27 409.53,469.67 421.00,468.66 421.00,363.27 409.53,368.27 398.06,362.84 386.59,360.47 375.12,372.48 363.66,367.74 352.19,373.90 340.72,366.41" fill="#1864ab" fill-opacity="0.16"/>
+<polyline points="54.00,436.03 65.47,436.97 76.94,431.05 88.41,422.84 99.88,413.07 111.34,406.98 122.81,404.46 134.28,407.49 145.75,413.92 157.22,418.37 168.69,422.24 180.16,425.13 191.63,427.49 203.09,432.20 214.56,436.56 226.03,436.52 237.50,431.76 248.97,423.24 260.44,413.83 271.91,407.09 283.38,404.71 294.84,407.98 306.31,412.58 317.78,418.16 329.25,421.40" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="329.25,421.40 340.72,424.00 352.19,427.48 363.66,431.91 375.12,435.56 386.59,436.51 398.06,432.85 409.53,424.07 421.00,415.03" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="340.72,419.07 352.19,415.34 363.66,417.96 375.12,423.15 386.59,419.46 398.06,412.70 409.53,416.22 421.00,417.37" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<text x="494" y="328">Linear densification | trajectory 25</text>
+<path d="M 494 496.0 h 367" stroke="#e9ecef"/>
+<text x="487" y="500.0" text-anchor="end">-4.04</text>
+<path d="M 494 456.75 h 367" stroke="#e9ecef"/>
+<text x="487" y="460.75" text-anchor="end">-1.92</text>
+<path d="M 494 417.5 h 367" stroke="#e9ecef"/>
+<text x="487" y="421.5" text-anchor="end">0.21</text>
+<path d="M 494 378.25 h 367" stroke="#e9ecef"/>
+<text x="487" y="382.25" text-anchor="end">2.33</text>
+<path d="M 494 339.0 h 367" stroke="#e9ecef"/>
+<text x="487" y="343.0" text-anchor="end">4.46</text>
+<text x="494.0" y="515" text-anchor="middle">0.00</text>
+<text x="585.75" y="515" text-anchor="middle">0.80</text>
+<text x="677.5" y="515" text-anchor="middle">1.60</text>
+<text x="769.25" y="515" text-anchor="middle">2.40</text>
+<text x="861.0" y="515" text-anchor="middle">3.20</text>
+<path d="M 494 339 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="677.5" y="540" text-anchor="middle">Time</text>
+<text transform="translate(453,417.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="780.72,468.91 792.19,466.57 803.66,462.57 815.12,460.78 826.59,461.35 838.06,467.94 849.53,477.28 861.00,460.08 861.00,351.82 849.53,361.07 838.06,366.17 826.59,367.28 815.12,371.45 803.66,373.60 792.19,372.97 780.72,349.83" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="494.00,436.03 505.47,436.97 516.94,431.05 528.41,422.84 539.88,413.07 551.34,406.98 562.81,404.46 574.28,407.49 585.75,413.92 597.22,418.37 608.69,422.24 620.16,425.13 631.62,427.49 643.09,432.20 654.56,436.56 666.03,436.52 677.50,431.76 688.97,423.24 700.44,413.83 711.91,407.09 723.38,404.71 734.84,407.98 746.31,412.58 757.78,418.16 769.25,421.40" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="769.25,421.40 780.72,424.00 792.19,427.48 803.66,431.91 815.12,435.56 826.59,436.51 838.06,432.85 849.53,424.07 861.00,415.03" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="780.72,417.52 792.19,417.60 803.66,418.98 815.12,413.93 826.59,417.71 838.06,420.87 849.53,413.24 861.00,412.26" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<text x="934" y="328">Densiffusion | trajectory 25</text>
+<path d="M 934 496.0 h 367" stroke="#e9ecef"/>
+<text x="927" y="500.0" text-anchor="end">-4.04</text>
+<path d="M 934 456.75 h 367" stroke="#e9ecef"/>
+<text x="927" y="460.75" text-anchor="end">-1.92</text>
+<path d="M 934 417.5 h 367" stroke="#e9ecef"/>
+<text x="927" y="421.5" text-anchor="end">0.21</text>
+<path d="M 934 378.25 h 367" stroke="#e9ecef"/>
+<text x="927" y="382.25" text-anchor="end">2.33</text>
+<path d="M 934 339.0 h 367" stroke="#e9ecef"/>
+<text x="927" y="343.0" text-anchor="end">4.46</text>
+<text x="934.0" y="515" text-anchor="middle">0.00</text>
+<text x="1025.75" y="515" text-anchor="middle">0.80</text>
+<text x="1117.5" y="515" text-anchor="middle">1.60</text>
+<text x="1209.25" y="515" text-anchor="middle">2.40</text>
+<text x="1301.0" y="515" text-anchor="middle">3.20</text>
+<path d="M 934 339 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="1117.5" y="540" text-anchor="middle">Time</text>
+<text transform="translate(893,417.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="1220.72,468.86 1232.19,466.53 1243.66,462.52 1255.12,460.74 1266.59,461.31 1278.06,467.89 1289.53,477.23 1301.00,460.03 1301.00,351.85 1289.53,361.11 1278.06,366.20 1266.59,367.30 1255.12,371.47 1243.66,373.62 1232.19,372.99 1220.72,349.86" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="934.00,436.03 945.47,436.97 956.94,431.05 968.41,422.84 979.88,413.07 991.34,406.98 1002.81,404.46 1014.28,407.49 1025.75,413.92 1037.22,418.37 1048.69,422.24 1060.16,425.13 1071.62,427.49 1083.09,432.20 1094.56,436.56 1106.03,436.52 1117.50,431.76 1128.97,423.24 1140.44,413.83 1151.91,407.09 1163.38,404.71 1174.84,407.98 1186.31,412.58 1197.78,418.16 1209.25,421.40" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="1209.25,421.40 1220.72,424.00 1232.19,427.48 1243.66,431.91 1255.12,435.56 1266.59,436.51 1278.06,432.85 1289.53,424.07 1301.00,415.03" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="1220.72,417.51 1232.19,417.59 1243.66,418.96 1255.12,413.92 1266.59,417.70 1278.06,420.86 1289.53,413.23 1301.00,412.25" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<text x="54" y="563">Direct CSDI | trajectory 26</text>
+<path d="M 54 731.0 h 367" stroke="#e9ecef"/>
+<text x="47" y="735.0" text-anchor="end">-3.94</text>
+<path d="M 54 691.75 h 367" stroke="#e9ecef"/>
+<text x="47" y="695.75" text-anchor="end">-1.96</text>
+<path d="M 54 652.5 h 367" stroke="#e9ecef"/>
+<text x="47" y="656.5" text-anchor="end">0.03</text>
+<path d="M 54 613.25 h 367" stroke="#e9ecef"/>
+<text x="47" y="617.25" text-anchor="end">2.02</text>
+<path d="M 54 574.0 h 367" stroke="#e9ecef"/>
+<text x="47" y="578.0" text-anchor="end">4.01</text>
+<text x="54.0" y="750" text-anchor="middle">0.00</text>
+<text x="145.75" y="750" text-anchor="middle">0.80</text>
+<text x="237.5" y="750" text-anchor="middle">1.60</text>
+<text x="329.25000000000006" y="750" text-anchor="middle">2.40</text>
+<text x="421.0" y="750" text-anchor="middle">3.20</text>
+<path d="M 54 574 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="237.5" y="775" text-anchor="middle">Time</text>
+<text transform="translate(13,652.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="340.72,720.17 352.19,698.44 363.66,709.70 375.12,695.16 386.59,701.27 398.06,699.41 409.53,702.09 421.00,706.80 421.00,596.92 409.53,592.84 398.06,587.49 386.59,601.99 375.12,596.23 363.66,590.39 352.19,592.23 340.72,614.17" fill="#1864ab" fill-opacity="0.16"/>
+<polyline points="54.00,659.03 65.47,669.11 76.94,673.87 88.41,673.04 99.88,666.93 111.34,659.36 122.81,653.00 134.28,648.65 145.75,646.00 157.22,643.54 168.69,640.65 180.16,637.35 191.63,636.65 203.09,639.52 214.56,647.56 226.03,658.39 237.50,667.88 248.97,673.92 260.44,673.51 271.91,668.55 283.38,660.59 294.84,654.30 306.31,648.65 317.78,646.29 329.25,645.06" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="329.25,645.06 340.72,641.72 352.19,638.08 363.66,636.33 375.12,639.28 386.59,645.22 398.06,656.95 409.53,666.46 421.00,673.50" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="340.72,656.72 352.19,649.15 363.66,645.40 375.12,646.90 386.59,649.97 398.06,649.42 409.53,649.87 421.00,642.99" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<text x="494" y="563">Linear densification | trajectory 26</text>
+<path d="M 494 731.0 h 367" stroke="#e9ecef"/>
+<text x="487" y="735.0" text-anchor="end">-3.94</text>
+<path d="M 494 691.75 h 367" stroke="#e9ecef"/>
+<text x="487" y="695.75" text-anchor="end">-1.96</text>
+<path d="M 494 652.5 h 367" stroke="#e9ecef"/>
+<text x="487" y="656.5" text-anchor="end">0.03</text>
+<path d="M 494 613.25 h 367" stroke="#e9ecef"/>
+<text x="487" y="617.25" text-anchor="end">2.02</text>
+<path d="M 494 574.0 h 367" stroke="#e9ecef"/>
+<text x="487" y="578.0" text-anchor="end">4.01</text>
+<text x="494.0" y="750" text-anchor="middle">0.00</text>
+<text x="585.75" y="750" text-anchor="middle">0.80</text>
+<text x="677.5" y="750" text-anchor="middle">1.60</text>
+<text x="769.25" y="750" text-anchor="middle">2.40</text>
+<text x="861.0" y="750" text-anchor="middle">3.20</text>
+<path d="M 494 574 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="677.5" y="775" text-anchor="middle">Time</text>
+<text transform="translate(453,652.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="780.72,705.33 792.19,701.35 803.66,700.64 815.12,715.17 826.59,703.82 838.06,699.82 849.53,702.74 861.00,683.45 861.00,591.52 849.53,597.15 838.06,594.45 826.59,599.70 815.12,584.83 803.66,602.07 792.19,603.65 780.72,600.25" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="494.00,659.03 505.47,669.11 516.94,673.87 528.41,673.04 539.88,666.93 551.34,659.36 562.81,653.00 574.28,648.65 585.75,646.00 597.22,643.54 608.69,640.65 620.16,637.35 631.62,636.65 643.09,639.52 654.56,647.56 666.03,658.39 677.50,667.88 688.97,673.92 700.44,673.51 711.91,668.55 723.38,660.59 734.84,654.30 746.31,648.65 757.78,646.29 769.25,645.06" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="769.25,645.06 780.72,641.72 792.19,638.08 803.66,636.33 815.12,639.28 826.59,645.22 838.06,656.95 849.53,666.46 861.00,673.50" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="780.72,649.33 792.19,646.22 803.66,652.86 815.12,648.14 826.59,655.47 838.06,647.21 849.53,650.34 861.00,644.82" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<text x="934" y="563">Densiffusion | trajectory 26</text>
+<path d="M 934 731.0 h 367" stroke="#e9ecef"/>
+<text x="927" y="735.0" text-anchor="end">-3.94</text>
+<path d="M 934 691.75 h 367" stroke="#e9ecef"/>
+<text x="927" y="695.75" text-anchor="end">-1.96</text>
+<path d="M 934 652.5 h 367" stroke="#e9ecef"/>
+<text x="927" y="656.5" text-anchor="end">0.03</text>
+<path d="M 934 613.25 h 367" stroke="#e9ecef"/>
+<text x="927" y="617.25" text-anchor="end">2.02</text>
+<path d="M 934 574.0 h 367" stroke="#e9ecef"/>
+<text x="927" y="578.0" text-anchor="end">4.01</text>
+<text x="934.0" y="750" text-anchor="middle">0.00</text>
+<text x="1025.75" y="750" text-anchor="middle">0.80</text>
+<text x="1117.5" y="750" text-anchor="middle">1.60</text>
+<text x="1209.25" y="750" text-anchor="middle">2.40</text>
+<text x="1301.0" y="750" text-anchor="middle">3.20</text>
+<path d="M 934 574 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="1117.5" y="775" text-anchor="middle">Time</text>
+<text transform="translate(893,652.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="1220.72,705.28 1232.19,701.31 1243.66,700.59 1255.12,715.12 1266.59,703.78 1278.06,699.79 1289.53,702.70 1301.00,683.42 1301.00,591.55 1289.53,597.16 1278.06,594.48 1266.59,599.72 1255.12,584.86 1243.66,602.08 1232.19,603.66 1220.72,600.27" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="934.00,659.03 945.47,669.11 956.94,673.87 968.41,673.04 979.88,666.93 991.34,659.36 1002.81,653.00 1014.28,648.65 1025.75,646.00 1037.22,643.54 1048.69,640.65 1060.16,637.35 1071.62,636.65 1083.09,639.52 1094.56,647.56 1106.03,658.39 1117.50,667.88 1128.97,673.92 1140.44,673.51 1151.91,668.55 1163.38,660.59 1174.84,654.30 1186.31,648.65 1197.78,646.29 1209.25,645.06" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="1209.25,645.06 1220.72,641.72 1232.19,638.08 1243.66,636.33 1255.12,639.28 1266.59,645.22 1278.06,656.95 1289.53,666.46 1301.00,673.50" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="1220.72,649.32 1232.19,646.21 1243.66,652.84 1255.12,648.13 1266.59,655.45 1278.06,647.20 1289.53,650.33 1301.00,644.82" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<text x="54" y="798">Direct CSDI | trajectory 27</text>
+<path d="M 54 966.0 h 367" stroke="#e9ecef"/>
+<text x="47" y="970.0" text-anchor="end">-4.01</text>
+<path d="M 54 926.75 h 367" stroke="#e9ecef"/>
+<text x="47" y="930.75" text-anchor="end">-2.00</text>
+<path d="M 54 887.5 h 367" stroke="#e9ecef"/>
+<text x="47" y="891.5" text-anchor="end">0.01</text>
+<path d="M 54 848.25 h 367" stroke="#e9ecef"/>
+<text x="47" y="852.25" text-anchor="end">2.02</text>
+<path d="M 54 809.0 h 367" stroke="#e9ecef"/>
+<text x="47" y="813.0" text-anchor="end">4.04</text>
+<text x="54.0" y="985" text-anchor="middle">0.00</text>
+<text x="145.75" y="985" text-anchor="middle">0.80</text>
+<text x="237.5" y="985" text-anchor="middle">1.60</text>
+<text x="329.25000000000006" y="985" text-anchor="middle">2.40</text>
+<text x="421.0" y="985" text-anchor="middle">3.20</text>
+<path d="M 54 809 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="237.5" y="1010" text-anchor="middle">Time</text>
+<text transform="translate(13,887.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="340.72,936.31 352.19,938.10 363.66,935.58 375.12,929.65 386.59,929.10 398.06,931.14 409.53,935.27 421.00,940.48 421.00,825.73 409.53,826.09 398.06,837.28 386.59,822.63 375.12,832.68 363.66,841.51 352.19,839.64 340.72,827.74" fill="#1864ab" fill-opacity="0.16"/>
+<polyline points="54.00,898.87 65.47,904.52 76.94,907.38 88.41,900.25 99.88,884.89 111.34,870.90 122.81,866.34 134.28,870.25 145.75,878.53 157.22,886.42 168.69,891.75 180.16,895.63 191.63,901.61 203.09,906.46 214.56,903.84 226.03,894.11 237.50,878.34 248.97,867.64 260.44,867.94 271.91,874.11 283.38,883.29 294.84,889.05 306.31,894.03 317.78,898.32 329.25,904.25" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="329.25,904.25 340.72,906.07 352.19,900.56 363.66,886.97 375.12,872.60 386.59,866.07 398.06,869.76 409.53,879.02 421.00,886.20" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="340.72,882.42 352.19,890.43 363.66,890.70 375.12,879.47 386.59,879.47 398.06,886.16 409.53,880.05 421.00,878.50" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<text x="494" y="798">Linear densification | trajectory 27</text>
+<path d="M 494 966.0 h 367" stroke="#e9ecef"/>
+<text x="487" y="970.0" text-anchor="end">-4.01</text>
+<path d="M 494 926.75 h 367" stroke="#e9ecef"/>
+<text x="487" y="930.75" text-anchor="end">-2.00</text>
+<path d="M 494 887.5 h 367" stroke="#e9ecef"/>
+<text x="487" y="891.5" text-anchor="end">0.01</text>
+<path d="M 494 848.25 h 367" stroke="#e9ecef"/>
+<text x="487" y="852.25" text-anchor="end">2.02</text>
+<path d="M 494 809.0 h 367" stroke="#e9ecef"/>
+<text x="487" y="813.0" text-anchor="end">4.04</text>
+<text x="494.0" y="985" text-anchor="middle">0.00</text>
+<text x="585.75" y="985" text-anchor="middle">0.80</text>
+<text x="677.5" y="985" text-anchor="middle">1.60</text>
+<text x="769.25" y="985" text-anchor="middle">2.40</text>
+<text x="861.0" y="985" text-anchor="middle">3.20</text>
+<path d="M 494 809 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="677.5" y="1010" text-anchor="middle">Time</text>
+<text transform="translate(453,887.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="780.72,936.63 792.19,937.15 803.66,924.30 815.12,943.93 826.59,938.03 838.06,937.33 849.53,955.17 861.00,934.25 861.00,846.73 849.53,835.40 838.06,829.49 826.59,822.68 815.12,819.83 803.66,838.20 792.19,821.24 780.72,827.63" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="494.00,898.87 505.47,904.52 516.94,907.38 528.41,900.25 539.88,884.89 551.34,870.90 562.81,866.34 574.28,870.25 585.75,878.53 597.22,886.42 608.69,891.75 620.16,895.63 631.62,901.61 643.09,906.46 654.56,903.84 666.03,894.11 677.50,878.34 688.97,867.64 700.44,867.94 711.91,874.11 723.38,883.29 734.84,889.05 746.31,894.03 757.78,898.32 769.25,904.25" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="769.25,904.25 780.72,906.07 792.19,900.56 803.66,886.97 815.12,872.60 826.59,866.07 838.06,869.76 849.53,879.02 861.00,886.20" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="780.72,889.20 792.19,885.94 803.66,881.14 815.12,886.69 826.59,884.79 838.06,883.62 849.53,886.74 861.00,883.63" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<text x="934" y="798">Densiffusion | trajectory 27</text>
+<path d="M 934 966.0 h 367" stroke="#e9ecef"/>
+<text x="927" y="970.0" text-anchor="end">-4.01</text>
+<path d="M 934 926.75 h 367" stroke="#e9ecef"/>
+<text x="927" y="930.75" text-anchor="end">-2.00</text>
+<path d="M 934 887.5 h 367" stroke="#e9ecef"/>
+<text x="927" y="891.5" text-anchor="end">0.01</text>
+<path d="M 934 848.25 h 367" stroke="#e9ecef"/>
+<text x="927" y="852.25" text-anchor="end">2.02</text>
+<path d="M 934 809.0 h 367" stroke="#e9ecef"/>
+<text x="927" y="813.0" text-anchor="end">4.04</text>
+<text x="934.0" y="985" text-anchor="middle">0.00</text>
+<text x="1025.75" y="985" text-anchor="middle">0.80</text>
+<text x="1117.5" y="985" text-anchor="middle">1.60</text>
+<text x="1209.25" y="985" text-anchor="middle">2.40</text>
+<text x="1301.0" y="985" text-anchor="middle">3.20</text>
+<path d="M 934 809 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="1117.5" y="1010" text-anchor="middle">Time</text>
+<text transform="translate(893,887.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="1220.72,936.56 1232.19,937.10 1243.66,924.25 1255.12,943.89 1266.59,937.98 1278.06,937.28 1289.53,955.12 1301.00,934.22 1301.00,846.73 1289.53,835.43 1278.06,829.51 1266.59,822.69 1255.12,819.86 1243.66,838.22 1232.19,821.26 1220.72,827.65" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="934.00,898.87 945.47,904.52 956.94,907.38 968.41,900.25 979.88,884.89 991.34,870.90 1002.81,866.34 1014.28,870.25 1025.75,878.53 1037.22,886.42 1048.69,891.75 1060.16,895.63 1071.62,901.61 1083.09,906.46 1094.56,903.84 1106.03,894.11 1117.50,878.34 1128.97,867.64 1140.44,867.94 1151.91,874.11 1163.38,883.29 1174.84,889.05 1186.31,894.03 1197.78,898.32 1209.25,904.25" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="1209.25,904.25 1220.72,906.07 1232.19,900.56 1243.66,886.97 1255.12,872.60 1266.59,866.07 1278.06,869.76 1289.53,879.02 1301.00,886.20" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="1220.72,889.18 1232.19,885.92 1243.66,881.13 1255.12,886.68 1266.59,884.78 1278.06,883.60 1289.53,886.73 1301.00,883.62" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<text x="54" y="1033">Direct CSDI | trajectory 28</text>
+<path d="M 54 1201.0 h 367" stroke="#e9ecef"/>
+<text x="47" y="1205.0" text-anchor="end">-3.78</text>
+<path d="M 54 1161.75 h 367" stroke="#e9ecef"/>
+<text x="47" y="1165.75" text-anchor="end">-1.79</text>
+<path d="M 54 1122.5 h 367" stroke="#e9ecef"/>
+<text x="47" y="1126.5" text-anchor="end">0.20</text>
+<path d="M 54 1083.25 h 367" stroke="#e9ecef"/>
+<text x="47" y="1087.25" text-anchor="end">2.19</text>
+<path d="M 54 1044.0 h 367" stroke="#e9ecef"/>
+<text x="47" y="1048.0" text-anchor="end">4.18</text>
+<text x="54.0" y="1220" text-anchor="middle">0.00</text>
+<text x="145.75" y="1220" text-anchor="middle">0.80</text>
+<text x="237.5" y="1220" text-anchor="middle">1.60</text>
+<text x="329.25000000000006" y="1220" text-anchor="middle">2.40</text>
+<text x="421.0" y="1220" text-anchor="middle">3.20</text>
+<path d="M 54 1044 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="237.5" y="1245" text-anchor="middle">Time</text>
+<text transform="translate(13,1122.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="340.72,1187.18 352.19,1167.41 363.66,1187.52 375.12,1168.37 386.59,1168.48 398.06,1180.01 409.53,1172.40 421.00,1177.75 421.00,1061.30 409.53,1063.90 398.06,1070.38 386.59,1068.85 375.12,1079.47 363.66,1075.27 352.19,1068.80 340.72,1077.80" fill="#1864ab" fill-opacity="0.16"/>
+<polyline points="54.00,1110.19 65.47,1121.15 76.94,1135.60 88.41,1146.69 99.88,1150.91 111.34,1146.98 122.81,1137.09 134.28,1128.13 145.75,1122.49 157.22,1119.30 168.69,1115.77 180.16,1110.98 191.63,1107.04 203.09,1108.71 214.56,1117.24 226.03,1129.89 237.50,1143.69 248.97,1150.22 260.44,1149.10 271.91,1140.18 283.38,1130.03 294.84,1123.56 306.31,1120.01 317.78,1116.65 329.25,1112.09" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="329.25,1112.09 340.72,1108.32 352.19,1107.27 363.66,1113.57 375.12,1125.91 386.59,1139.57 398.06,1149.49 409.53,1149.41 421.00,1143.77" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="340.72,1122.66 352.19,1118.67 363.66,1125.02 375.12,1121.10 386.59,1120.15 398.06,1123.10 409.53,1120.35 421.00,1120.36" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<text x="494" y="1033">Linear densification | trajectory 28</text>
+<path d="M 494 1201.0 h 367" stroke="#e9ecef"/>
+<text x="487" y="1205.0" text-anchor="end">-3.78</text>
+<path d="M 494 1161.75 h 367" stroke="#e9ecef"/>
+<text x="487" y="1165.75" text-anchor="end">-1.79</text>
+<path d="M 494 1122.5 h 367" stroke="#e9ecef"/>
+<text x="487" y="1126.5" text-anchor="end">0.20</text>
+<path d="M 494 1083.25 h 367" stroke="#e9ecef"/>
+<text x="487" y="1087.25" text-anchor="end">2.19</text>
+<path d="M 494 1044.0 h 367" stroke="#e9ecef"/>
+<text x="487" y="1048.0" text-anchor="end">4.18</text>
+<text x="494.0" y="1220" text-anchor="middle">0.00</text>
+<text x="585.75" y="1220" text-anchor="middle">0.80</text>
+<text x="677.5" y="1220" text-anchor="middle">1.60</text>
+<text x="769.25" y="1220" text-anchor="middle">2.40</text>
+<text x="861.0" y="1220" text-anchor="middle">3.20</text>
+<path d="M 494 1044 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="677.5" y="1245" text-anchor="middle">Time</text>
+<text transform="translate(453,1122.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="780.72,1169.51 792.19,1172.21 803.66,1173.12 815.12,1165.08 826.59,1178.43 838.06,1179.19 849.53,1167.25 861.00,1190.17 861.00,1054.83 849.53,1066.43 838.06,1070.62 826.59,1072.81 815.12,1076.87 803.66,1056.90 792.19,1086.71 780.72,1067.74" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="494.00,1110.19 505.47,1121.15 516.94,1135.60 528.41,1146.69 539.88,1150.91 551.34,1146.98 562.81,1137.09 574.28,1128.13 585.75,1122.49 597.22,1119.30 608.69,1115.77 620.16,1110.98 631.62,1107.04 643.09,1108.71 654.56,1117.24 666.03,1129.89 677.50,1143.69 688.97,1150.22 700.44,1149.10 711.91,1140.18 723.38,1130.03 734.84,1123.56 746.31,1120.01 757.78,1116.65 769.25,1112.09" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="769.25,1112.09 780.72,1108.32 792.19,1107.27 803.66,1113.57 815.12,1125.91 826.59,1139.57 838.06,1149.49 849.53,1149.41 861.00,1143.77" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="780.72,1117.18 792.19,1122.02 803.66,1119.65 815.12,1123.25 826.59,1129.44 838.06,1126.20 849.53,1120.82 861.00,1122.96" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<text x="934" y="1033">Densiffusion | trajectory 28</text>
+<path d="M 934 1201.0 h 367" stroke="#e9ecef"/>
+<text x="927" y="1205.0" text-anchor="end">-3.78</text>
+<path d="M 934 1161.75 h 367" stroke="#e9ecef"/>
+<text x="927" y="1165.75" text-anchor="end">-1.79</text>
+<path d="M 934 1122.5 h 367" stroke="#e9ecef"/>
+<text x="927" y="1126.5" text-anchor="end">0.20</text>
+<path d="M 934 1083.25 h 367" stroke="#e9ecef"/>
+<text x="927" y="1087.25" text-anchor="end">2.19</text>
+<path d="M 934 1044.0 h 367" stroke="#e9ecef"/>
+<text x="927" y="1048.0" text-anchor="end">4.18</text>
+<text x="934.0" y="1220" text-anchor="middle">0.00</text>
+<text x="1025.75" y="1220" text-anchor="middle">0.80</text>
+<text x="1117.5" y="1220" text-anchor="middle">1.60</text>
+<text x="1209.25" y="1220" text-anchor="middle">2.40</text>
+<text x="1301.0" y="1220" text-anchor="middle">3.20</text>
+<path d="M 934 1044 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="1117.5" y="1245" text-anchor="middle">Time</text>
+<text transform="translate(893,1122.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="1220.72,1169.46 1232.19,1172.17 1243.66,1173.08 1255.12,1165.04 1266.59,1178.37 1278.06,1179.14 1289.53,1167.20 1301.00,1190.13 1301.00,1054.86 1289.53,1066.45 1278.06,1070.65 1266.59,1072.83 1255.12,1076.89 1243.66,1056.92 1232.19,1086.72 1220.72,1067.76" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="934.00,1110.19 945.47,1121.15 956.94,1135.60 968.41,1146.69 979.88,1150.91 991.34,1146.98 1002.81,1137.09 1014.28,1128.13 1025.75,1122.49 1037.22,1119.30 1048.69,1115.77 1060.16,1110.98 1071.62,1107.04 1083.09,1108.71 1094.56,1117.24 1106.03,1129.89 1117.50,1143.69 1128.97,1150.22 1140.44,1149.10 1151.91,1140.18 1163.38,1130.03 1174.84,1123.56 1186.31,1120.01 1197.78,1116.65 1209.25,1112.09" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="1209.25,1112.09 1220.72,1108.32 1232.19,1107.27 1243.66,1113.57 1255.12,1125.91 1266.59,1139.57 1278.06,1149.49 1289.53,1149.41 1301.00,1143.77" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="1220.72,1117.17 1232.19,1122.00 1243.66,1119.64 1255.12,1123.24 1266.59,1129.42 1278.06,1126.19 1289.53,1120.81 1301.00,1122.95" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<text x="54" y="1268">Direct CSDI | trajectory 29</text>
+<path d="M 54 1436.0 h 367" stroke="#e9ecef"/>
+<text x="47" y="1440.0" text-anchor="end">-3.87</text>
+<path d="M 54 1396.75 h 367" stroke="#e9ecef"/>
+<text x="47" y="1400.75" text-anchor="end">-1.76</text>
+<path d="M 54 1357.5 h 367" stroke="#e9ecef"/>
+<text x="47" y="1361.5" text-anchor="end">0.34</text>
+<path d="M 54 1318.25 h 367" stroke="#e9ecef"/>
+<text x="47" y="1322.25" text-anchor="end">2.45</text>
+<path d="M 54 1279.0 h 367" stroke="#e9ecef"/>
+<text x="47" y="1283.0" text-anchor="end">4.56</text>
+<text x="54.0" y="1455" text-anchor="middle">0.00</text>
+<text x="145.75" y="1455" text-anchor="middle">0.80</text>
+<text x="237.5" y="1455" text-anchor="middle">1.60</text>
+<text x="329.25000000000006" y="1455" text-anchor="middle">2.40</text>
+<text x="421.0" y="1455" text-anchor="middle">3.20</text>
+<path d="M 54 1279 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="237.5" y="1480" text-anchor="middle">Time</text>
+<text transform="translate(13,1357.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="340.72,1413.57 352.19,1418.02 363.66,1402.55 375.12,1410.50 386.59,1418.05 398.06,1425.17 409.53,1407.39 421.00,1401.86 421.00,1302.13 409.53,1302.03 398.06,1318.53 386.59,1315.34 375.12,1303.76 363.66,1306.29 352.19,1314.79 340.72,1313.99" fill="#1864ab" fill-opacity="0.16"/>
+<polyline points="54.00,1344.43 65.47,1356.13 76.94,1372.97 88.41,1386.64 99.88,1392.58 111.34,1387.82 122.81,1378.40 134.28,1368.31 145.75,1360.93 157.22,1356.92 168.69,1353.52 180.16,1347.39 191.63,1341.66 203.09,1340.63 214.56,1348.14 226.03,1361.67 237.50,1378.05 248.97,1389.53 260.44,1391.87 271.91,1385.02 283.38,1374.07 294.84,1365.30 306.31,1358.99 317.78,1355.71 329.25,1351.23" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="329.25,1351.23 340.72,1345.09 352.19,1341.24 363.66,1342.31 375.12,1351.92 386.59,1367.50 398.06,1382.62 409.53,1390.85 421.00,1389.98" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="340.72,1364.45 352.19,1360.03 363.66,1353.98 375.12,1359.91 386.59,1366.11 398.06,1370.29 409.53,1352.31 421.00,1359.06" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<text x="494" y="1268">Linear densification | trajectory 29</text>
+<path d="M 494 1436.0 h 367" stroke="#e9ecef"/>
+<text x="487" y="1440.0" text-anchor="end">-3.87</text>
+<path d="M 494 1396.75 h 367" stroke="#e9ecef"/>
+<text x="487" y="1400.75" text-anchor="end">-1.76</text>
+<path d="M 494 1357.5 h 367" stroke="#e9ecef"/>
+<text x="487" y="1361.5" text-anchor="end">0.34</text>
+<path d="M 494 1318.25 h 367" stroke="#e9ecef"/>
+<text x="487" y="1322.25" text-anchor="end">2.45</text>
+<path d="M 494 1279.0 h 367" stroke="#e9ecef"/>
+<text x="487" y="1283.0" text-anchor="end">4.56</text>
+<text x="494.0" y="1455" text-anchor="middle">0.00</text>
+<text x="585.75" y="1455" text-anchor="middle">0.80</text>
+<text x="677.5" y="1455" text-anchor="middle">1.60</text>
+<text x="769.25" y="1455" text-anchor="middle">2.40</text>
+<text x="861.0" y="1455" text-anchor="middle">3.20</text>
+<path d="M 494 1279 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="677.5" y="1480" text-anchor="middle">Time</text>
+<text transform="translate(453,1357.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="780.72,1412.09 792.19,1413.48 803.66,1417.98 815.12,1397.81 826.59,1411.62 838.06,1411.06 849.53,1409.46 861.00,1412.10 861.00,1300.06 849.53,1311.89 838.06,1311.47 826.59,1316.09 815.12,1305.16 803.66,1323.69 792.19,1313.72 780.72,1289.83" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="494.00,1344.43 505.47,1356.13 516.94,1372.97 528.41,1386.64 539.88,1392.58 551.34,1387.82 562.81,1378.40 574.28,1368.31 585.75,1360.93 597.22,1356.92 608.69,1353.52 620.16,1347.39 631.62,1341.66 643.09,1340.63 654.56,1348.14 666.03,1361.67 677.50,1378.05 688.97,1389.53 700.44,1391.87 711.91,1385.02 723.38,1374.07 734.84,1365.30 746.31,1358.99 757.78,1355.71 769.25,1351.23" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="769.25,1351.23 780.72,1345.09 792.19,1341.24 803.66,1342.31 815.12,1351.92 826.59,1367.50 838.06,1382.62 849.53,1390.85 861.00,1389.98" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="780.72,1353.30 792.19,1360.69 803.66,1365.23 815.12,1353.93 826.59,1357.09 838.06,1362.21 849.53,1362.21 861.00,1354.50" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<text x="934" y="1268">Densiffusion | trajectory 29</text>
+<path d="M 934 1436.0 h 367" stroke="#e9ecef"/>
+<text x="927" y="1440.0" text-anchor="end">-3.87</text>
+<path d="M 934 1396.75 h 367" stroke="#e9ecef"/>
+<text x="927" y="1400.75" text-anchor="end">-1.76</text>
+<path d="M 934 1357.5 h 367" stroke="#e9ecef"/>
+<text x="927" y="1361.5" text-anchor="end">0.34</text>
+<path d="M 934 1318.25 h 367" stroke="#e9ecef"/>
+<text x="927" y="1322.25" text-anchor="end">2.45</text>
+<path d="M 934 1279.0 h 367" stroke="#e9ecef"/>
+<text x="927" y="1283.0" text-anchor="end">4.56</text>
+<text x="934.0" y="1455" text-anchor="middle">0.00</text>
+<text x="1025.75" y="1455" text-anchor="middle">0.80</text>
+<text x="1117.5" y="1455" text-anchor="middle">1.60</text>
+<text x="1209.25" y="1455" text-anchor="middle">2.40</text>
+<text x="1301.0" y="1455" text-anchor="middle">3.20</text>
+<path d="M 934 1279 v 157 h 367" stroke="#868e96" fill="none"/>
+<text x="1117.5" y="1480" text-anchor="middle">Time</text>
+<text transform="translate(893,1357.5) rotate(-90)" text-anchor="middle">Value</text>
+<polygon points="1220.72,1412.06 1232.19,1413.44 1243.66,1417.93 1255.12,1397.77 1266.59,1411.58 1278.06,1411.02 1289.53,1409.42 1301.00,1412.05 1301.00,1300.09 1289.53,1311.92 1278.06,1311.49 1266.59,1316.11 1255.12,1305.17 1243.66,1323.70 1232.19,1313.73 1220.72,1289.85" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="934.00,1344.43 945.47,1356.13 956.94,1372.97 968.41,1386.64 979.88,1392.58 991.34,1387.82 1002.81,1378.40 1014.28,1368.31 1025.75,1360.93 1037.22,1356.92 1048.69,1353.52 1060.16,1347.39 1071.62,1341.66 1083.09,1340.63 1094.56,1348.14 1106.03,1361.67 1117.50,1378.05 1128.97,1389.53 1140.44,1391.87 1151.91,1385.02 1163.38,1374.07 1174.84,1365.30 1186.31,1358.99 1197.78,1355.71 1209.25,1351.23" fill="none" stroke="#212529" stroke-width="1.8"/>
+<polyline points="1209.25,1351.23 1220.72,1345.09 1232.19,1341.24 1243.66,1342.31 1255.12,1351.92 1266.59,1367.50 1278.06,1382.62 1289.53,1390.85 1301.00,1389.98" fill="none" stroke="#212529" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polyline points="1220.72,1353.29 1232.19,1360.67 1243.66,1365.21 1255.12,1353.92 1266.59,1357.08 1278.06,1362.20 1289.53,1362.20 1301.00,1354.49" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+</svg>

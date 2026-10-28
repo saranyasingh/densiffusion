@@ -1,0 +1,20 @@
+{
+  "mediator_training_seconds": 0.5262990000192076,
+  "preprocessing_seconds": {
+    "raw": 6.665999535471201e-06,
+    "learned": 0.0003577080206014216,
+    "median": 0.004453708999790251
+  },
+  "forecaster_training_seconds": {
+    "raw": 1.4661447079852223,
+    "learned": 0.35805920901475474,
+    "median": 0.37352295801974833
+  },
+  "validation_sampling_seconds": {
+    "raw": 0.06780370901105925,
+    "learned": 0.03838120895670727,
+    "median": 0.038857458042912185
+  },
+  "test_preprocessing_seconds": {},
+  "test_inference_seconds": {}
+}

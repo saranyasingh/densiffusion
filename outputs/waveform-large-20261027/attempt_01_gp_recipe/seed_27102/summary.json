@@ -1,0 +1,29 @@
+{
+  "seed": 27102,
+  "parameter_count": 413521,
+  "initialization_sha256": "51f5e8c07fe26c943d9d9e70c08fdd160a06b2b332303a16208fba608e566d35",
+  "selected_epoch": 200,
+  "validation_noise_mse": 0.3010172098875046,
+  "selected_validation": {
+    "epoch": 200,
+    "scores": {
+      "crps": 0.40298623224952135,
+      "mse": 0.5260826828158488,
+      "coverage_90": 0.85595703125,
+      "interval_width_90": 2.046896504050678
+    },
+    "linear": {
+      "crps": 0.09751159040327016,
+      "mse": 0.015162509154950422,
+      "coverage_90": 0.0,
+      "interval_width_90": 0.0
+    },
+    "sampling_seconds": 260.0582327080192,
+    "samples": "validation_epoch_0200.npz"
+  },
+  "optimizer_updates": 3200,
+  "training_seconds": 1345.4022169170203,
+  "validation_sampling_seconds": 1038.108689374989,
+  "observations_preserved": true,
+  "gp_weights_reused": false
+}

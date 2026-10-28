@@ -1,0 +1,1 @@
+Final implementation snapshot captured after scientific execution and verification. Each attempt also retains its original pre-training source snapshot. This final snapshot adds later analysis, verifier, conditional forecast implementation, and documentation; it is not a claim that later code was used during earlier training. No commit or push was made.

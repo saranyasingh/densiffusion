@@ -1,0 +1,155 @@
+{
+  "status": "passed",
+  "reviewed_utc": "2026-10-27T22:18:42.516418+00:00",
+  "scope": "Independent final-array metric, paired-bootstrap, summary, cost, conditioning, provenance, and final report audit",
+  "numerical_check_details": "Separate in-memory audit recomputed empirical CRPS using all pairwise draw distances, ensemble-mean MSE, linear5/95percentiles, per-trajectory/horizon scores, all10000-replicate paired trajectory intervals, and seed/cost summaries. Comparisons passed rtol5e-13/atol2e-14.",
+  "primary_unchanged": true,
+  "protected_primary_artifacts": 212,
+  "models_verified": 9,
+  "ensemble_shape": [
+    2048,
+    64,
+    8,
+    1
+  ],
+  "paired_bootstrap": {
+    "replicates": 10000,
+    "comparisons": 9,
+    "metric_intervals_verified": 36,
+    "unit": "independent whole trajectory",
+    "scope": "conditional on fixed models, preprocessing, and saved draws",
+    "multiplicity": "unadjusted"
+  },
+  "forecast_training_or_sampling_performed": false,
+  "test_generator_called": false,
+  "deterministic_learned_preprocessing_recomputed": true,
+  "paired_ids_targets_and_processed_conditioning_verified": true,
+  "mean_scores": {
+    "raw": {
+      "crps": 0.2850062793068739,
+      "mse": 0.5064394027935688,
+      "coverage_90": 0.802490234375,
+      "interval_width_90": 1.3149175603697323
+    },
+    "learned": {
+      "crps": 0.27440038503468633,
+      "mse": 0.4807696029462565,
+      "coverage_90": 0.8222249348958334,
+      "interval_width_90": 1.4938849550958462
+    },
+    "median": {
+      "crps": 0.2822279757354143,
+      "mse": 0.5014691696284398,
+      "coverage_90": 0.7953694661458334,
+      "interval_width_90": 0.9228633643518758
+    }
+  },
+  "relative_mean_crps_reduction": {
+    "raw": 0.037212844215154695,
+    "median": 0.02773499218258313
+  },
+  "all_six_learned_crps_ci_upper_bounds_negative": true,
+  "crps_comparisons": {
+    "28101": {
+      "learned-minus-raw": {
+        "difference": -0.0032248447879240708,
+        "ci95": [
+          -0.0057645266654791395,
+          -0.0006190142335935514
+        ]
+      },
+      "learned-minus-median": {
+        "difference": -0.006292138652773508,
+        "ci95": [
+          -0.009518595844255549,
+          -0.0030108723180585534
+        ]
+      }
+    },
+    "28102": {
+      "learned-minus-raw": {
+        "difference": -0.016235577358786037,
+        "ci95": [
+          -0.018920471167827028,
+          -0.013613457617435378
+        ]
+      },
+      "learned-minus-median": {
+        "difference": -0.007451466737841846,
+        "ci95": [
+          -0.009570849465804106,
+          -0.005291382020152296
+        ]
+      }
+    },
+    "28103": {
+      "learned-minus-raw": {
+        "difference": -0.012357260669852446,
+        "ci95": [
+          -0.01635439721658522,
+          -0.008461530579465401
+        ]
+      },
+      "learned-minus-median": {
+        "difference": -0.00973916671156868,
+        "ci95": [
+          -0.013860850986787215,
+          -0.005720226056037762
+        ]
+      }
+    }
+  },
+  "coverage_by_seed": {
+    "28101": {
+      "raw": 0.82794189453125,
+      "learned": 0.88238525390625,
+      "median": 0.790771484375
+    },
+    "28102": {
+      "raw": 0.75341796875,
+      "learned": 0.81915283203125,
+      "median": 0.81494140625
+    },
+    "28103": {
+      "raw": 0.82611083984375,
+      "learned": 0.76513671875,
+      "median": 0.7803955078125
+    }
+  },
+  "coverage_caveat": "All nine empirical central90% coverages are below0.9; seed28103 learned coverage is lower than both baselines. Finite64-draw quantiles and learned distribution error are not separately identified.",
+  "cost_accounting": "Validation sampling is a subset of forecaster training and is not double counted. All four mediator candidate fits are included once in learned cost. Separate phase wall times are not added to worker totals.",
+  "mean_total_seconds_by_method": {
+    "raw": 1496.4742618336652,
+    "learned": 1484.5115518056555,
+    "median": 1472.4763131806587
+  },
+  "source_provenance": {
+    "files_checked": 89,
+    "identical_files": 88,
+    "inventory_scope": "src,scripts,tests,configs,pyproject.toml,uv.lock",
+    "changed_file": "src/densiffusion/polishing_analysis.py",
+    "changed_functions": [
+      "_validation",
+      "_costs",
+      "_auxiliary",
+      "analyze_polishing_run"
+    ],
+    "patch_and_supplemental_source_hashes_verified": true,
+    "difference_scope": "Input/type/finite-score and timing validation guards only; no metric/bootstrap/training/sampling changes",
+    "change_precedes_first_forecaster_start": true,
+    "metadata_correction": "Resolved: archived_analysis_source_sha256 identifies original member; training_archive_sha256 identifies whole unchanged archive"
+  },
+  "report_review": {
+    "path": "REPORT.md",
+    "sha256": "14ef907b71563a90c7b86dd19930df5c42c8d0e4c609f76ac90ae6d50e5e931f",
+    "status": "passed",
+    "numerical_tables": "Aggregate/seed metric tables, all9CRPSCI rows, and all8horizonCRPS rows match saved analysis rounding",
+    "scope": "Conditional/unadjusted intervals, descriptive seed variation, calibration limitations, no convergence/universal claims, and finite-draw caveats stated correctly",
+    "costs": "Checked against independently recomputed component accounting; no validation-cost double counting",
+    "corrections_required": []
+  },
+  "primary_analysis_sha256": "94e30337cadb8e7c0b3671dc4921f0d88e13e93098096ca0f8fd6960fae451ba",
+  "primary_verification_sha256": "cce6afe2c36f4a0f1c6124129c3afc10cb2b3bc8e143f6b4f6f5eed40c890cf0",
+  "frozen_marker_sha256": "1eee6f1b88769958a4f5f1c43bfbeefc843bd7ba02d2f8ea46c277719722e446",
+  "interpretation_scope": "Improvement in this completed experiment; three-seed spread is descriptive, intervals conditional/unadjusted, and no convergence or universal advantage follows."
+}

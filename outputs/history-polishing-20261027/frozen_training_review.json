@@ -1,0 +1,91 @@
+{
+  "status": "passed",
+  "verified_utc": "2026-10-27T20:47:18.981607+00:00",
+  "scope": "Frozen training and original noisy-grid validation only; no test arrays or test scores accessed",
+  "primary_directory": "/Users/kaanbaykara/densiffusion/outputs/history-polishing-20261027/primary",
+  "frozen_marker_sha256": "1eee6f1b88769958a4f5f1c43bfbeefc843bd7ba02d2f8ea46c277719722e446",
+  "configuration_sha256": "584f27380924024420d05fce1ade4a8be17d64e8acbe83acf17d6d9524f44240",
+  "protected_training_artifacts": 183,
+  "frozen_mediator_artifacts": 69,
+  "forecasters_verified": 9,
+  "candidate_ensembles_verified": 63,
+  "candidate_trajectories": 256,
+  "draws_per_candidate": 64,
+  "measured_updates_per_forecaster": 4800,
+  "validation_epochs": [
+    10,
+    50,
+    100,
+    200,
+    400,
+    800,
+    1200
+  ],
+  "denoising_validation_interval": 10,
+  "forecast_training_or_sampling_performed": false,
+  "test_generation_or_inference_performed": false,
+  "deterministic_mediator_training_validation_predictions_recomputed": true,
+  "original_noisy_train_validation_replayed": true,
+  "mediators_frozen_before_each_forecaster_started": true,
+  "unchanged_noisy_future_targets_verified": true,
+  "all_frozen_hashes_unchanged": true,
+  "seeds": {
+    "28101": {
+      "selected_checkpoints": {
+        "raw": {
+          "epoch": 400,
+          "crps": 0.2895671883476523
+        },
+        "learned": {
+          "epoch": 400,
+          "crps": 0.28349562782276105
+        },
+        "median": {
+          "epoch": 200,
+          "crps": 0.2868494328301998
+        }
+      },
+      "measured_updates_per_method": 4800,
+      "forecaster_parameters": 413521,
+      "mediator_selected": "candidate_03_64_huber"
+    },
+    "28102": {
+      "selected_checkpoints": {
+        "raw": {
+          "epoch": 400,
+          "crps": 0.2957125783525897
+        },
+        "learned": {
+          "epoch": 400,
+          "crps": 0.27834268496999215
+        },
+        "median": {
+          "epoch": 200,
+          "crps": 0.28228612104849565
+        }
+      },
+      "measured_updates_per_method": 4800,
+      "forecaster_parameters": 413521,
+      "mediator_selected": "candidate_03_64_huber"
+    },
+    "28103": {
+      "selected_checkpoints": {
+        "raw": {
+          "epoch": 400,
+          "crps": 0.2801400124272825
+        },
+        "learned": {
+          "epoch": 800,
+          "crps": 0.26243794823386835
+        },
+        "median": {
+          "epoch": 200,
+          "crps": 0.2767282195345617
+        }
+      },
+      "measured_updates_per_method": 4800,
+      "forecaster_parameters": 413521,
+      "mediator_selected": "candidate_03_64_huber"
+    }
+  }
+}

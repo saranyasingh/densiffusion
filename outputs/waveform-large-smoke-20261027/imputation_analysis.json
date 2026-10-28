@@ -1,0 +1,802 @@
+{
+  "analysis_version": 1,
+  "metric_scope": "Hidden entries only; known observations excluded.",
+  "bootstrap": {
+    "replicates": 10000,
+    "base_seed": 8675309,
+    "unit": "independent trajectory, retaining hidden entries and draws",
+    "scope": "Conditional on fitted models and saved ensembles; training-seed variation separate.",
+    "multiple_comparisons": "Intervals are unadjusted across metrics, seeds, and validation attempts."
+  },
+  "interval_definition": "Empirical 5th and 95th percentiles, with linear interpolation; finite draws affect coverage.",
+  "linear_baseline": "Deterministic linear interpolation has zero-width intervals; its coverage is not a probabilistic calibration benchmark.",
+  "validation_reuse": "Repeated candidate selection on the same validation set induces selection optimism; the gate is not a held-out test claim.",
+  "plots": [
+    "imputation_plots/validation_reconstructions.svg",
+    "imputation_plots/validation_per_time.svg",
+    "imputation_plots/training_curves.svg"
+  ],
+  "validation": {
+    "seeds": {
+      "seed_27101": {
+        "source": "validation_samples.npz",
+        "source_sha256": "34905a9086a02c07ee6ed825ee0519436d3883dcebf75a884309404004ecc3c3",
+        "n_windows": 8,
+        "n_trajectories": 8,
+        "draws_per_method": {
+          "learned": 4,
+          "linear": 4
+        },
+        "trajectory_id_source": "archive",
+        "times": [
+          0.0,
+          0.1,
+          0.2,
+          0.30000000000000004,
+          0.4,
+          0.5,
+          0.6000000000000001,
+          0.7000000000000001,
+          0.8,
+          0.9,
+          1.0,
+          1.1,
+          1.2000000000000002,
+          1.3,
+          1.4000000000000001,
+          1.5,
+          1.6,
+          1.7000000000000002,
+          1.8,
+          1.9000000000000001,
+          2.0,
+          2.1,
+          2.2,
+          2.3000000000000003,
+          2.4000000000000004,
+          2.5,
+          2.6,
+          2.7,
+          2.8000000000000003,
+          2.9000000000000004,
+          3.0,
+          3.1,
+          3.2
+        ],
+        "scores": {
+          "learned": {
+            "aggregate": {
+              "crps": 0.6644206350244051,
+              "mse": 1.0029034962479955,
+              "coverage_90": 0.7109375,
+              "interval_width_90": 2.587904190392203
+            },
+            "trajectory_weighted": {
+              "crps": 0.6644206350244048,
+              "mse": 1.0029034962479955,
+              "coverage_90": 0.7109375,
+              "interval_width_90": 2.5879041903922024
+            },
+            "per_trajectory": {
+              "crps": [
+                0.5473783644022895,
+                0.5787584252738895,
+                0.6756532082639803,
+                0.5926440147129148,
+                0.7571266474671594,
+                0.6923022976944568,
+                0.6224848179063196,
+                0.8490173044742295
+              ],
+              "mse": [
+                0.6511184993932514,
+                0.7459415395321217,
+                0.9853098552310411,
+                0.796728013745389,
+                1.258098744946084,
+                1.1775489700296033,
+                0.9330412649079519,
+                1.4754410821985222
+              ],
+              "coverage_90": [
+                0.625,
+                0.6875,
+                0.75,
+                0.75,
+                0.6875,
+                0.6875,
+                0.8125,
+                0.6875
+              ],
+              "interval_width_90": [
+                2.292288413018923,
+                2.425821703972178,
+                2.4950440643977343,
+                2.2317227207982793,
+                3.010487045240006,
+                2.5366464046179313,
+                2.6279932667617683,
+                3.0832299043308007
+              ]
+            },
+            "trajectory_ids": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "windows_per_trajectory": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "hidden_entries_per_trajectory": [
+              16,
+              16,
+              16,
+              16,
+              16,
+              16,
+              16,
+              16
+            ],
+            "per_time": {
+              "crps": [
+                null,
+                0.6368806818411066,
+                null,
+                0.6094623616463589,
+                null,
+                0.7523607344398916,
+                null,
+                0.6237165195221404,
+                null,
+                0.5711604883696337,
+                null,
+                0.6158072904496541,
+                null,
+                0.7067103692213115,
+                null,
+                0.6881806553643303,
+                null,
+                0.5858818773065568,
+                null,
+                0.6519242041192833,
+                null,
+                0.7209978817735625,
+                null,
+                0.8526138937045405,
+                null,
+                0.7159373004890497,
+                null,
+                0.5542232170967918,
+                null,
+                0.6225143111307381,
+                null,
+                0.7223583739155295,
+                null
+              ],
+              "mse": [
+                null,
+                0.9453879916884649,
+                null,
+                0.9797432138612966,
+                null,
+                1.3493069333636285,
+                null,
+                0.8192710590587041,
+                null,
+                1.0180932866605998,
+                null,
+                0.8549591486706352,
+                null,
+                1.0231097632502504,
+                null,
+                0.6357977831650957,
+                null,
+                0.5998056100627374,
+                null,
+                0.9391910789164931,
+                null,
+                1.2657924716665019,
+                null,
+                1.6444846021318709,
+                null,
+                1.0482427019765477,
+                null,
+                1.102109287240894,
+                null,
+                0.6491337873102896,
+                null,
+                1.1720272209439195,
+                null
+              ],
+              "coverage_90": [
+                null,
+                0.625,
+                null,
+                0.75,
+                null,
+                0.625,
+                null,
+                0.75,
+                null,
+                0.75,
+                null,
+                0.75,
+                null,
+                0.75,
+                null,
+                0.875,
+                null,
+                0.875,
+                null,
+                0.75,
+                null,
+                0.625,
+                null,
+                0.75,
+                null,
+                0.5,
+                null,
+                0.625,
+                null,
+                0.75,
+                null,
+                0.625,
+                null
+              ],
+              "interval_width_90": [
+                null,
+                2.1299694002023895,
+                null,
+                2.354157681623473,
+                null,
+                1.794623341798433,
+                null,
+                2.2442655797349285,
+                null,
+                2.8311863234732297,
+                null,
+                2.8877136755909296,
+                null,
+                2.827851376694161,
+                null,
+                3.8068301102162874,
+                null,
+                2.7518258788622907,
+                null,
+                3.035931669408455,
+                null,
+                2.0186028438154606,
+                null,
+                2.596188196842558,
+                null,
+                2.033553152537206,
+                null,
+                2.672839442832628,
+                null,
+                2.945441379085968,
+                null,
+                2.4754869935568418,
+                null
+              ]
+            },
+            "hidden_entries_per_time": [
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0
+            ],
+            "observations_preserved": true
+          },
+          "linear": {
+            "aggregate": {
+              "crps": 0.0981464699494771,
+              "mse": 0.015878210947677156,
+              "coverage_90": 0.0,
+              "interval_width_90": 0.0
+            },
+            "trajectory_weighted": {
+              "crps": 0.0981464699494771,
+              "mse": 0.01587821094767716,
+              "coverage_90": 0.0,
+              "interval_width_90": 0.0
+            },
+            "per_trajectory": {
+              "crps": [
+                0.04244784758956397,
+                0.08280147149328126,
+                0.15113100611544475,
+                0.09141402618643658,
+                0.10780843322167898,
+                0.079177537182031,
+                0.15090270272960576,
+                0.07948873507777449
+              ],
+              "mse": [
+                0.003066939411096612,
+                0.009308175120993668,
+                0.02915360582030338,
+                0.012536071862081407,
+                0.01924805789791605,
+                0.01085517522989209,
+                0.03286125944222948,
+                0.009996402796904592
+              ],
+              "coverage_90": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "interval_width_90": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "trajectory_ids": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "windows_per_trajectory": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "hidden_entries_per_trajectory": [
+              16,
+              16,
+              16,
+              16,
+              16,
+              16,
+              16,
+              16
+            ],
+            "per_time": {
+              "crps": [
+                null,
+                0.11723443483968919,
+                null,
+                0.07579902252575844,
+                null,
+                0.106131569111411,
+                null,
+                0.07758207940876863,
+                null,
+                0.11459657189890064,
+                null,
+                0.08495690773370901,
+                null,
+                0.13852192657213552,
+                null,
+                0.12119343731850928,
+                null,
+                0.05917642239804585,
+                null,
+                0.08938238667347581,
+                null,
+                0.06327069636194835,
+                null,
+                0.13750539169528567,
+                null,
+                0.09776064812223687,
+                null,
+                0.11267252790199607,
+                null,
+                0.08429888079004817,
+                null,
+                0.09026061583971513,
+                null
+              ],
+              "mse": [
+                null,
+                0.02458167489085024,
+                null,
+                0.010605391620799372,
+                null,
+                0.01730510675995706,
+                null,
+                0.007973176047025094,
+                null,
+                0.017502112810261813,
+                null,
+                0.01594836095860829,
+                null,
+                0.024117968608957555,
+                null,
+                0.021654853271756307,
+                null,
+                0.008463925109951231,
+                null,
+                0.012755673471655394,
+                null,
+                0.00551123919971619,
+                null,
+                0.029900313602269888,
+                null,
+                0.01231618108638429,
+                null,
+                0.022524319974358015,
+                null,
+                0.009139773183309698,
+                null,
+                0.013751304566974105,
+                null
+              ],
+              "coverage_90": [
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null
+              ],
+              "interval_width_90": [
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null,
+                0.0,
+                null
+              ]
+            },
+            "hidden_entries_per_time": [
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0,
+              8,
+              0
+            ],
+            "observations_preserved": true
+          }
+        },
+        "learned_minus_linear": {
+          "crps": {
+            "difference": 0.5662741650749279,
+            "ci95": [
+              0.5067518242234579,
+              0.6390570637831009
+            ]
+          },
+          "mse": {
+            "difference": 0.9870252853003185,
+            "ci95": [
+              0.8161291578592332,
+              1.1793459920401075
+            ]
+          },
+          "coverage_90": {
+            "difference": 0.7109375,
+            "ci95": [
+              0.6796875,
+              0.75
+            ]
+          },
+          "interval_width_90": {
+            "difference": 2.5879041903922024,
+            "ci95": [
+              2.40080203467171,
+              2.801878154912097
+            ]
+          }
+        },
+        "bootstrap_seed": 8675309
+      }
+    },
+    "across_seed_descriptive": {
+      "n_seeds": 1,
+      "scope": "Descriptive variation across paired training/dataset seeds; no pooled inference.",
+      "scores": {
+        "learned": {
+          "crps": {
+            "mean": 0.6644206350244048,
+            "sample_std": null,
+            "minimum": 0.6644206350244048,
+            "maximum": 0.6644206350244048,
+            "values": [
+              0.6644206350244048
+            ]
+          },
+          "mse": {
+            "mean": 1.0029034962479955,
+            "sample_std": null,
+            "minimum": 1.0029034962479955,
+            "maximum": 1.0029034962479955,
+            "values": [
+              1.0029034962479955
+            ]
+          },
+          "coverage_90": {
+            "mean": 0.7109375,
+            "sample_std": null,
+            "minimum": 0.7109375,
+            "maximum": 0.7109375,
+            "values": [
+              0.7109375
+            ]
+          },
+          "interval_width_90": {
+            "mean": 2.5879041903922024,
+            "sample_std": null,
+            "minimum": 2.5879041903922024,
+            "maximum": 2.5879041903922024,
+            "values": [
+              2.5879041903922024
+            ]
+          }
+        },
+        "linear": {
+          "crps": {
+            "mean": 0.0981464699494771,
+            "sample_std": null,
+            "minimum": 0.0981464699494771,
+            "maximum": 0.0981464699494771,
+            "values": [
+              0.0981464699494771
+            ]
+          },
+          "mse": {
+            "mean": 0.01587821094767716,
+            "sample_std": null,
+            "minimum": 0.01587821094767716,
+            "maximum": 0.01587821094767716,
+            "values": [
+              0.01587821094767716
+            ]
+          },
+          "coverage_90": {
+            "mean": 0.0,
+            "sample_std": null,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "values": [
+              0.0
+            ]
+          },
+          "interval_width_90": {
+            "mean": 0.0,
+            "sample_std": null,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "values": [
+              0.0
+            ]
+          }
+        }
+      },
+      "learned_minus_linear": {
+        "crps": {
+          "mean": 0.5662741650749279,
+          "sample_std": null,
+          "minimum": 0.5662741650749279,
+          "maximum": 0.5662741650749279,
+          "values": [
+            0.5662741650749279
+          ]
+        },
+        "mse": {
+          "mean": 0.9870252853003185,
+          "sample_std": null,
+          "minimum": 0.9870252853003185,
+          "maximum": 0.9870252853003185,
+          "values": [
+            0.9870252853003185
+          ]
+        },
+        "coverage_90": {
+          "mean": 0.7109375,
+          "sample_std": null,
+          "minimum": 0.7109375,
+          "maximum": 0.7109375,
+          "values": [
+            0.7109375
+          ]
+        },
+        "interval_width_90": {
+          "mean": 2.5879041903922024,
+          "sample_std": null,
+          "minimum": 2.5879041903922024,
+          "maximum": 2.5879041903922024,
+          "values": [
+            2.5879041903922024
+          ]
+        }
+      }
+    }
+  },
+  "training": {
+    "seed_27101": {
+      "records": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1159026622772217,
+          "learning_rate": 0.001,
+          "validation_loss": 1.0005820989608765,
+          "selection_metric": "_train_seed.<locals>.validation_interpolation_crps",
+          "selection_score": 0.6644833438167044,
+          "elapsed_seconds": 0.5764217089745216
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.0728065967559814,
+          "learning_rate": 1.0000000000000003e-05,
+          "validation_loss": 1.000452995300293,
+          "selection_metric": "_train_seed.<locals>.validation_interpolation_crps",
+          "selection_score": 0.6644206350244051,
+          "elapsed_seconds": 0.6343344170018099
+        }
+      ],
+      "selected_epoch": 2,
+      "scope": "Within-model training behavior; endpoint summaries do not certify convergence."
+    }
+  },
+  "tasks": [
+    "validation"
+  ],
+  "validation_gate": {
+    "passed": false,
+    "criteria": {
+      "exactly_three_paired_seeds": false,
+      "configured_seed_inventory_complete": true,
+      "learned_crps_lower_in_every_seed": false,
+      "mean_relative_crps_reduction_at_least_threshold": false,
+      "every_seed_ci95_upper_below_zero": false
+    },
+    "minimum_relative_improvement": 0.05,
+    "mean_learned_crps": 0.6644206350244048,
+    "mean_linear_crps": 0.0981464699494771,
+    "relative_crps_reduction": -5.769684486527422,
+    "observed_seeds": [
+      27101
+    ],
+    "expected_seeds": [
+      27101
+    ],
+    "scope": "Predeclared validation-only development decision, not a confirmatory test claim.",
+    "ratio_definition": "1 - equal-seed mean learned trajectory CRPS / equal-seed mean linear trajectory CRPS",
+    "transfer_scores_used": false
+  }
+}

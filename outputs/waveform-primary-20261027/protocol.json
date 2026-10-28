@@ -1,0 +1,26 @@
+{
+  "generator": "densiffusion.generators.waveform:generate_waveforms",
+  "formula": "A*(sin(2*pi*f*t+phi)+0.3*sin(2*(2*pi*f*t+phi)+psi))+epsilon",
+  "amplitude_uniform": [
+    0.7,
+    1.3
+  ],
+  "frequency_uniform": [
+    0.6,
+    0.9
+  ],
+  "phase_uniform": [
+    0,
+    6.283185307179586
+  ],
+  "harmonic_phase_uniform": [
+    0,
+    6.283185307179586
+  ],
+  "observation_noise_std": 0.02,
+  "latents_fixed_within_trajectory": true,
+  "latents_given_to_models": false,
+  "fine_truth_used_for_training_or_selection": false,
+  "confirmatory_test_access": "after all three seeds and all three methods frozen",
+  "conditional_ablation_rule": "If the primary result indicates a promising learned-densification benefit, run a separately labeled history-only ablation with original future supervision and explicit measurement timestamps; no retuning main models."
+}

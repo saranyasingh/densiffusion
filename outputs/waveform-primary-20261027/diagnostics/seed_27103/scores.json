@@ -1,0 +1,132 @@
+{
+  "original_test_rng_reproduced_exactly": true,
+  "tasks": {
+    "trained_resolution": {
+      "input_dt": 0.2,
+      "output_dt": 0.1,
+      "n_observed": 13,
+      "n_hidden": 12,
+      "n_samples": 64,
+      "sampling_seed": 2212686593,
+      "observations_preserved": true,
+      "scores": {
+        "learned": {
+          "noisy_observations": {
+            "crps": 0.42721999711415903,
+            "mse": 0.5734771432583483,
+            "coverage_90": 0.8486328125,
+            "interval_width_90": 2.082734506674266
+          },
+          "noiseless_signal": {
+            "crps": 0.4269515009046472,
+            "mse": 0.5730087096830326,
+            "coverage_90": 0.8473307291666666,
+            "interval_width_90": 2.082734506674266
+          }
+        },
+        "linear": {
+          "noisy_observations": {
+            "crps": 0.10075312714638389,
+            "mse": 0.01619096870620884,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "noiseless_signal": {
+            "crps": 0.09925472645241547,
+            "mse": 0.015840909894595596,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          }
+        }
+      },
+      "learned_minus_linear": {
+        "noisy_observations": {
+          "crps": 0.32646686996777513,
+          "mse": 0.5572861745521395,
+          "coverage_90": 0.8486328125,
+          "interval_width_90": 2.082734506674266
+        },
+        "noiseless_signal": {
+          "crps": 0.3276967744522317,
+          "mse": 0.557167799788437,
+          "coverage_90": 0.8473307291666666,
+          "interval_width_90": 2.082734506674266
+        }
+      },
+      "timings": {
+        "learned": {
+          "inference_seconds": 25.83852674998343,
+          "inference_seconds_per_trajectory": 0.10093174511712277
+        },
+        "linear": {
+          "inference_seconds": 0.0009779579704627395,
+          "inference_seconds_per_trajectory": 3.820148322120076e-06
+        }
+      }
+    },
+    "transferred_resolution": {
+      "input_dt": 0.1,
+      "output_dt": 0.05,
+      "n_observed": 25,
+      "n_hidden": 24,
+      "n_samples": 64,
+      "sampling_seed": 2126752049,
+      "observations_preserved": true,
+      "scores": {
+        "learned": {
+          "noisy_observations": {
+            "crps": 0.425940458224495,
+            "mse": 0.5712840527448597,
+            "coverage_90": 0.85107421875,
+            "interval_width_90": 2.0799024144454354
+          },
+          "noiseless_signal": {
+            "crps": 0.4256877228185994,
+            "mse": 0.5707853493503443,
+            "coverage_90": 0.8505859375,
+            "interval_width_90": 2.0799024144454354
+          }
+        },
+        "linear": {
+          "noisy_observations": {
+            "crps": 0.03234248677372314,
+            "mse": 0.0016499730237573417,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "noiseless_signal": {
+            "crps": 0.02811394853559766,
+            "mse": 0.0012666366906315119,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          }
+        }
+      },
+      "learned_minus_linear": {
+        "noisy_observations": {
+          "crps": 0.39359797145077186,
+          "mse": 0.5696340797211024,
+          "coverage_90": 0.85107421875,
+          "interval_width_90": 2.0799024144454354
+        },
+        "noiseless_signal": {
+          "crps": 0.3975737742830017,
+          "mse": 0.5695187126597128,
+          "coverage_90": 0.8505859375,
+          "interval_width_90": 2.0799024144454354
+        }
+      },
+      "timings": {
+        "learned": {
+          "inference_seconds": 54.741184500046074,
+          "inference_seconds_per_trajectory": 0.21383275195330498
+        },
+        "linear": {
+          "inference_seconds": 0.0012428329791873693,
+          "inference_seconds_per_trajectory": 4.8548163249506615e-06
+        }
+      }
+    }
+  },
+  "fine_observation_noise_seed": 1005204838
+}

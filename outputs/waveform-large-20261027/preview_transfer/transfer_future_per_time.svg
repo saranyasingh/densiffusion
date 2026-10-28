@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="1120" viewBox="0 0 1120 1120">
+<title>Transfer_future hidden-point scores by measurement time</title>
+<rect width="100%" height="100%" fill="white"/>
+<style>text {font-family:Arial,sans-serif;fill:#263238;font-size:12px}</style>
+<text x="32" y="30" style="font-size:20px;font-weight:bold">Transfer_future hidden-point scores by measurement time</text>
+<text x="32" y="53">Green: learned; orange: linear. Lines: seed means; bands: descriptive seed range, not confidence intervals.</text>
+<text x="54" y="97">crps</text>
+<path d="M 54 350.0 h 487" stroke="#e9ecef"/>
+<text x="47" y="354.0" text-anchor="end">0.02</text>
+<path d="M 54 289.5 h 487" stroke="#e9ecef"/>
+<text x="47" y="293.5" text-anchor="end">0.04</text>
+<path d="M 54 228.99999999999997 h 487" stroke="#e9ecef"/>
+<text x="47" y="232.99999999999997" text-anchor="end">0.06</text>
+<path d="M 54 168.49999999999997 h 487" stroke="#e9ecef"/>
+<text x="47" y="172.49999999999997" text-anchor="end">0.08</text>
+<path d="M 54 108.0 h 487" stroke="#e9ecef"/>
+<text x="47" y="112.0" text-anchor="end">0.10</text>
+<text x="54.0" y="369" text-anchor="middle">0.00</text>
+<text x="175.75" y="369" text-anchor="middle">0.20</text>
+<text x="297.5" y="369" text-anchor="middle">0.40</text>
+<text x="419.25000000000006" y="369" text-anchor="middle">0.60</text>
+<text x="541.0" y="369" text-anchor="middle">0.80</text>
+<path d="M 54 108 v 242 h 487" stroke="#868e96" fill="none"/>
+<text x="297.5" y="394" text-anchor="middle">Time</text>
+<text transform="translate(13,229.0) rotate(-90)" text-anchor="middle">crps</text>
+<polygon points="84.44,253.24 145.31,160.24 206.19,217.30 267.06,255.79 327.94,259.68 388.81,224.67 449.69,181.02 510.56,287.21 510.56,242.97 449.69,175.28 388.81,167.89 327.94,220.38 267.06,237.88 206.19,210.12 145.31,137.70 84.44,192.51" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="84.44,221.26 145.31,150.62 206.19,214.09 267.06,247.73 327.94,243.43 388.81,202.03 449.69,178.20 510.56,267.91" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<polygon points="84.44,315.96 145.31,317.63 206.19,318.57 267.06,309.18 327.94,308.81 388.81,314.88 449.69,320.30 510.56,315.71 510.56,309.05 449.69,313.37 388.81,310.36 327.94,304.40 267.06,306.26 206.19,313.15 145.31,308.76 84.44,310.56" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="84.44,312.78 145.31,313.01 206.19,315.87 267.06,307.95 327.94,306.19 388.81,312.05 449.69,315.78 510.56,313.36" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<text x="614" y="97">mse</text>
+<path d="M 614 350.0 h 487" stroke="#e9ecef"/>
+<text x="607" y="354.0" text-anchor="end">-0.01</text>
+<path d="M 614 289.5 h 487" stroke="#e9ecef"/>
+<text x="607" y="293.5" text-anchor="end">0.00</text>
+<path d="M 614 229.0 h 487" stroke="#e9ecef"/>
+<text x="607" y="233.0" text-anchor="end">0.01</text>
+<path d="M 614 168.5 h 487" stroke="#e9ecef"/>
+<text x="607" y="172.5" text-anchor="end">0.02</text>
+<path d="M 614 108.0 h 487" stroke="#e9ecef"/>
+<text x="607" y="112.0" text-anchor="end">0.03</text>
+<text x="614.0" y="369" text-anchor="middle">0.00</text>
+<text x="735.75" y="369" text-anchor="middle">0.20</text>
+<text x="857.5" y="369" text-anchor="middle">0.40</text>
+<text x="979.25" y="369" text-anchor="middle">0.60</text>
+<text x="1101.0" y="369" text-anchor="middle">0.80</text>
+<path d="M 614 108 v 242 h 487" stroke="#868e96" fill="none"/>
+<text x="857.5" y="394" text-anchor="middle">Time</text>
+<text transform="translate(573,229.0) rotate(-90)" text-anchor="middle">mse</text>
+<polygon points="644.44,254.95 705.31,200.52 766.19,237.35 827.06,257.75 887.94,257.01 948.81,235.98 1009.69,205.61 1070.56,271.67 1070.56,251.38 1009.69,201.37 948.81,206.01 887.94,235.27 827.06,249.76 766.19,228.61 705.31,165.60 644.44,223.90" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="644.44,237.18 705.31,184.47 766.19,233.18 827.06,253.44 887.94,248.45 948.81,224.83 1009.69,203.82 1070.56,262.90" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<polygon points="644.44,291.66 705.31,292.40 766.19,292.39 827.06,290.81 887.94,290.63 948.81,291.23 1009.69,292.13 1070.56,291.86 1070.56,290.26 1009.69,291.68 948.81,290.61 887.94,289.37 827.06,290.29 766.19,291.48 705.31,290.57 644.44,290.41" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="644.44,291.10 705.31,291.52 766.19,291.84 827.06,290.61 887.94,289.93 948.81,290.85 1009.69,291.89 1070.56,291.15" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<text x="54" y="427">coverage_90</text>
+<path d="M 54 680.0 h 487" stroke="#e9ecef"/>
+<text x="47" y="684.0" text-anchor="end">-0.07</text>
+<path d="M 54 619.5 h 487" stroke="#e9ecef"/>
+<text x="47" y="623.5" text-anchor="end">0.19</text>
+<path d="M 54 559.0 h 487" stroke="#e9ecef"/>
+<text x="47" y="563.0" text-anchor="end">0.45</text>
+<path d="M 54 498.5 h 487" stroke="#e9ecef"/>
+<text x="47" y="502.5" text-anchor="end">0.71</text>
+<path d="M 54 438.0 h 487" stroke="#e9ecef"/>
+<text x="47" y="442.0" text-anchor="end">0.97</text>
+<text x="54.0" y="699" text-anchor="middle">0.00</text>
+<text x="175.75" y="699" text-anchor="middle">0.20</text>
+<text x="297.5" y="699" text-anchor="middle">0.40</text>
+<text x="419.25000000000006" y="699" text-anchor="middle">0.60</text>
+<text x="541.0" y="699" text-anchor="middle">0.80</text>
+<path d="M 54 438 v 242 h 487" stroke="#868e96" fill="none"/>
+<text x="297.5" y="724" text-anchor="middle">Time</text>
+<text transform="translate(13,559.0) rotate(-90)" text-anchor="middle">coverage_90</text>
+<polyline points="54.00,454.69 84.44,454.69 114.88,454.69 145.31,454.69 175.75,454.69 206.19,454.69 236.63,454.69 267.06,454.69 297.50,454.69 327.94,454.69 358.38,454.69 388.81,454.69 419.25,454.69 449.69,454.69 480.12,454.69 510.56,454.69 541.00,454.69" fill="none" stroke="#868e96" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polygon points="84.44,562.80 145.31,551.94 206.19,531.11 267.06,532.92 327.94,537.45 388.81,554.65 449.69,531.11 510.56,529.30 510.56,510.29 449.69,524.77 388.81,524.77 327.94,507.57 267.06,503.04 206.19,516.62 145.31,526.58 84.44,517.53" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="84.44,541.07 145.31,541.37 206.19,525.68 267.06,519.94 327.94,519.64 388.81,535.34 449.69,527.19 510.56,519.64" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<polygon points="84.44,663.31 145.31,663.31 206.19,663.31 267.06,663.31 327.94,663.31 388.81,663.31 449.69,663.31 510.56,663.31 510.56,663.31 449.69,663.31 388.81,663.31 327.94,663.31 267.06,663.31 206.19,663.31 145.31,663.31 84.44,663.31" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="84.44,663.31 145.31,663.31 206.19,663.31 267.06,663.31 327.94,663.31 388.81,663.31 449.69,663.31 510.56,663.31" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<text x="614" y="427">interval_width_90</text>
+<path d="M 614 680.0 h 487" stroke="#e9ecef"/>
+<text x="607" y="684.0" text-anchor="end">-0.02</text>
+<path d="M 614 619.5 h 487" stroke="#e9ecef"/>
+<text x="607" y="623.5" text-anchor="end">0.04</text>
+<path d="M 614 559.0 h 487" stroke="#e9ecef"/>
+<text x="607" y="563.0" text-anchor="end">0.10</text>
+<path d="M 614 498.5 h 487" stroke="#e9ecef"/>
+<text x="607" y="502.5" text-anchor="end">0.16</text>
+<path d="M 614 438.0 h 487" stroke="#e9ecef"/>
+<text x="607" y="442.0" text-anchor="end">0.22</text>
+<text x="614.0" y="699" text-anchor="middle">0.00</text>
+<text x="735.75" y="699" text-anchor="middle">0.20</text>
+<text x="857.5" y="699" text-anchor="middle">0.40</text>
+<text x="979.25" y="699" text-anchor="middle">0.60</text>
+<text x="1101.0" y="699" text-anchor="middle">0.80</text>
+<path d="M 614 438 v 242 h 487" stroke="#868e96" fill="none"/>
+<text x="857.5" y="724" text-anchor="middle">Time</text>
+<text transform="translate(573,559.0) rotate(-90)" text-anchor="middle">interval_width_90</text>
+<polygon points="644.44,517.70 705.31,499.84 766.19,487.77 827.06,502.37 887.94,510.23 948.81,499.75 1009.69,483.07 1070.56,527.21 1070.56,505.88 1009.69,460.01 948.81,476.48 887.94,482.07 827.06,472.80 766.19,459.67 705.31,454.69 644.44,501.64" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="644.44,512.23 705.31,479.71 766.19,476.37 827.06,491.59 887.94,495.81 948.81,488.00 1009.69,474.10 1070.56,517.08" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<polygon points="644.44,663.31 705.31,663.31 766.19,663.31 827.06,663.31 887.94,663.31 948.81,663.31 1009.69,663.31 1070.56,663.31 1070.56,663.31 1009.69,663.31 948.81,663.31 887.94,663.31 827.06,663.31 766.19,663.31 705.31,663.31 644.44,663.31" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="644.44,663.31 705.31,663.31 766.19,663.31 827.06,663.31 887.94,663.31 948.81,663.31 1009.69,663.31 1070.56,663.31" fill="none" stroke="#e67700" stroke-width="1.8"/>
+</svg>

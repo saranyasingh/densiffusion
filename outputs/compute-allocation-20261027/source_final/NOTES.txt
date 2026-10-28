@@ -1,0 +1,1 @@
+Executed numerical audit is preserved in ../source.tar.gz and ../audit_compute_allocation.py. Final source adds independent analytical count checks, geometry guards, documentation, and a square SVG canvas. Numerical traces, cost ledgers, and every budget frontier were reconstructed with final source and match exactly. No scientific model training or test evaluation occurred.

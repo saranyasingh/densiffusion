@@ -1,0 +1,10 @@
+{
+  "full_tests": {
+    "passed": 542,
+    "seconds": 10.41
+  },
+  "smoke_end_to_end": "completed using actual larger architecture and sampler",
+  "smoke_independent_verification": "passed",
+  "ruff": "passed",
+  "ruff_format_files": 87
+}

@@ -1,0 +1,10 @@
+{
+  "train_data": 527318443,
+  "validation_data": 2759362820,
+  "test_data": 2790262382,
+  "mediator_training": 2170268629,
+  "forecaster_initialization": 1882546837,
+  "forecaster_training": 1608600442,
+  "validation_sampling": 3140372751,
+  "test_sampling": 191492941
+}

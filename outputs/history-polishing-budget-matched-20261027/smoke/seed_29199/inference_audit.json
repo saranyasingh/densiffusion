@@ -1,0 +1,29 @@
+{
+  "raw": {
+    "observed_argument_sha256": "af00d3b29da26a26ce409d7ed7b4a5d020f506166680ecee04e6b543738174c3",
+    "dense_history_argument_sha256": "af00d3b29da26a26ce409d7ed7b4a5d020f506166680ecee04e6b543738174c3",
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 4,
+    "horizon": 8,
+    "sampling_seed": 1284410747
+  },
+  "learned": {
+    "observed_argument_sha256": "9f665d552d7884792453dcd13764ed731988fc6f235b7acfaecae2075f9e3d46",
+    "dense_history_argument_sha256": "9f665d552d7884792453dcd13764ed731988fc6f235b7acfaecae2075f9e3d46",
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 4,
+    "horizon": 8,
+    "sampling_seed": 1284410747
+  },
+  "median": {
+    "observed_argument_sha256": "d11e83339b4149fe0daa7a47027c3cd7e69fb93c221dcde5369c1d7e6cfd2cf9",
+    "dense_history_argument_sha256": "d11e83339b4149fe0daa7a47027c3cd7e69fb93c221dcde5369c1d7e6cfd2cf9",
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 4,
+    "horizon": 8,
+    "sampling_seed": 1284410747
+  }
+}

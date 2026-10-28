@@ -1,0 +1,15 @@
+{
+  "frozen_utc": "2026-10-27T14:46:07.682364+00:00",
+  "checkpoint_sha256": {
+    "seed_27997/densiffusion_forecaster.pt": "ba98c82417f3ba6e5ef42c79680fb4b3d13b268c71bb24f4fde30f97f07c3998",
+    "seed_27997/densifier.pt": "0e331ad0ff7e07960bfa48c7eb7bbf2fc87c32e780c34fbb8fb958e0efa281c2",
+    "seed_27997/direct_csdi_forecaster.pt": "0dac3885972f2c62bc67c1c4a1cfa11632f3556089ba0cad7c44c49e0c379d60",
+    "seed_27997/linear_densification_forecaster.pt": "142c2a89e7c3c09f3499de9357e11b599508c826efc8aae9e45c9b9386414812",
+    "seed_27998/densiffusion_forecaster.pt": "7bb8942f64f0d4f5d84973a27278f0c90039dee0d51093642590c8e864a65ef6",
+    "seed_27998/densifier.pt": "bded64c63da2cf5d5441ac8af6e73efee9be4d1cd56a93ee26e87335c630f050",
+    "seed_27998/direct_csdi_forecaster.pt": "264a24477a51a36d7482c98de5f902f15b5e81b62a28a207c265e0192a25cd2c",
+    "seed_27998/linear_densification_forecaster.pt": "61e0dfd65a8ac5c067f244411511180dca04f24319e19657238afa5bed6a6253"
+  },
+  "config_sha256": "b40c61fe5eefdc26385c31448b50c3ee57272d06152e49096051d89c9ddf286c",
+  "test_evaluated": false
+}

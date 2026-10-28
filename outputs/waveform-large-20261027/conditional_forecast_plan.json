@@ -1,0 +1,13 @@
+{
+  "conditional_only": true,
+  "requires": [
+    "passed frozen imputation validation gate",
+    "passed frozen resolution-transfer gate"
+  ],
+  "config": "configs/waveform_forecast_large.json",
+  "device_rationale": "Single-worker random-input timing pilots favored MPS: roughly 4.7\u20135.7 times one CPU thread for inference and 2.0\u20132.9 times for training, measured while three CPU training workers were active. These are not isolated or full-run aggregate throughput measurements. Sampling batch size 256 is retained because larger pilot batches did not improve per-draw time.",
+  "optimizer_and_architecture": "Exact recovered larger architecture and Adam/diffusion settings; a common 600-epoch, 9,600-update budget with learning-rate drops at epochs 450 and 540. Device choice does not use model-quality scores.",
+  "candidate_validation": "Four original-grid, 64-draw CRPS checks on all 256 validation trajectories at epochs 150, 300, 450, and 600 for every method.",
+  "test": "1,024 fresh trajectories per seed; every seed and method frozen before generation; test namespace 2026102702.",
+  "smoke": "Integration only after both gates pass: one source seed, four draws, eight test paths, independent test namespace 2026102704. Accuracy is ignored."
+}

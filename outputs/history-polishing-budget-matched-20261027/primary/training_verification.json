@@ -1,0 +1,79 @@
+{
+  "seeds": {
+    "29101": {
+      "raw": {
+        "epochs": 1200,
+        "charged_work": 173320595046400,
+        "unused_fraction": 0.0,
+        "selected_epoch": 200,
+        "validation_crps": 0.26541024670165475
+      },
+      "learned": {
+        "epochs": 1192,
+        "charged_work": 173313085145088,
+        "unused_fraction": 4.3329538015891934e-05,
+        "selected_epoch": 800,
+        "validation_crps": 0.25770615560435595
+      },
+      "median": {
+        "epochs": 1200,
+        "charged_work": 173320595046400,
+        "unused_fraction": 0.0,
+        "selected_epoch": 400,
+        "validation_crps": 0.25889516496402604
+      }
+    },
+    "29102": {
+      "raw": {
+        "epochs": 1200,
+        "charged_work": 173320595046400,
+        "unused_fraction": 0.0,
+        "selected_epoch": 1200,
+        "validation_crps": 0.27370282711397126
+      },
+      "learned": {
+        "epochs": 1192,
+        "charged_work": 173313085145088,
+        "unused_fraction": 4.3329538015891934e-05,
+        "selected_epoch": 1192,
+        "validation_crps": 0.2577808581319789
+      },
+      "median": {
+        "epochs": 1200,
+        "charged_work": 173320595046400,
+        "unused_fraction": 0.0,
+        "selected_epoch": 800,
+        "validation_crps": 0.26985159579092427
+      }
+    },
+    "29103": {
+      "raw": {
+        "epochs": 1200,
+        "charged_work": 173320595046400,
+        "unused_fraction": 0.0,
+        "selected_epoch": 400,
+        "validation_crps": 0.2653148369110653
+      },
+      "learned": {
+        "epochs": 1192,
+        "charged_work": 173313085145088,
+        "unused_fraction": 4.3329538015891934e-05,
+        "selected_epoch": 200,
+        "validation_crps": 0.24780756212683688
+      },
+      "median": {
+        "epochs": 1200,
+        "charged_work": 173320595046400,
+        "unused_fraction": 0.0,
+        "selected_epoch": 400,
+        "validation_crps": 0.260808767644903
+      }
+    }
+  },
+  "ceiling": 173320595046400,
+  "training_only": true,
+  "verified_utc": "2026-10-28T03:54:43.243160+00:00",
+  "passed": true,
+  "independent_work_formula": true,
+  "no_new_diffusion_sampling": true
+}

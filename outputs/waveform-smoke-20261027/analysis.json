@@ -1,0 +1,875 @@
+{
+  "analysis_version": 1,
+  "bootstrap": {
+    "replicates": 10000,
+    "seed": 8675309,
+    "unit": "independent test trajectory; all its windows kept together",
+    "estimand": "equal-trajectory mean metric difference, first minus second",
+    "scope": "conditional on each seed's fitted models and saved draws",
+    "excludes": "training variability and resampling forecast ensembles"
+  },
+  "metric_definitions": {
+    "crps": "empirical ensemble CRPS, lower is better",
+    "mse": "ensemble-mean MSE, lower is better",
+    "coverage_90": "marginal coverage of empirical central 90% intervals",
+    "interval_width_90": "mean empirical 95th minus 5th percentile",
+    "quantiles": "linear interpolation; finite scored ensemble size"
+  },
+  "seeds": {
+    "seed_27999": {
+      "n_windows": 8,
+      "n_trajectories": 8,
+      "draws_per_method": {
+        "direct_csdi": 64,
+        "linear_densification": 64,
+        "densiffusion": 64
+      },
+      "scores": {
+        "direct_csdi": {
+          "aggregate": {
+            "crps": 0.5808468786921877,
+            "mse": 0.7918248403834438,
+            "coverage_90": 1.0,
+            "interval_width_90": 5.438696528691797
+          },
+          "per_horizon": {
+            "crps": [
+              0.5542965639100594,
+              0.5062393444143454,
+              0.4998287707848835,
+              0.5407422439270475,
+              0.6083039782320019,
+              0.6349892994824493,
+              0.6412705928684388,
+              0.6611042359182749
+            ],
+            "mse": [
+              0.7895627785780562,
+              0.5861329513708737,
+              0.3707515245330052,
+              0.4243303311198102,
+              0.921427526454736,
+              0.980773660060769,
+              1.1443491695409453,
+              1.1172707814093539
+            ],
+            "coverage_90": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "interval_width_90": [
+              5.385794612765311,
+              5.490959474444389,
+              5.406552536785601,
+              5.221861735731362,
+              5.241736584156751,
+              5.607006487995386,
+              5.5046486854553205,
+              5.651012112200258
+            ]
+          },
+          "trajectory_ids": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "windows_per_trajectory": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "per_trajectory": {
+            "crps": [
+              0.5598459401333171,
+              0.4869400261524003,
+              0.5088307542487516,
+              0.4943004055655739,
+              0.6073378601012542,
+              0.7223136523135706,
+              0.664640930914705,
+              0.602565460107928
+            ],
+            "mse": [
+              0.7952291218103432,
+              0.4705111939893497,
+              0.5687921614161211,
+              0.404436868477992,
+              0.9512511745251132,
+              1.2708209666143968,
+              0.9942926878896996,
+              0.879264548344534
+            ],
+            "coverage_90": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "interval_width_90": [
+              5.463994289189577,
+              5.671535059064626,
+              5.450846630334852,
+              5.267796427011489,
+              5.349214503914117,
+              5.5075568698346595,
+              5.821526752412318,
+              4.97710169777274
+            ]
+          },
+          "trajectory_weighted": {
+            "crps": 0.5808468786921877,
+            "mse": 0.7918248403834437,
+            "coverage_90": 1.0,
+            "interval_width_90": 5.438696528691797
+          }
+        },
+        "linear_densification": {
+          "aggregate": {
+            "crps": 0.5926007800486841,
+            "mse": 0.814880310295008,
+            "coverage_90": 1.0,
+            "interval_width_90": 5.442888019885867
+          },
+          "per_horizon": {
+            "crps": [
+              0.5258539932680846,
+              0.5140119186468883,
+              0.5648764785003018,
+              0.5735559309513272,
+              0.6426753714113396,
+              0.6386722618476001,
+              0.6567286040975673,
+              0.6244316816663644
+            ],
+            "mse": [
+              0.5083471416436481,
+              0.5544228997351184,
+              0.693644233418931,
+              0.7131945891352274,
+              0.8773215390636906,
+              1.087874092439987,
+              1.084921375783308,
+              0.9993166111401527
+            ],
+            "coverage_90": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "interval_width_90": [
+              5.606941725313662,
+              5.2378804884850965,
+              5.159389591962099,
+              5.527770911157129,
+              5.570593346655367,
+              5.3009575471282,
+              5.590572455525397,
+              5.548998092859982
+            ]
+          },
+          "trajectory_ids": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "windows_per_trajectory": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "per_trajectory": {
+            "crps": [
+              0.6347240316046018,
+              0.5195174236924835,
+              0.5355693854621355,
+              0.5106505635208154,
+              0.5455944155857895,
+              0.6967485107590206,
+              0.6863855717105258,
+              0.6116163380541011
+            ],
+            "mse": [
+              0.9333925026044603,
+              0.5112913936967405,
+              0.5638804935954247,
+              0.4398360734281378,
+              0.7194991719732137,
+              1.290806626060189,
+              1.0543533254471682,
+              1.0059828955547292
+            ],
+            "coverage_90": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "interval_width_90": [
+              5.2882389537990075,
+              5.489533790200948,
+              5.311005444079637,
+              5.544985193759201,
+              5.340872351825237,
+              5.463281704485415,
+              5.77555522918701,
+              5.329631491750478
+            ]
+          },
+          "trajectory_weighted": {
+            "crps": 0.5926007800486841,
+            "mse": 0.814880310295008,
+            "coverage_90": 1.0,
+            "interval_width_90": 5.442888019885867
+          }
+        },
+        "densiffusion": {
+          "aggregate": {
+            "crps": 0.5925380707067388,
+            "mse": 0.815242542412508,
+            "coverage_90": 1.0,
+            "interval_width_90": 5.439468729309737
+          },
+          "per_horizon": {
+            "crps": [
+              0.5255322143063792,
+              0.5137812492545084,
+              0.5647607885617909,
+              0.5735066077580828,
+              0.6427231798649657,
+              0.6387404680617806,
+              0.6567864754414443,
+              0.6244735824049588
+            ],
+            "mse": [
+              0.5079847287978009,
+              0.5541779374212377,
+              0.6936088114805784,
+              0.7136408282823025,
+              0.8779611314292495,
+              1.0887909133729263,
+              1.0857474833499778,
+              1.0000285051659916
+            ],
+            "coverage_90": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "interval_width_90": [
+              5.603407213836908,
+              5.234456469863652,
+              5.155906993150711,
+              5.5243513040244565,
+              5.567357632517814,
+              5.297355260699987,
+              5.586937111616134,
+              5.545977848768234
+            ]
+          },
+          "trajectory_ids": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "windows_per_trajectory": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "per_trajectory": {
+            "crps": [
+              0.6347497308054492,
+              0.5194796996168228,
+              0.5353867026177246,
+              0.5104353240459285,
+              0.5455417865843801,
+              0.6967110232388036,
+              0.6863702071035676,
+              0.6116300916412343
+            ],
+            "mse": [
+              0.9341689342153873,
+              0.5121963821490518,
+              0.563711093007953,
+              0.43984782010410167,
+              0.7198313262761452,
+              1.2908788155677264,
+              1.0547258715027177,
+              1.0065800964769815
+            ],
+            "coverage_90": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "interval_width_90": [
+              5.284728820621966,
+              5.4857285819947705,
+              5.3079110890626895,
+              5.541565284878014,
+              5.337443224340676,
+              5.4600396551191785,
+              5.772119985520838,
+              5.326213192939757
+            ]
+          },
+          "trajectory_weighted": {
+            "crps": 0.5925380707067388,
+            "mse": 0.815242542412508,
+            "coverage_90": 1.0,
+            "interval_width_90": 5.439468729309736
+          }
+        }
+      },
+      "paired_differences": {
+        "densiffusion-minus-direct_csdi": {
+          "crps": {
+            "difference": 0.011691192014551245,
+            "ci95": [
+              -0.015549956137793282,
+              0.0363577817577329
+            ],
+            "bootstrap_seed": 8675309
+          },
+          "mse": {
+            "difference": 0.023417702029064368,
+            "ci95": [
+              -0.06015774977395812,
+              0.08602919087063338
+            ],
+            "bootstrap_seed": 8675309
+          },
+          "coverage_90": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_seed": 8675309
+          },
+          "interval_width_90": {
+            "difference": 0.0007722006179390339,
+            "ci95": [
+              -0.12159684258745994,
+              0.1406619946099815
+            ],
+            "bootstrap_seed": 8675309
+          }
+        },
+        "densiffusion-minus-linear_densification": {
+          "crps": {
+            "difference": -6.270934194531341e-05,
+            "ci95": [
+              -0.00012443546801456894,
+              -9.81411207837124e-06
+            ],
+            "bootstrap_seed": 8675310
+          },
+          "mse": {
+            "difference": 0.0003622321175001733,
+            "ci95": [
+              0.00011720713823973328,
+              0.0006081859695164921
+            ],
+            "bootstrap_seed": 8675310
+          },
+          "coverage_90": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_seed": 8675310
+          },
+          "interval_width_90": {
+            "difference": -0.0034192905761303294,
+            "ci95": [
+              -0.00355428932234636,
+              -0.003288587369024931
+            ],
+            "bootstrap_seed": 8675310
+          }
+        },
+        "linear_densification-minus-direct_csdi": {
+          "crps": {
+            "difference": 0.011753901356496559,
+            "ci95": [
+              -0.015196897385947821,
+              0.03696950438618161
+            ],
+            "bootstrap_seed": 8675311
+          },
+          "mse": {
+            "difference": 0.023055469911564194,
+            "ci95": [
+              -0.05964035036341193,
+              0.08575317442622576
+            ],
+            "bootstrap_seed": 8675311
+          },
+          "coverage_90": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "bootstrap_seed": 8675311
+          },
+          "interval_width_90": {
+            "difference": 0.004191491194069363,
+            "ci95": [
+              -0.11846216274425414,
+              0.1442703412869008
+            ],
+            "bootstrap_seed": 8675311
+          }
+        }
+      },
+      "timings": {
+        "densifier_training_seconds": 0.5638132079620846,
+        "methods": {
+          "direct_csdi": {
+            "augmentation_and_forecaster_training_seconds": 0.2410830829758197,
+            "augmentation_sampling_seconds": 0,
+            "forecast_validation_seconds": 0.20937624998623505,
+            "forecaster_fit_seconds": 0.031706832989584655,
+            "total_training_seconds": 0.2410830829758197,
+            "forecast_seconds": 0.10127604199806228,
+            "forecast_seconds_per_trajectory": 0.012659505249757785
+          },
+          "linear_densification": {
+            "augmentation_and_forecaster_training_seconds": 0.41581754200160503,
+            "augmentation_sampling_seconds": 0.00045775005128234625,
+            "forecast_validation_seconds": 0.3814416660461575,
+            "forecaster_fit_seconds": 0.03391812590416521,
+            "total_training_seconds": 0.41581754200160503,
+            "forecast_seconds": 0.1874432500335388,
+            "forecast_seconds_per_trajectory": 0.02343040625419235
+          },
+          "densiffusion": {
+            "augmentation_and_forecaster_training_seconds": 0.46150045801186934,
+            "augmentation_sampling_seconds": 0.018274706962984055,
+            "forecast_validation_seconds": 0.41076816694112495,
+            "forecaster_fit_seconds": 0.03245758410776034,
+            "total_training_seconds": 1.025313665973954,
+            "forecast_seconds": 0.19801537500461563,
+            "forecast_seconds_per_trajectory": 0.024751921875576954
+          }
+        }
+      },
+      "training": {
+        "interpretation": "Within-method training behavior only; denoising losses across target grids are not comparable forecast scores. Endpoint summaries do not establish convergence.",
+        "models": {
+          "densifier": {
+            "final_epoch": 2,
+            "first_train_loss": 1.0789740085601807,
+            "last_train_loss": 0.9456019699573517,
+            "minimum_train_loss": 0.9456019699573517,
+            "selected_epoch": 2,
+            "selection_metric": "validation_loss",
+            "best_selection_score": 1.020015001296997,
+            "last_selection_score": 1.020015001296997,
+            "selected_at_final_epoch": true,
+            "final_minus_previous_selection_score": -4.3511390686035156e-05
+          },
+          "direct_csdi": {
+            "final_epoch": 2,
+            "first_train_loss": 1.0344011783599854,
+            "last_train_loss": 1.1542168259620667,
+            "minimum_train_loss": 1.0344011783599854,
+            "selected_epoch": 2,
+            "selection_metric": "train_seed.<locals>.forecast_crps",
+            "best_selection_score": 0.5682967194623811,
+            "last_selection_score": 0.5682967194623811,
+            "selected_at_final_epoch": true,
+            "final_minus_previous_selection_score": -2.5748285437110496e-05,
+            "forecast_validation": [
+              {
+                "epoch": 1,
+                "seconds": 0.10526570799993351,
+                "crps": 0.5683224677478182,
+                "mse": 0.6919567200704286,
+                "coverage_90": 1.0,
+                "interval_width_90": 5.535808075219391
+              },
+              {
+                "epoch": 2,
+                "seconds": 0.10411054198630154,
+                "crps": 0.5682967194623811,
+                "mse": 0.6919015872649197,
+                "coverage_90": 1.0,
+                "interval_width_90": 5.535682908073066
+              }
+            ],
+            "minimum_original_grid_validation_crps": 0.5682967194623811,
+            "minimum_original_grid_validation_crps_epoch": 2
+          },
+          "linear_densification": {
+            "final_epoch": 2,
+            "first_train_loss": 1.1248135566711426,
+            "last_train_loss": 0.9275849461555481,
+            "minimum_train_loss": 0.9275849461555481,
+            "selected_epoch": 2,
+            "selection_metric": "train_seed.<locals>.forecast_crps",
+            "best_selection_score": 0.574606084966381,
+            "last_selection_score": 0.574606084966381,
+            "selected_at_final_epoch": true,
+            "final_minus_previous_selection_score": -3.090311874354157e-05,
+            "forecast_validation": [
+              {
+                "epoch": 1,
+                "seconds": 0.19385920802596956,
+                "crps": 0.5746369880851245,
+                "mse": 0.714375467568461,
+                "coverage_90": 1.0,
+                "interval_width_90": 5.47478600926697
+              },
+              {
+                "epoch": 2,
+                "seconds": 0.18758245802018791,
+                "crps": 0.574606084966381,
+                "mse": 0.7143138039210293,
+                "coverage_90": 1.0,
+                "interval_width_90": 5.474609698355197
+              }
+            ],
+            "minimum_original_grid_validation_crps": 0.574606084966381,
+            "minimum_original_grid_validation_crps_epoch": 2
+          },
+          "densiffusion": {
+            "final_epoch": 2,
+            "first_train_loss": 1.1245562434196472,
+            "last_train_loss": 0.9279689788818359,
+            "minimum_train_loss": 0.9279689788818359,
+            "selected_epoch": 2,
+            "selection_metric": "train_seed.<locals>.forecast_crps",
+            "best_selection_score": 0.5745121040024765,
+            "last_selection_score": 0.5745121040024765,
+            "selected_at_final_epoch": true,
+            "final_minus_previous_selection_score": -3.1699196250567496e-05,
+            "forecast_validation": [
+              {
+                "epoch": 1,
+                "seconds": 0.2015742919757031,
+                "crps": 0.5745438031987271,
+                "mse": 0.7148096862888533,
+                "coverage_90": 1.0,
+                "interval_width_90": 5.471268856246023
+              },
+              {
+                "epoch": 2,
+                "seconds": 0.20919387496542186,
+                "crps": 0.5745121040024765,
+                "mse": 0.7147561976414806,
+                "coverage_90": 1.0,
+                "interval_width_90": 5.47105356575921
+              }
+            ],
+            "minimum_original_grid_validation_crps": 0.5745121040024765,
+            "minimum_original_grid_validation_crps_epoch": 2
+          }
+        }
+      }
+    }
+  },
+  "across_seed_descriptive": {
+    "n_seeds": 1,
+    "scope": "descriptive training/dataset seed variation; no pooled inference",
+    "scores": {
+      "direct_csdi": {
+        "crps": {
+          "mean": 0.5808468786921877,
+          "sample_std": null,
+          "minimum": 0.5808468786921877,
+          "maximum": 0.5808468786921877,
+          "values": [
+            0.5808468786921877
+          ]
+        },
+        "mse": {
+          "mean": 0.7918248403834438,
+          "sample_std": null,
+          "minimum": 0.7918248403834438,
+          "maximum": 0.7918248403834438,
+          "values": [
+            0.7918248403834438
+          ]
+        },
+        "coverage_90": {
+          "mean": 1.0,
+          "sample_std": null,
+          "minimum": 1.0,
+          "maximum": 1.0,
+          "values": [
+            1.0
+          ]
+        },
+        "interval_width_90": {
+          "mean": 5.438696528691797,
+          "sample_std": null,
+          "minimum": 5.438696528691797,
+          "maximum": 5.438696528691797,
+          "values": [
+            5.438696528691797
+          ]
+        }
+      },
+      "linear_densification": {
+        "crps": {
+          "mean": 0.5926007800486841,
+          "sample_std": null,
+          "minimum": 0.5926007800486841,
+          "maximum": 0.5926007800486841,
+          "values": [
+            0.5926007800486841
+          ]
+        },
+        "mse": {
+          "mean": 0.814880310295008,
+          "sample_std": null,
+          "minimum": 0.814880310295008,
+          "maximum": 0.814880310295008,
+          "values": [
+            0.814880310295008
+          ]
+        },
+        "coverage_90": {
+          "mean": 1.0,
+          "sample_std": null,
+          "minimum": 1.0,
+          "maximum": 1.0,
+          "values": [
+            1.0
+          ]
+        },
+        "interval_width_90": {
+          "mean": 5.442888019885867,
+          "sample_std": null,
+          "minimum": 5.442888019885867,
+          "maximum": 5.442888019885867,
+          "values": [
+            5.442888019885867
+          ]
+        }
+      },
+      "densiffusion": {
+        "crps": {
+          "mean": 0.5925380707067388,
+          "sample_std": null,
+          "minimum": 0.5925380707067388,
+          "maximum": 0.5925380707067388,
+          "values": [
+            0.5925380707067388
+          ]
+        },
+        "mse": {
+          "mean": 0.815242542412508,
+          "sample_std": null,
+          "minimum": 0.815242542412508,
+          "maximum": 0.815242542412508,
+          "values": [
+            0.815242542412508
+          ]
+        },
+        "coverage_90": {
+          "mean": 1.0,
+          "sample_std": null,
+          "minimum": 1.0,
+          "maximum": 1.0,
+          "values": [
+            1.0
+          ]
+        },
+        "interval_width_90": {
+          "mean": 5.439468729309737,
+          "sample_std": null,
+          "minimum": 5.439468729309737,
+          "maximum": 5.439468729309737,
+          "values": [
+            5.439468729309737
+          ]
+        }
+      }
+    },
+    "paired_differences": {
+      "densiffusion-minus-direct_csdi": {
+        "crps": {
+          "mean": 0.011691192014551245,
+          "sample_std": null,
+          "minimum": 0.011691192014551245,
+          "maximum": 0.011691192014551245,
+          "values": [
+            0.011691192014551245
+          ]
+        },
+        "mse": {
+          "mean": 0.023417702029064368,
+          "sample_std": null,
+          "minimum": 0.023417702029064368,
+          "maximum": 0.023417702029064368,
+          "values": [
+            0.023417702029064368
+          ]
+        },
+        "coverage_90": {
+          "mean": 0.0,
+          "sample_std": null,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "values": [
+            0.0
+          ]
+        },
+        "interval_width_90": {
+          "mean": 0.0007722006179390339,
+          "sample_std": null,
+          "minimum": 0.0007722006179390339,
+          "maximum": 0.0007722006179390339,
+          "values": [
+            0.0007722006179390339
+          ]
+        }
+      },
+      "densiffusion-minus-linear_densification": {
+        "crps": {
+          "mean": -6.270934194531341e-05,
+          "sample_std": null,
+          "minimum": -6.270934194531341e-05,
+          "maximum": -6.270934194531341e-05,
+          "values": [
+            -6.270934194531341e-05
+          ]
+        },
+        "mse": {
+          "mean": 0.0003622321175001733,
+          "sample_std": null,
+          "minimum": 0.0003622321175001733,
+          "maximum": 0.0003622321175001733,
+          "values": [
+            0.0003622321175001733
+          ]
+        },
+        "coverage_90": {
+          "mean": 0.0,
+          "sample_std": null,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "values": [
+            0.0
+          ]
+        },
+        "interval_width_90": {
+          "mean": -0.0034192905761303294,
+          "sample_std": null,
+          "minimum": -0.0034192905761303294,
+          "maximum": -0.0034192905761303294,
+          "values": [
+            -0.0034192905761303294
+          ]
+        }
+      },
+      "linear_densification-minus-direct_csdi": {
+        "crps": {
+          "mean": 0.011753901356496559,
+          "sample_std": null,
+          "minimum": 0.011753901356496559,
+          "maximum": 0.011753901356496559,
+          "values": [
+            0.011753901356496559
+          ]
+        },
+        "mse": {
+          "mean": 0.023055469911564194,
+          "sample_std": null,
+          "minimum": 0.023055469911564194,
+          "maximum": 0.023055469911564194,
+          "values": [
+            0.023055469911564194
+          ]
+        },
+        "coverage_90": {
+          "mean": 0.0,
+          "sample_std": null,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "values": [
+            0.0
+          ]
+        },
+        "interval_width_90": {
+          "mean": 0.004191491194069363,
+          "sample_std": null,
+          "minimum": 0.004191491194069363,
+          "maximum": 0.004191491194069363,
+          "values": [
+            0.004191491194069363
+          ]
+        }
+      }
+    }
+  },
+  "plots": [
+    "plots/representative_forecasts.svg",
+    "plots/per_horizon.svg",
+    "plots/validation_crps.svg"
+  ]
+}

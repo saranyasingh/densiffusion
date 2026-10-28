@@ -1,0 +1,2015 @@
+{
+  "analysis_version": 1,
+  "methods": [
+    "raw",
+    "learned",
+    "median"
+  ],
+  "protocol": {
+    "manifest_available": true,
+    "configured_seed_ids": [
+      29199
+    ],
+    "sample_seed_ids": [
+      29199
+    ],
+    "markers": {
+      "MEDIATORS_FROZEN.json": true,
+      "FROZEN.json": true,
+      "EVALUATED.json": true
+    },
+    "scope": "Artifact completeness only; not an independent provenance or convergence certificate.",
+    "status": "complete"
+  },
+  "bootstrap": {
+    "replicates": 1000,
+    "base_seed": 8675309,
+    "unit": "independent trajectory with all its windows and saved draws",
+    "estimand": "equal-trajectory mean difference, first method minus second",
+    "scope": "conditional on fitted models, preprocessing, and fixed saved ensembles; no resampling draws or training",
+    "multiple_comparisons": "95% intervals are unadjusted across methods and metrics."
+  },
+  "metric_definitions": {
+    "target": "Saved noisy future observations; no latent or clean signals are read or scored.",
+    "crps": "Empirical CRPS, matching evaluate_forecast; lower is better.",
+    "mse": "Ensemble-mean squared error against noisy future observations.",
+    "coverage_90": "Empirical 5th-to-95th percentile marginal coverage.",
+    "interval_width_90": "Mean empirical 95th minus 5th percentile, linearly interpolated.",
+    "finite_ensembles": "64 or configured finite draws affect quantiles and empirical CRPS; paired intervals condition on those draws."
+  },
+  "cost_definitions": {
+    "preprocessing_seconds": "Training plus validation history preprocessing.",
+    "forecaster_training_seconds": "Includes validation sampling; validation_sampling_seconds is a subset, not an additional cost.",
+    "method_total_seconds": "Preprocessing + forecaster training + test preprocessing + test inference; learned additionally includes mediator fit once.",
+    "scope": "Worker elapsed seconds; separate phase wall times may overlap and must not be added to worker totals."
+  },
+  "seeds": {
+    "seed_29199": {
+      "n_windows": 8,
+      "n_trajectories": 8,
+      "context_length": 32,
+      "horizon": 8,
+      "draws_per_method": {
+        "raw": 4,
+        "learned": 4,
+        "median": 4
+      },
+      "source_sha256": {
+        "test.npz": "ada5a2b5c470fb9ab7d916f97097ca77996940c9ce039bc79771429ea18a193a",
+        "raw_samples.npz": "dfdfafdc0da9cd5fcd45b738c86d1494d9e33c0a2ef6492a883d2b7785b19441",
+        "learned_samples.npz": "b932153a6549a61e10a0210538ca18b10b99ffeb6a59d2af17b7fca8d7d9e959",
+        "median_samples.npz": "28402040d7df6687cbe00b3c4b760a52665de18dfbd1e619ba9135cbb37ce9c1"
+      },
+      "scores": {
+        "raw": {
+          "aggregate": {
+            "crps": 0.48759057568348957,
+            "mse": 0.5531686841712362,
+            "coverage_90": 0.59375,
+            "interval_width_90": 1.3312580238134613
+          },
+          "per_horizon": {
+            "crps": [
+              0.5799638883045021,
+              0.5756910567730441,
+              0.5343260861550131,
+              0.44001986966538253,
+              0.36454434966539473,
+              0.41874053874184775,
+              0.49726747255178455,
+              0.4901713436109475
+            ],
+            "mse": [
+              0.5913720975449743,
+              0.8541634140557717,
+              0.6511845938611661,
+              0.35200792222028165,
+              0.39502511980637023,
+              0.3597123273948511,
+              0.7168587904632547,
+              0.5050252080232199
+            ],
+            "coverage_90": [
+              0.375,
+              0.5,
+              0.5,
+              0.75,
+              0.75,
+              0.75,
+              0.375,
+              0.75
+            ],
+            "interval_width_90": [
+              0.8904906950134318,
+              1.587209881842136,
+              1.3086771874222904,
+              1.3621079653850752,
+              1.2684091630391774,
+              1.8215192984789608,
+              0.9771738068913689,
+              1.4344761924352494
+            ]
+          },
+          "trajectory_ids": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "windows_per_trajectory": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "per_trajectory": {
+            "crps": [
+              0.7092892507613708,
+              0.40714023821097134,
+              0.7414655338303217,
+              0.4397270516852535,
+              0.37941301943070094,
+              0.40547098948939286,
+              0.3949945455776504,
+              0.4232239764822546
+            ],
+            "mse": [
+              0.8102321891823773,
+              0.48258612617349655,
+              1.3250905408998748,
+              0.2922111462898464,
+              0.42288174448948335,
+              0.3544164843914704,
+              0.23179002668983456,
+              0.5061412152535063
+            ],
+            "coverage_90": [
+              0.375,
+              0.5,
+              0.5,
+              0.75,
+              0.625,
+              0.75,
+              0.75,
+              0.5
+            ],
+            "interval_width_90": [
+              1.007471119938418,
+              1.4021726984996346,
+              1.6923476046184076,
+              1.6670274747419167,
+              1.3478357353771568,
+              0.9659127316801459,
+              1.4225091602653261,
+              1.144787665386684
+            ]
+          },
+          "trajectory_weighted": {
+            "crps": 0.48759057568348957,
+            "mse": 0.5531686841712362,
+            "coverage_90": 0.59375,
+            "interval_width_90": 1.3312580238134613
+          }
+        },
+        "learned": {
+          "aggregate": {
+            "crps": 0.4893653540557825,
+            "mse": 0.5413608862110824,
+            "coverage_90": 0.5,
+            "interval_width_90": 1.1953408918176134
+          },
+          "per_horizon": {
+            "crps": [
+              0.6043556415460591,
+              0.5772345176669993,
+              0.4436935274583702,
+              0.4224455916646546,
+              0.43313006999274617,
+              0.43697570071963565,
+              0.5260664599849871,
+              0.47102132341280767
+            ],
+            "mse": [
+              0.5848080449123142,
+              0.7853771497437747,
+              0.49103870895934415,
+              0.33676498442926717,
+              0.4622951383714068,
+              0.3753635635505134,
+              0.7872018329749119,
+              0.5080376667471265
+            ],
+            "coverage_90": [
+              0.25,
+              0.5,
+              0.375,
+              0.625,
+              0.5,
+              0.625,
+              0.375,
+              0.75
+            ],
+            "interval_width_90": [
+              0.5881812959443777,
+              1.399817115347832,
+              1.1488556174095717,
+              1.1500314243370666,
+              1.1640913261042438,
+              1.7385855192085726,
+              0.9011736606305928,
+              1.4719911755586503
+            ]
+          },
+          "trajectory_ids": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "windows_per_trajectory": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "per_trajectory": {
+            "crps": [
+              0.6313869997217392,
+              0.45954501209807264,
+              0.6790843031856133,
+              0.38465125348916823,
+              0.5338694527382912,
+              0.43020126665387093,
+              0.3358356353333348,
+              0.4603489092261695
+            ],
+            "mse": [
+              0.5641482117069936,
+              0.550343325366041,
+              1.2149745923871937,
+              0.25970456610726783,
+              0.6543561397279802,
+              0.36515462073298854,
+              0.12231647039598723,
+              0.5998891632642065
+            ],
+            "coverage_90": [
+              0.375,
+              0.5,
+              0.5,
+              0.75,
+              0.25,
+              0.5,
+              0.875,
+              0.25
+            ],
+            "interval_width_90": [
+              0.8532123869750646,
+              1.2445037855417465,
+              1.683041349862469,
+              1.52573690576246,
+              1.107253339816816,
+              0.8019702459103426,
+              1.3434133813250808,
+              1.0035957393469288
+            ]
+          },
+          "trajectory_weighted": {
+            "crps": 0.4893653540557825,
+            "mse": 0.5413608862110824,
+            "coverage_90": 0.5,
+            "interval_width_90": 1.1953408918176134
+          }
+        },
+        "median": {
+          "aggregate": {
+            "crps": 0.48279500937221187,
+            "mse": 0.5463765569153438,
+            "coverage_90": 0.53125,
+            "interval_width_90": 1.3019758091057154
+          },
+          "per_horizon": {
+            "crps": [
+              0.5806143528382479,
+              0.6266090216018134,
+              0.4399138168427321,
+              0.410197853805887,
+              0.3882821753361321,
+              0.45451309825585196,
+              0.5026661212412636,
+              0.4595636350557669
+            ],
+            "mse": [
+              0.6139954062428755,
+              0.9121430687734327,
+              0.4832274162269214,
+              0.34194824454394246,
+              0.4096211042555965,
+              0.3884232224982953,
+              0.774792924402121,
+              0.44686106837956596
+            ],
+            "coverage_90": [
+              0.25,
+              0.5,
+              0.25,
+              0.75,
+              0.625,
+              0.625,
+              0.5,
+              0.75
+            ],
+            "interval_width_90": [
+              0.8586776283802464,
+              1.4981402927835004,
+              1.1684927312890065,
+              1.2420495263460904,
+              1.2433095216852958,
+              1.8431670464109624,
+              1.038802401977591,
+              1.5231673239730297
+            ]
+          },
+          "trajectory_ids": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "windows_per_trajectory": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "per_trajectory": {
+            "crps": [
+              0.593419166250047,
+              0.41356774819402875,
+              0.6700934524858388,
+              0.3730726787907353,
+              0.5544669611331623,
+              0.4262437656595622,
+              0.33428597935430127,
+              0.49721032311001934
+            ],
+            "mse": [
+              0.5242825768605653,
+              0.5191512156841795,
+              1.150085146981094,
+              0.24752057405067257,
+              0.7269101024898643,
+              0.39840354343629375,
+              0.10989847424776712,
+              0.694760821572314
+            ],
+            "coverage_90": [
+              0.5,
+              0.625,
+              0.5,
+              0.75,
+              0.25,
+              0.625,
+              0.875,
+              0.125
+            ],
+            "interval_width_90": [
+              0.9774982274146167,
+              1.3932522452669214,
+              1.682571300002746,
+              1.6409452130596034,
+              1.248508526571095,
+              0.9601870879239868,
+              1.413471106160432,
+              1.099372766446322
+            ]
+          },
+          "trajectory_weighted": {
+            "crps": 0.48279500937221187,
+            "mse": 0.5463765569153438,
+            "coverage_90": 0.53125,
+            "interval_width_90": 1.3019758091057154
+          }
+        }
+      },
+      "paired_differences": {
+        "learned-minus-raw": {
+          "crps": {
+            "difference": 0.001774778372292958,
+            "ci95": [
+              -0.04255501999909143,
+              0.05319255545112814
+            ]
+          },
+          "mse": {
+            "difference": -0.011807797960153864,
+            "ci95": [
+              -0.10417329422444428,
+              0.07806888060250239
+            ]
+          },
+          "coverage_90": {
+            "difference": -0.09375,
+            "ci95": [
+              -0.203125,
+              0.0
+            ]
+          },
+          "interval_width_90": {
+            "difference": -0.1359171319958477,
+            "ci95": [
+              -0.17671082149021455,
+              -0.09094213665842749
+            ]
+          },
+          "bootstrap_seed": 8675309,
+          "n_trajectories": 8
+        },
+        "learned-minus-median": {
+          "crps": {
+            "difference": 0.006570344683570609,
+            "ci95": [
+              -0.01072239915151921,
+              0.025461431256321432
+            ]
+          },
+          "mse": {
+            "difference": -0.005015670704261496,
+            "ci95": [
+              -0.040851320295257426,
+              0.02897766644960035
+            ]
+          },
+          "coverage_90": {
+            "difference": -0.03125,
+            "ci95": [
+              -0.09375,
+              0.03125
+            ]
+          },
+          "interval_width_90": {
+            "difference": -0.10663491728810184,
+            "ci95": [
+              -0.137444294984989,
+              -0.06670334734571952
+            ]
+          },
+          "bootstrap_seed": 8675310,
+          "n_trajectories": 8
+        },
+        "median-minus-raw": {
+          "crps": {
+            "difference": -0.004795566311277651,
+            "ci95": [
+              -0.06056407063003033,
+              0.0579284842085174
+            ]
+          },
+          "mse": {
+            "difference": -0.006792127255892372,
+            "ci95": [
+              -0.12929886915784694,
+              0.11431430439382895
+            ]
+          },
+          "coverage_90": {
+            "difference": -0.0625,
+            "ci95": [
+              -0.203125,
+              0.06289062499999964
+            ]
+          },
+          "interval_width_90": {
+            "difference": -0.02928221470774585,
+            "ci95": [
+              -0.05012600315600136,
+              -0.01262564041769569
+            ]
+          },
+          "bootstrap_seed": 8675311,
+          "n_trajectories": 8
+        }
+      },
+      "missing_artifacts": [],
+      "validation": {
+        "raw": {
+          "rows": [
+            {
+              "epoch": 10,
+              "crps": 0.6848407230613196,
+              "scores": {
+                "crps": 0.6848407230613196,
+                "mse": 1.7400695929789567,
+                "coverage_90": 0.53125,
+                "interval_width_90": 1.232471800076564
+              },
+              "sampling_seconds": 0.02340958296554163,
+              "samples": "raw_validation_epoch_0010.npz"
+            },
+            {
+              "epoch": 20,
+              "crps": 0.6906115293972134,
+              "scores": {
+                "crps": 0.6906115293972134,
+                "mse": 1.7658998675052653,
+                "coverage_90": 0.484375,
+                "interval_width_90": 1.2165102190901957
+              },
+              "sampling_seconds": 0.02206462499452755,
+              "samples": "raw_validation_epoch_0020.npz"
+            }
+          ],
+          "selected_epoch_from_validation": 10,
+          "minimum_validation_crps": 0.6848407230613196,
+          "selected_at_final_candidate": false,
+          "scope": "Recorded validation selection; endpoint selection does not prove convergence."
+        },
+        "learned": {
+          "rows": [
+            {
+              "epoch": 10,
+              "crps": 0.6792075988470749,
+              "scores": {
+                "crps": 0.6792075988470749,
+                "mse": 1.75116527527276,
+                "coverage_90": 0.484375,
+                "interval_width_90": 1.2042214892482659
+              },
+              "sampling_seconds": 0.023627541959285736,
+              "samples": "learned_validation_epoch_0010.npz"
+            },
+            {
+              "epoch": 19,
+              "crps": 0.6708777293298501,
+              "scores": {
+                "crps": 0.6708777293298501,
+                "mse": 1.7041278209993311,
+                "coverage_90": 0.4375,
+                "interval_width_90": 1.0842063643784057
+              },
+              "sampling_seconds": 0.02212845900794491,
+              "samples": "learned_validation_epoch_0019.npz"
+            }
+          ],
+          "selected_epoch_from_validation": 19,
+          "minimum_validation_crps": 0.6708777293298501,
+          "selected_at_final_candidate": true,
+          "scope": "Recorded validation selection; endpoint selection does not prove convergence."
+        },
+        "median": {
+          "rows": [
+            {
+              "epoch": 10,
+              "crps": 0.7060073833114344,
+              "scores": {
+                "crps": 0.7060073833114344,
+                "mse": 1.80725837109833,
+                "coverage_90": 0.640625,
+                "interval_width_90": 1.4565844105381982
+              },
+              "sampling_seconds": 0.022764625027775764,
+              "samples": "median_validation_epoch_0010.npz"
+            },
+            {
+              "epoch": 20,
+              "crps": 0.6583350984339821,
+              "scores": {
+                "crps": 0.6583350984339821,
+                "mse": 1.7084692911677353,
+                "coverage_90": 0.53125,
+                "interval_width_90": 1.2132312832298338
+              },
+              "sampling_seconds": 0.022372750041540712,
+              "samples": "median_validation_epoch_0020.npz"
+            }
+          ],
+          "selected_epoch_from_validation": 20,
+          "minimum_validation_crps": 0.6583350984339821,
+          "selected_at_final_candidate": true,
+          "scope": "Recorded validation selection; endpoint selection does not prove convergence."
+        }
+      },
+      "costs": {
+        "source_files": [
+          "combined_timings.json"
+        ],
+        "recorded": {
+          "mediator_training_seconds": 0.031616375024896115,
+          "preprocessing_seconds": {
+            "raw": 2.083077561110258e-06,
+            "learned": 0.00038616597885265946,
+            "median": 0.005434207967482507
+          },
+          "forecaster_training_seconds": {
+            "raw": 0.8320447920123115,
+            "learned": 0.8412168329814449,
+            "median": 0.8287603330099955
+          },
+          "validation_sampling_seconds": {
+            "raw": 0.04547420796006918,
+            "learned": 0.04575600096723065,
+            "median": 0.04513737506931648
+          },
+          "test_preprocessing_seconds": {
+            "raw": 5.291018169373274e-06,
+            "learned": 0.0001954170293174684,
+            "median": 0.00012741598766297102
+          },
+          "test_inference_seconds": {
+            "raw": 0.02237804199103266,
+            "learned": 0.02241166599560529,
+            "median": 0.02212679199874401
+          }
+        },
+        "seconds": {
+          "mediator_training_seconds": 0.031616375024896115,
+          "preprocessing_seconds": {
+            "raw": 2.083077561110258e-06,
+            "learned": 0.00038616597885265946,
+            "median": 0.005434207967482507
+          },
+          "forecaster_training_seconds": {
+            "raw": 0.8320447920123115,
+            "learned": 0.8412168329814449,
+            "median": 0.8287603330099955
+          },
+          "validation_sampling_seconds": {
+            "raw": 0.04547420796006918,
+            "learned": 0.04575600096723065,
+            "median": 0.04513737506931648
+          },
+          "test_preprocessing_seconds": {
+            "raw": 5.291018169373274e-06,
+            "learned": 0.0001954170293174684,
+            "median": 0.00012741598766297102
+          },
+          "test_inference_seconds": {
+            "raw": 0.02237804199103266,
+            "learned": 0.02241166599560529,
+            "median": 0.02212679199874401
+          },
+          "method_total_seconds": {
+            "raw": 0.8544302080990747,
+            "learned": 0.8958264570101164,
+            "median": 0.856448748963885
+          }
+        }
+      },
+      "saved_scores_verified": true
+    }
+  },
+  "plots": [
+    "plots/representative_forecasts.svg",
+    "plots/per_horizon.svg",
+    "plots/validation_crps.svg"
+  ],
+  "phase_wall_seconds": {
+    "MEDIATORS_FROZEN.json": 0.04112329101189971,
+    "TRAINED.json": 2.5897522910381667,
+    "EVALUATED.json": 0.11195162497460842
+  },
+  "across_seed_descriptive": {
+    "n_seeds": 1,
+    "scope": "Descriptive paired seed variation; no pooled trajectory or training-seed inference.",
+    "scores": {
+      "raw": {
+        "crps": {
+          "mean": 0.48759057568348957,
+          "sample_std": null,
+          "minimum": 0.48759057568348957,
+          "maximum": 0.48759057568348957,
+          "values": [
+            0.48759057568348957
+          ]
+        },
+        "mse": {
+          "mean": 0.5531686841712362,
+          "sample_std": null,
+          "minimum": 0.5531686841712362,
+          "maximum": 0.5531686841712362,
+          "values": [
+            0.5531686841712362
+          ]
+        },
+        "coverage_90": {
+          "mean": 0.59375,
+          "sample_std": null,
+          "minimum": 0.59375,
+          "maximum": 0.59375,
+          "values": [
+            0.59375
+          ]
+        },
+        "interval_width_90": {
+          "mean": 1.3312580238134613,
+          "sample_std": null,
+          "minimum": 1.3312580238134613,
+          "maximum": 1.3312580238134613,
+          "values": [
+            1.3312580238134613
+          ]
+        }
+      },
+      "learned": {
+        "crps": {
+          "mean": 0.4893653540557825,
+          "sample_std": null,
+          "minimum": 0.4893653540557825,
+          "maximum": 0.4893653540557825,
+          "values": [
+            0.4893653540557825
+          ]
+        },
+        "mse": {
+          "mean": 0.5413608862110824,
+          "sample_std": null,
+          "minimum": 0.5413608862110824,
+          "maximum": 0.5413608862110824,
+          "values": [
+            0.5413608862110824
+          ]
+        },
+        "coverage_90": {
+          "mean": 0.5,
+          "sample_std": null,
+          "minimum": 0.5,
+          "maximum": 0.5,
+          "values": [
+            0.5
+          ]
+        },
+        "interval_width_90": {
+          "mean": 1.1953408918176134,
+          "sample_std": null,
+          "minimum": 1.1953408918176134,
+          "maximum": 1.1953408918176134,
+          "values": [
+            1.1953408918176134
+          ]
+        }
+      },
+      "median": {
+        "crps": {
+          "mean": 0.48279500937221187,
+          "sample_std": null,
+          "minimum": 0.48279500937221187,
+          "maximum": 0.48279500937221187,
+          "values": [
+            0.48279500937221187
+          ]
+        },
+        "mse": {
+          "mean": 0.5463765569153438,
+          "sample_std": null,
+          "minimum": 0.5463765569153438,
+          "maximum": 0.5463765569153438,
+          "values": [
+            0.5463765569153438
+          ]
+        },
+        "coverage_90": {
+          "mean": 0.53125,
+          "sample_std": null,
+          "minimum": 0.53125,
+          "maximum": 0.53125,
+          "values": [
+            0.53125
+          ]
+        },
+        "interval_width_90": {
+          "mean": 1.3019758091057154,
+          "sample_std": null,
+          "minimum": 1.3019758091057154,
+          "maximum": 1.3019758091057154,
+          "values": [
+            1.3019758091057154
+          ]
+        }
+      }
+    },
+    "paired_differences": {
+      "learned-minus-raw": {
+        "crps": {
+          "mean": 0.001774778372292958,
+          "sample_std": null,
+          "minimum": 0.001774778372292958,
+          "maximum": 0.001774778372292958,
+          "values": [
+            0.001774778372292958
+          ]
+        },
+        "mse": {
+          "mean": -0.011807797960153864,
+          "sample_std": null,
+          "minimum": -0.011807797960153864,
+          "maximum": -0.011807797960153864,
+          "values": [
+            -0.011807797960153864
+          ]
+        },
+        "coverage_90": {
+          "mean": -0.09375,
+          "sample_std": null,
+          "minimum": -0.09375,
+          "maximum": -0.09375,
+          "values": [
+            -0.09375
+          ]
+        },
+        "interval_width_90": {
+          "mean": -0.1359171319958477,
+          "sample_std": null,
+          "minimum": -0.1359171319958477,
+          "maximum": -0.1359171319958477,
+          "values": [
+            -0.1359171319958477
+          ]
+        }
+      },
+      "learned-minus-median": {
+        "crps": {
+          "mean": 0.006570344683570609,
+          "sample_std": null,
+          "minimum": 0.006570344683570609,
+          "maximum": 0.006570344683570609,
+          "values": [
+            0.006570344683570609
+          ]
+        },
+        "mse": {
+          "mean": -0.005015670704261496,
+          "sample_std": null,
+          "minimum": -0.005015670704261496,
+          "maximum": -0.005015670704261496,
+          "values": [
+            -0.005015670704261496
+          ]
+        },
+        "coverage_90": {
+          "mean": -0.03125,
+          "sample_std": null,
+          "minimum": -0.03125,
+          "maximum": -0.03125,
+          "values": [
+            -0.03125
+          ]
+        },
+        "interval_width_90": {
+          "mean": -0.10663491728810184,
+          "sample_std": null,
+          "minimum": -0.10663491728810184,
+          "maximum": -0.10663491728810184,
+          "values": [
+            -0.10663491728810184
+          ]
+        }
+      },
+      "median-minus-raw": {
+        "crps": {
+          "mean": -0.004795566311277651,
+          "sample_std": null,
+          "minimum": -0.004795566311277651,
+          "maximum": -0.004795566311277651,
+          "values": [
+            -0.004795566311277651
+          ]
+        },
+        "mse": {
+          "mean": -0.006792127255892372,
+          "sample_std": null,
+          "minimum": -0.006792127255892372,
+          "maximum": -0.006792127255892372,
+          "values": [
+            -0.006792127255892372
+          ]
+        },
+        "coverage_90": {
+          "mean": -0.0625,
+          "sample_std": null,
+          "minimum": -0.0625,
+          "maximum": -0.0625,
+          "values": [
+            -0.0625
+          ]
+        },
+        "interval_width_90": {
+          "mean": -0.02928221470774585,
+          "sample_std": null,
+          "minimum": -0.02928221470774585,
+          "maximum": -0.02928221470774585,
+          "values": [
+            -0.02928221470774585
+          ]
+        }
+      }
+    },
+    "per_horizon": {
+      "raw": {
+        "crps": [
+          {
+            "mean": 0.5799638883045021,
+            "sample_std": null,
+            "minimum": 0.5799638883045021,
+            "maximum": 0.5799638883045021,
+            "values": [
+              0.5799638883045021
+            ]
+          },
+          {
+            "mean": 0.5756910567730441,
+            "sample_std": null,
+            "minimum": 0.5756910567730441,
+            "maximum": 0.5756910567730441,
+            "values": [
+              0.5756910567730441
+            ]
+          },
+          {
+            "mean": 0.5343260861550131,
+            "sample_std": null,
+            "minimum": 0.5343260861550131,
+            "maximum": 0.5343260861550131,
+            "values": [
+              0.5343260861550131
+            ]
+          },
+          {
+            "mean": 0.44001986966538253,
+            "sample_std": null,
+            "minimum": 0.44001986966538253,
+            "maximum": 0.44001986966538253,
+            "values": [
+              0.44001986966538253
+            ]
+          },
+          {
+            "mean": 0.36454434966539473,
+            "sample_std": null,
+            "minimum": 0.36454434966539473,
+            "maximum": 0.36454434966539473,
+            "values": [
+              0.36454434966539473
+            ]
+          },
+          {
+            "mean": 0.41874053874184775,
+            "sample_std": null,
+            "minimum": 0.41874053874184775,
+            "maximum": 0.41874053874184775,
+            "values": [
+              0.41874053874184775
+            ]
+          },
+          {
+            "mean": 0.49726747255178455,
+            "sample_std": null,
+            "minimum": 0.49726747255178455,
+            "maximum": 0.49726747255178455,
+            "values": [
+              0.49726747255178455
+            ]
+          },
+          {
+            "mean": 0.4901713436109475,
+            "sample_std": null,
+            "minimum": 0.4901713436109475,
+            "maximum": 0.4901713436109475,
+            "values": [
+              0.4901713436109475
+            ]
+          }
+        ],
+        "mse": [
+          {
+            "mean": 0.5913720975449743,
+            "sample_std": null,
+            "minimum": 0.5913720975449743,
+            "maximum": 0.5913720975449743,
+            "values": [
+              0.5913720975449743
+            ]
+          },
+          {
+            "mean": 0.8541634140557717,
+            "sample_std": null,
+            "minimum": 0.8541634140557717,
+            "maximum": 0.8541634140557717,
+            "values": [
+              0.8541634140557717
+            ]
+          },
+          {
+            "mean": 0.6511845938611661,
+            "sample_std": null,
+            "minimum": 0.6511845938611661,
+            "maximum": 0.6511845938611661,
+            "values": [
+              0.6511845938611661
+            ]
+          },
+          {
+            "mean": 0.35200792222028165,
+            "sample_std": null,
+            "minimum": 0.35200792222028165,
+            "maximum": 0.35200792222028165,
+            "values": [
+              0.35200792222028165
+            ]
+          },
+          {
+            "mean": 0.39502511980637023,
+            "sample_std": null,
+            "minimum": 0.39502511980637023,
+            "maximum": 0.39502511980637023,
+            "values": [
+              0.39502511980637023
+            ]
+          },
+          {
+            "mean": 0.3597123273948511,
+            "sample_std": null,
+            "minimum": 0.3597123273948511,
+            "maximum": 0.3597123273948511,
+            "values": [
+              0.3597123273948511
+            ]
+          },
+          {
+            "mean": 0.7168587904632547,
+            "sample_std": null,
+            "minimum": 0.7168587904632547,
+            "maximum": 0.7168587904632547,
+            "values": [
+              0.7168587904632547
+            ]
+          },
+          {
+            "mean": 0.5050252080232199,
+            "sample_std": null,
+            "minimum": 0.5050252080232199,
+            "maximum": 0.5050252080232199,
+            "values": [
+              0.5050252080232199
+            ]
+          }
+        ],
+        "coverage_90": [
+          {
+            "mean": 0.375,
+            "sample_std": null,
+            "minimum": 0.375,
+            "maximum": 0.375,
+            "values": [
+              0.375
+            ]
+          },
+          {
+            "mean": 0.5,
+            "sample_std": null,
+            "minimum": 0.5,
+            "maximum": 0.5,
+            "values": [
+              0.5
+            ]
+          },
+          {
+            "mean": 0.5,
+            "sample_std": null,
+            "minimum": 0.5,
+            "maximum": 0.5,
+            "values": [
+              0.5
+            ]
+          },
+          {
+            "mean": 0.75,
+            "sample_std": null,
+            "minimum": 0.75,
+            "maximum": 0.75,
+            "values": [
+              0.75
+            ]
+          },
+          {
+            "mean": 0.75,
+            "sample_std": null,
+            "minimum": 0.75,
+            "maximum": 0.75,
+            "values": [
+              0.75
+            ]
+          },
+          {
+            "mean": 0.75,
+            "sample_std": null,
+            "minimum": 0.75,
+            "maximum": 0.75,
+            "values": [
+              0.75
+            ]
+          },
+          {
+            "mean": 0.375,
+            "sample_std": null,
+            "minimum": 0.375,
+            "maximum": 0.375,
+            "values": [
+              0.375
+            ]
+          },
+          {
+            "mean": 0.75,
+            "sample_std": null,
+            "minimum": 0.75,
+            "maximum": 0.75,
+            "values": [
+              0.75
+            ]
+          }
+        ],
+        "interval_width_90": [
+          {
+            "mean": 0.8904906950134318,
+            "sample_std": null,
+            "minimum": 0.8904906950134318,
+            "maximum": 0.8904906950134318,
+            "values": [
+              0.8904906950134318
+            ]
+          },
+          {
+            "mean": 1.587209881842136,
+            "sample_std": null,
+            "minimum": 1.587209881842136,
+            "maximum": 1.587209881842136,
+            "values": [
+              1.587209881842136
+            ]
+          },
+          {
+            "mean": 1.3086771874222904,
+            "sample_std": null,
+            "minimum": 1.3086771874222904,
+            "maximum": 1.3086771874222904,
+            "values": [
+              1.3086771874222904
+            ]
+          },
+          {
+            "mean": 1.3621079653850752,
+            "sample_std": null,
+            "minimum": 1.3621079653850752,
+            "maximum": 1.3621079653850752,
+            "values": [
+              1.3621079653850752
+            ]
+          },
+          {
+            "mean": 1.2684091630391774,
+            "sample_std": null,
+            "minimum": 1.2684091630391774,
+            "maximum": 1.2684091630391774,
+            "values": [
+              1.2684091630391774
+            ]
+          },
+          {
+            "mean": 1.8215192984789608,
+            "sample_std": null,
+            "minimum": 1.8215192984789608,
+            "maximum": 1.8215192984789608,
+            "values": [
+              1.8215192984789608
+            ]
+          },
+          {
+            "mean": 0.9771738068913689,
+            "sample_std": null,
+            "minimum": 0.9771738068913689,
+            "maximum": 0.9771738068913689,
+            "values": [
+              0.9771738068913689
+            ]
+          },
+          {
+            "mean": 1.4344761924352494,
+            "sample_std": null,
+            "minimum": 1.4344761924352494,
+            "maximum": 1.4344761924352494,
+            "values": [
+              1.4344761924352494
+            ]
+          }
+        ]
+      },
+      "learned": {
+        "crps": [
+          {
+            "mean": 0.6043556415460591,
+            "sample_std": null,
+            "minimum": 0.6043556415460591,
+            "maximum": 0.6043556415460591,
+            "values": [
+              0.6043556415460591
+            ]
+          },
+          {
+            "mean": 0.5772345176669993,
+            "sample_std": null,
+            "minimum": 0.5772345176669993,
+            "maximum": 0.5772345176669993,
+            "values": [
+              0.5772345176669993
+            ]
+          },
+          {
+            "mean": 0.4436935274583702,
+            "sample_std": null,
+            "minimum": 0.4436935274583702,
+            "maximum": 0.4436935274583702,
+            "values": [
+              0.4436935274583702
+            ]
+          },
+          {
+            "mean": 0.4224455916646546,
+            "sample_std": null,
+            "minimum": 0.4224455916646546,
+            "maximum": 0.4224455916646546,
+            "values": [
+              0.4224455916646546
+            ]
+          },
+          {
+            "mean": 0.43313006999274617,
+            "sample_std": null,
+            "minimum": 0.43313006999274617,
+            "maximum": 0.43313006999274617,
+            "values": [
+              0.43313006999274617
+            ]
+          },
+          {
+            "mean": 0.43697570071963565,
+            "sample_std": null,
+            "minimum": 0.43697570071963565,
+            "maximum": 0.43697570071963565,
+            "values": [
+              0.43697570071963565
+            ]
+          },
+          {
+            "mean": 0.5260664599849871,
+            "sample_std": null,
+            "minimum": 0.5260664599849871,
+            "maximum": 0.5260664599849871,
+            "values": [
+              0.5260664599849871
+            ]
+          },
+          {
+            "mean": 0.47102132341280767,
+            "sample_std": null,
+            "minimum": 0.47102132341280767,
+            "maximum": 0.47102132341280767,
+            "values": [
+              0.47102132341280767
+            ]
+          }
+        ],
+        "mse": [
+          {
+            "mean": 0.5848080449123142,
+            "sample_std": null,
+            "minimum": 0.5848080449123142,
+            "maximum": 0.5848080449123142,
+            "values": [
+              0.5848080449123142
+            ]
+          },
+          {
+            "mean": 0.7853771497437747,
+            "sample_std": null,
+            "minimum": 0.7853771497437747,
+            "maximum": 0.7853771497437747,
+            "values": [
+              0.7853771497437747
+            ]
+          },
+          {
+            "mean": 0.49103870895934415,
+            "sample_std": null,
+            "minimum": 0.49103870895934415,
+            "maximum": 0.49103870895934415,
+            "values": [
+              0.49103870895934415
+            ]
+          },
+          {
+            "mean": 0.33676498442926717,
+            "sample_std": null,
+            "minimum": 0.33676498442926717,
+            "maximum": 0.33676498442926717,
+            "values": [
+              0.33676498442926717
+            ]
+          },
+          {
+            "mean": 0.4622951383714068,
+            "sample_std": null,
+            "minimum": 0.4622951383714068,
+            "maximum": 0.4622951383714068,
+            "values": [
+              0.4622951383714068
+            ]
+          },
+          {
+            "mean": 0.3753635635505134,
+            "sample_std": null,
+            "minimum": 0.3753635635505134,
+            "maximum": 0.3753635635505134,
+            "values": [
+              0.3753635635505134
+            ]
+          },
+          {
+            "mean": 0.7872018329749119,
+            "sample_std": null,
+            "minimum": 0.7872018329749119,
+            "maximum": 0.7872018329749119,
+            "values": [
+              0.7872018329749119
+            ]
+          },
+          {
+            "mean": 0.5080376667471265,
+            "sample_std": null,
+            "minimum": 0.5080376667471265,
+            "maximum": 0.5080376667471265,
+            "values": [
+              0.5080376667471265
+            ]
+          }
+        ],
+        "coverage_90": [
+          {
+            "mean": 0.25,
+            "sample_std": null,
+            "minimum": 0.25,
+            "maximum": 0.25,
+            "values": [
+              0.25
+            ]
+          },
+          {
+            "mean": 0.5,
+            "sample_std": null,
+            "minimum": 0.5,
+            "maximum": 0.5,
+            "values": [
+              0.5
+            ]
+          },
+          {
+            "mean": 0.375,
+            "sample_std": null,
+            "minimum": 0.375,
+            "maximum": 0.375,
+            "values": [
+              0.375
+            ]
+          },
+          {
+            "mean": 0.625,
+            "sample_std": null,
+            "minimum": 0.625,
+            "maximum": 0.625,
+            "values": [
+              0.625
+            ]
+          },
+          {
+            "mean": 0.5,
+            "sample_std": null,
+            "minimum": 0.5,
+            "maximum": 0.5,
+            "values": [
+              0.5
+            ]
+          },
+          {
+            "mean": 0.625,
+            "sample_std": null,
+            "minimum": 0.625,
+            "maximum": 0.625,
+            "values": [
+              0.625
+            ]
+          },
+          {
+            "mean": 0.375,
+            "sample_std": null,
+            "minimum": 0.375,
+            "maximum": 0.375,
+            "values": [
+              0.375
+            ]
+          },
+          {
+            "mean": 0.75,
+            "sample_std": null,
+            "minimum": 0.75,
+            "maximum": 0.75,
+            "values": [
+              0.75
+            ]
+          }
+        ],
+        "interval_width_90": [
+          {
+            "mean": 0.5881812959443777,
+            "sample_std": null,
+            "minimum": 0.5881812959443777,
+            "maximum": 0.5881812959443777,
+            "values": [
+              0.5881812959443777
+            ]
+          },
+          {
+            "mean": 1.399817115347832,
+            "sample_std": null,
+            "minimum": 1.399817115347832,
+            "maximum": 1.399817115347832,
+            "values": [
+              1.399817115347832
+            ]
+          },
+          {
+            "mean": 1.1488556174095717,
+            "sample_std": null,
+            "minimum": 1.1488556174095717,
+            "maximum": 1.1488556174095717,
+            "values": [
+              1.1488556174095717
+            ]
+          },
+          {
+            "mean": 1.1500314243370666,
+            "sample_std": null,
+            "minimum": 1.1500314243370666,
+            "maximum": 1.1500314243370666,
+            "values": [
+              1.1500314243370666
+            ]
+          },
+          {
+            "mean": 1.1640913261042438,
+            "sample_std": null,
+            "minimum": 1.1640913261042438,
+            "maximum": 1.1640913261042438,
+            "values": [
+              1.1640913261042438
+            ]
+          },
+          {
+            "mean": 1.7385855192085726,
+            "sample_std": null,
+            "minimum": 1.7385855192085726,
+            "maximum": 1.7385855192085726,
+            "values": [
+              1.7385855192085726
+            ]
+          },
+          {
+            "mean": 0.9011736606305928,
+            "sample_std": null,
+            "minimum": 0.9011736606305928,
+            "maximum": 0.9011736606305928,
+            "values": [
+              0.9011736606305928
+            ]
+          },
+          {
+            "mean": 1.4719911755586503,
+            "sample_std": null,
+            "minimum": 1.4719911755586503,
+            "maximum": 1.4719911755586503,
+            "values": [
+              1.4719911755586503
+            ]
+          }
+        ]
+      },
+      "median": {
+        "crps": [
+          {
+            "mean": 0.5806143528382479,
+            "sample_std": null,
+            "minimum": 0.5806143528382479,
+            "maximum": 0.5806143528382479,
+            "values": [
+              0.5806143528382479
+            ]
+          },
+          {
+            "mean": 0.6266090216018134,
+            "sample_std": null,
+            "minimum": 0.6266090216018134,
+            "maximum": 0.6266090216018134,
+            "values": [
+              0.6266090216018134
+            ]
+          },
+          {
+            "mean": 0.4399138168427321,
+            "sample_std": null,
+            "minimum": 0.4399138168427321,
+            "maximum": 0.4399138168427321,
+            "values": [
+              0.4399138168427321
+            ]
+          },
+          {
+            "mean": 0.410197853805887,
+            "sample_std": null,
+            "minimum": 0.410197853805887,
+            "maximum": 0.410197853805887,
+            "values": [
+              0.410197853805887
+            ]
+          },
+          {
+            "mean": 0.3882821753361321,
+            "sample_std": null,
+            "minimum": 0.3882821753361321,
+            "maximum": 0.3882821753361321,
+            "values": [
+              0.3882821753361321
+            ]
+          },
+          {
+            "mean": 0.45451309825585196,
+            "sample_std": null,
+            "minimum": 0.45451309825585196,
+            "maximum": 0.45451309825585196,
+            "values": [
+              0.45451309825585196
+            ]
+          },
+          {
+            "mean": 0.5026661212412636,
+            "sample_std": null,
+            "minimum": 0.5026661212412636,
+            "maximum": 0.5026661212412636,
+            "values": [
+              0.5026661212412636
+            ]
+          },
+          {
+            "mean": 0.4595636350557669,
+            "sample_std": null,
+            "minimum": 0.4595636350557669,
+            "maximum": 0.4595636350557669,
+            "values": [
+              0.4595636350557669
+            ]
+          }
+        ],
+        "mse": [
+          {
+            "mean": 0.6139954062428755,
+            "sample_std": null,
+            "minimum": 0.6139954062428755,
+            "maximum": 0.6139954062428755,
+            "values": [
+              0.6139954062428755
+            ]
+          },
+          {
+            "mean": 0.9121430687734327,
+            "sample_std": null,
+            "minimum": 0.9121430687734327,
+            "maximum": 0.9121430687734327,
+            "values": [
+              0.9121430687734327
+            ]
+          },
+          {
+            "mean": 0.4832274162269214,
+            "sample_std": null,
+            "minimum": 0.4832274162269214,
+            "maximum": 0.4832274162269214,
+            "values": [
+              0.4832274162269214
+            ]
+          },
+          {
+            "mean": 0.34194824454394246,
+            "sample_std": null,
+            "minimum": 0.34194824454394246,
+            "maximum": 0.34194824454394246,
+            "values": [
+              0.34194824454394246
+            ]
+          },
+          {
+            "mean": 0.4096211042555965,
+            "sample_std": null,
+            "minimum": 0.4096211042555965,
+            "maximum": 0.4096211042555965,
+            "values": [
+              0.4096211042555965
+            ]
+          },
+          {
+            "mean": 0.3884232224982953,
+            "sample_std": null,
+            "minimum": 0.3884232224982953,
+            "maximum": 0.3884232224982953,
+            "values": [
+              0.3884232224982953
+            ]
+          },
+          {
+            "mean": 0.774792924402121,
+            "sample_std": null,
+            "minimum": 0.774792924402121,
+            "maximum": 0.774792924402121,
+            "values": [
+              0.774792924402121
+            ]
+          },
+          {
+            "mean": 0.44686106837956596,
+            "sample_std": null,
+            "minimum": 0.44686106837956596,
+            "maximum": 0.44686106837956596,
+            "values": [
+              0.44686106837956596
+            ]
+          }
+        ],
+        "coverage_90": [
+          {
+            "mean": 0.25,
+            "sample_std": null,
+            "minimum": 0.25,
+            "maximum": 0.25,
+            "values": [
+              0.25
+            ]
+          },
+          {
+            "mean": 0.5,
+            "sample_std": null,
+            "minimum": 0.5,
+            "maximum": 0.5,
+            "values": [
+              0.5
+            ]
+          },
+          {
+            "mean": 0.25,
+            "sample_std": null,
+            "minimum": 0.25,
+            "maximum": 0.25,
+            "values": [
+              0.25
+            ]
+          },
+          {
+            "mean": 0.75,
+            "sample_std": null,
+            "minimum": 0.75,
+            "maximum": 0.75,
+            "values": [
+              0.75
+            ]
+          },
+          {
+            "mean": 0.625,
+            "sample_std": null,
+            "minimum": 0.625,
+            "maximum": 0.625,
+            "values": [
+              0.625
+            ]
+          },
+          {
+            "mean": 0.625,
+            "sample_std": null,
+            "minimum": 0.625,
+            "maximum": 0.625,
+            "values": [
+              0.625
+            ]
+          },
+          {
+            "mean": 0.5,
+            "sample_std": null,
+            "minimum": 0.5,
+            "maximum": 0.5,
+            "values": [
+              0.5
+            ]
+          },
+          {
+            "mean": 0.75,
+            "sample_std": null,
+            "minimum": 0.75,
+            "maximum": 0.75,
+            "values": [
+              0.75
+            ]
+          }
+        ],
+        "interval_width_90": [
+          {
+            "mean": 0.8586776283802464,
+            "sample_std": null,
+            "minimum": 0.8586776283802464,
+            "maximum": 0.8586776283802464,
+            "values": [
+              0.8586776283802464
+            ]
+          },
+          {
+            "mean": 1.4981402927835004,
+            "sample_std": null,
+            "minimum": 1.4981402927835004,
+            "maximum": 1.4981402927835004,
+            "values": [
+              1.4981402927835004
+            ]
+          },
+          {
+            "mean": 1.1684927312890065,
+            "sample_std": null,
+            "minimum": 1.1684927312890065,
+            "maximum": 1.1684927312890065,
+            "values": [
+              1.1684927312890065
+            ]
+          },
+          {
+            "mean": 1.2420495263460904,
+            "sample_std": null,
+            "minimum": 1.2420495263460904,
+            "maximum": 1.2420495263460904,
+            "values": [
+              1.2420495263460904
+            ]
+          },
+          {
+            "mean": 1.2433095216852958,
+            "sample_std": null,
+            "minimum": 1.2433095216852958,
+            "maximum": 1.2433095216852958,
+            "values": [
+              1.2433095216852958
+            ]
+          },
+          {
+            "mean": 1.8431670464109624,
+            "sample_std": null,
+            "minimum": 1.8431670464109624,
+            "maximum": 1.8431670464109624,
+            "values": [
+              1.8431670464109624
+            ]
+          },
+          {
+            "mean": 1.038802401977591,
+            "sample_std": null,
+            "minimum": 1.038802401977591,
+            "maximum": 1.038802401977591,
+            "values": [
+              1.038802401977591
+            ]
+          },
+          {
+            "mean": 1.5231673239730297,
+            "sample_std": null,
+            "minimum": 1.5231673239730297,
+            "maximum": 1.5231673239730297,
+            "values": [
+              1.5231673239730297
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "costs_across_seed_descriptive": {
+    "n_available_seeds": 1,
+    "seconds": {
+      "mediator_training_seconds": {
+        "mean": 0.031616375024896115,
+        "sample_std": null,
+        "minimum": 0.031616375024896115,
+        "maximum": 0.031616375024896115,
+        "values": [
+          0.031616375024896115
+        ]
+      },
+      "preprocessing_seconds": {
+        "raw": {
+          "mean": 2.083077561110258e-06,
+          "sample_std": null,
+          "minimum": 2.083077561110258e-06,
+          "maximum": 2.083077561110258e-06,
+          "values": [
+            2.083077561110258e-06
+          ]
+        },
+        "learned": {
+          "mean": 0.00038616597885265946,
+          "sample_std": null,
+          "minimum": 0.00038616597885265946,
+          "maximum": 0.00038616597885265946,
+          "values": [
+            0.00038616597885265946
+          ]
+        },
+        "median": {
+          "mean": 0.005434207967482507,
+          "sample_std": null,
+          "minimum": 0.005434207967482507,
+          "maximum": 0.005434207967482507,
+          "values": [
+            0.005434207967482507
+          ]
+        }
+      },
+      "forecaster_training_seconds": {
+        "raw": {
+          "mean": 0.8320447920123115,
+          "sample_std": null,
+          "minimum": 0.8320447920123115,
+          "maximum": 0.8320447920123115,
+          "values": [
+            0.8320447920123115
+          ]
+        },
+        "learned": {
+          "mean": 0.8412168329814449,
+          "sample_std": null,
+          "minimum": 0.8412168329814449,
+          "maximum": 0.8412168329814449,
+          "values": [
+            0.8412168329814449
+          ]
+        },
+        "median": {
+          "mean": 0.8287603330099955,
+          "sample_std": null,
+          "minimum": 0.8287603330099955,
+          "maximum": 0.8287603330099955,
+          "values": [
+            0.8287603330099955
+          ]
+        }
+      },
+      "validation_sampling_seconds": {
+        "raw": {
+          "mean": 0.04547420796006918,
+          "sample_std": null,
+          "minimum": 0.04547420796006918,
+          "maximum": 0.04547420796006918,
+          "values": [
+            0.04547420796006918
+          ]
+        },
+        "learned": {
+          "mean": 0.04575600096723065,
+          "sample_std": null,
+          "minimum": 0.04575600096723065,
+          "maximum": 0.04575600096723065,
+          "values": [
+            0.04575600096723065
+          ]
+        },
+        "median": {
+          "mean": 0.04513737506931648,
+          "sample_std": null,
+          "minimum": 0.04513737506931648,
+          "maximum": 0.04513737506931648,
+          "values": [
+            0.04513737506931648
+          ]
+        }
+      },
+      "test_preprocessing_seconds": {
+        "raw": {
+          "mean": 5.291018169373274e-06,
+          "sample_std": null,
+          "minimum": 5.291018169373274e-06,
+          "maximum": 5.291018169373274e-06,
+          "values": [
+            5.291018169373274e-06
+          ]
+        },
+        "learned": {
+          "mean": 0.0001954170293174684,
+          "sample_std": null,
+          "minimum": 0.0001954170293174684,
+          "maximum": 0.0001954170293174684,
+          "values": [
+            0.0001954170293174684
+          ]
+        },
+        "median": {
+          "mean": 0.00012741598766297102,
+          "sample_std": null,
+          "minimum": 0.00012741598766297102,
+          "maximum": 0.00012741598766297102,
+          "values": [
+            0.00012741598766297102
+          ]
+        }
+      },
+      "test_inference_seconds": {
+        "raw": {
+          "mean": 0.02237804199103266,
+          "sample_std": null,
+          "minimum": 0.02237804199103266,
+          "maximum": 0.02237804199103266,
+          "values": [
+            0.02237804199103266
+          ]
+        },
+        "learned": {
+          "mean": 0.02241166599560529,
+          "sample_std": null,
+          "minimum": 0.02241166599560529,
+          "maximum": 0.02241166599560529,
+          "values": [
+            0.02241166599560529
+          ]
+        },
+        "median": {
+          "mean": 0.02212679199874401,
+          "sample_std": null,
+          "minimum": 0.02212679199874401,
+          "maximum": 0.02212679199874401,
+          "values": [
+            0.02212679199874401
+          ]
+        }
+      },
+      "method_total_seconds": {
+        "raw": {
+          "mean": 0.8544302080990747,
+          "sample_std": null,
+          "minimum": 0.8544302080990747,
+          "maximum": 0.8544302080990747,
+          "values": [
+            0.8544302080990747
+          ]
+        },
+        "learned": {
+          "mean": 0.8958264570101164,
+          "sample_std": null,
+          "minimum": 0.8958264570101164,
+          "maximum": 0.8958264570101164,
+          "values": [
+            0.8958264570101164
+          ]
+        },
+        "median": {
+          "mean": 0.856448748963885,
+          "sample_std": null,
+          "minimum": 0.856448748963885,
+          "maximum": 0.856448748963885,
+          "values": [
+            0.856448748963885
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "csdi": {
+    "crps": 579.8845888827623
+  },
+  "linear_interpolation": {
+    "crps": 0.26418792649919565
+  },
+  "exact_gp_posterior": {
+    "crps": 0.19073080940514725
+  }
+}

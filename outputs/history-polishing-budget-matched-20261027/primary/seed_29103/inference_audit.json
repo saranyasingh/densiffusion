@@ -1,0 +1,29 @@
+{
+  "median": {
+    "observed_argument_sha256": "19613cb4c4e212a43f85ff3c8120f06717ad893074f058ce7942b97df8027dcd",
+    "dense_history_argument_sha256": "19613cb4c4e212a43f85ff3c8120f06717ad893074f058ce7942b97df8027dcd",
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 64,
+    "horizon": 8,
+    "sampling_seed": 4287526948
+  },
+  "raw": {
+    "observed_argument_sha256": "a78aca94e978b698aa112e5c29f204b2b8a1306729e6f9a4a380b8e8bd27a8ee",
+    "dense_history_argument_sha256": "a78aca94e978b698aa112e5c29f204b2b8a1306729e6f9a4a380b8e8bd27a8ee",
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 64,
+    "horizon": 8,
+    "sampling_seed": 4287526948
+  },
+  "learned": {
+    "observed_argument_sha256": "38ad2cc4be90a33f91284b0c0c3dcdee51566d600c6e30d3fc00299181e94422",
+    "dense_history_argument_sha256": "38ad2cc4be90a33f91284b0c0c3dcdee51566d600c6e30d3fc00299181e94422",
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 64,
+    "horizon": 8,
+    "sampling_seed": 4287526948
+  }
+}

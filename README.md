@@ -68,3 +68,27 @@ uv run python scripts/train_csdi_forecast.py --output outputs/csdi-forecast
 
 See [docs/forecasting.md](docs/forecasting.md) for the training/inference flow,
 leakage boundaries, baselines, saved artifacts, and forecast APIs.
+
+The [paired waveform forecasting experiment](docs/waveform_forecasting.md)
+compares the same CSDI forecaster across direct, linear, and learned
+densification using three seeds, forecast-CRPS checkpoint selection, frozen
+test evaluation, and paired trajectory bootstrap analysis.
+
+The [larger waveform imputation follow-up](docs/waveform_imputation_large.md)
+recovers the successful GP network and training recipe, requires sampled
+validation interpolation to improve before forecasting, and separately checks
+resolution transfer after freezing the densifiers.
+
+The [history-polishing forecasting experiment](docs/history_polishing_forecasting.md)
+compares raw, blind-spot MLP, and median-filtered noisy histories with paired
+larger CSDI forecasters, unchanged noisy future targets, and fresh frozen-model
+test evaluation. The completed local run found lower CRPS for learned polishing
+than both baselines in all three seeds, with undercoverage of nominal 90%
+intervals.
+
+The [resource-matched follow-up](docs/budgeted_polishing.md) charges the complete
+mediator search against the forecasting budget. Its fresh three-seed comparison
+found a 4.32% mean CRPS improvement over raw histories, but only a 0.93% improvement
+over median filtering, with two of three learned-versus-median intervals crossing
+zero. Median filtering had better average MSE and coverage. See the
+[experiment archive index](docs/experiment_results.md) for all saved results.

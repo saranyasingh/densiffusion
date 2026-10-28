@@ -1,0 +1,72 @@
+{
+  "created_utc": "2026-10-27T22:11:53.155121+00:00",
+  "renderer": "macOS Quick Look qlmanage -t -s 2000",
+  "scope": "All four PNGs individually visually inspected. Labels, axes, legends, bands and full panel extents are intact. Original three SVG hashes unchanged. Only preview SVG outer viewports changed. Extra detail is explicitly limited to saved validation candidates at epoch>=50.",
+  "plots": [
+    {
+      "source": "primary/plots/representative_forecasts.svg",
+      "source_sha256_before": "ab52a7a9c648f95b487d1589354f00594d41d706224cf531095dfddc31d70c9c",
+      "preview_svg": "preview_primary/representative_forecasts.svg",
+      "original_dimensions": [
+        1440.0,
+        1645.0
+      ],
+      "preview_dimensions": [
+        1645.0,
+        1645.0
+      ],
+      "source_sha256_after": "ab52a7a9c648f95b487d1589354f00594d41d706224cf531095dfddc31d70c9c",
+      "source_unchanged": true,
+      "png": "preview_primary/representative_forecasts.svg.png",
+      "png_sha256": "74cb103291f8558a6a610a058467f4c08c8fee39c1c1e166b1be5f97af126af8"
+    },
+    {
+      "source": "primary/plots/per_horizon.svg",
+      "source_sha256_before": "31458474284935c923253f961e90523b1c19b0756cbd65b70bd394209ae91ac8",
+      "preview_svg": "preview_primary/per_horizon.svg",
+      "original_dimensions": [
+        1200.0,
+        800.0
+      ],
+      "preview_dimensions": [
+        1200.0,
+        1200.0
+      ],
+      "source_sha256_after": "31458474284935c923253f961e90523b1c19b0756cbd65b70bd394209ae91ac8",
+      "source_unchanged": true,
+      "png": "preview_primary/per_horizon.svg.png",
+      "png_sha256": "dc979e9351b26887772116ced538cdfee166f4765862d96b72a2ab688ef46ce9"
+    },
+    {
+      "source": "primary/plots/validation_crps.svg",
+      "source_sha256_before": "3db7991810f7a7a1f0d15a0cd78209bf58487179cfee8f05bbfadf8ad592d284",
+      "preview_svg": "preview_primary/validation_crps.svg",
+      "original_dimensions": [
+        1200.0,
+        1040.0
+      ],
+      "preview_dimensions": [
+        1200.0,
+        1200.0
+      ],
+      "source_sha256_after": "3db7991810f7a7a1f0d15a0cd78209bf58487179cfee8f05bbfadf8ad592d284",
+      "source_unchanged": true,
+      "png": "preview_primary/validation_crps.svg.png",
+      "png_sha256": "4abba019a7fbbff94da98acfc77c52f3e7e5558a1d3c25a60aeaa9c91065aed6"
+    }
+  ],
+  "additional_detail": {
+    "source": "primary/analysis.json",
+    "source_sha256": "94e30337cadb8e7c0b3671dc4921f0d88e13e93098096ca0f8fd6960fae451ba",
+    "plot": "preview_primary/validation_crps_epoch50_detail.svg",
+    "restriction": "Recorded validation candidates at epoch>=50, explicitly labeled; no model or score recomputation.",
+    "png": "preview_primary/validation_crps_epoch50_detail.svg.png",
+    "png_sha256": "4179cac3eab38a8bd4b34164d34d3e62434fca4be49dbcc509cdaa805fea4fa9",
+    "visually_inspected": true,
+    "derivation_script": "preview_primary/render_validation_detail.py",
+    "derivation_script_sha256": "d7f395e1e4438b728d54cc9d220562d24ac0b60bce0db1fef321b215f333d525"
+  },
+  "original_three_plots_visually_inspected_utc": "2026-10-27T22:13:12.245714+00:00",
+  "visual_inspection_completed_utc": "2026-10-27T22:13:46.935439+00:00",
+  "root_visual_review": "Root independently inspected all three original PNG previews and the labeled epoch>=50 detail individually, accepted QA: readable labels/legend, explicit epoch-10 omission, earlier minima and later reversals visible."
+}

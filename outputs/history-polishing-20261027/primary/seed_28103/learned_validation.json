@@ -1,0 +1,86 @@
+[
+  {
+    "epoch": 10,
+    "crps": 3.0231497379245287,
+    "scores": {
+      "crps": 3.0231497379245287,
+      "mse": 94.18843350286093,
+      "coverage_90": 0.7109375,
+      "interval_width_90": 39.66911556946364
+    },
+    "sampling_seconds": 75.85745983297238,
+    "samples": "learned_validation_epoch_0010.npz"
+  },
+  {
+    "epoch": 50,
+    "crps": 0.3057224963084214,
+    "scores": {
+      "crps": 0.3057224963084214,
+      "mse": 0.9935475564072854,
+      "coverage_90": 0.87353515625,
+      "interval_width_90": 1.5633354632839551
+    },
+    "sampling_seconds": 68.29616070899647,
+    "samples": "learned_validation_epoch_0050.npz"
+  },
+  {
+    "epoch": 100,
+    "crps": 0.26829893473049743,
+    "scores": {
+      "crps": 0.26829893473049743,
+      "mse": 0.4862371067646072,
+      "coverage_90": 0.88525390625,
+      "interval_width_90": 1.323480686598554
+    },
+    "sampling_seconds": 69.24920529202791,
+    "samples": "learned_validation_epoch_0100.npz"
+  },
+  {
+    "epoch": 200,
+    "crps": 0.26536296936597514,
+    "scores": {
+      "crps": 0.26536296936597514,
+      "mse": 0.4222457301475511,
+      "coverage_90": 0.78369140625,
+      "interval_width_90": 0.9356580702109408
+    },
+    "sampling_seconds": 77.7458531250013,
+    "samples": "learned_validation_epoch_0200.npz"
+  },
+  {
+    "epoch": 400,
+    "crps": 0.2734077379081452,
+    "scores": {
+      "crps": 0.2734077379081452,
+      "mse": 0.4864500863332812,
+      "coverage_90": 0.8291015625,
+      "interval_width_90": 1.9219745470156733
+    },
+    "sampling_seconds": 75.18953229195904,
+    "samples": "learned_validation_epoch_0400.npz"
+  },
+  {
+    "epoch": 800,
+    "crps": 0.26243794823386835,
+    "scores": {
+      "crps": 0.26243794823386835,
+      "mse": 0.41435352456115615,
+      "coverage_90": 0.759765625,
+      "interval_width_90": 1.169377697257223
+    },
+    "sampling_seconds": 74.27879866596777,
+    "samples": "learned_validation_epoch_0800.npz"
+  },
+  {
+    "epoch": 1200,
+    "crps": 0.2626657472146805,
+    "scores": {
+      "crps": 0.2626657472146805,
+      "mse": 0.4142861750795368,
+      "coverage_90": 0.6845703125,
+      "interval_width_90": 0.9757922932377193
+    },
+    "sampling_seconds": 74.08794341603061,
+    "samples": "learned_validation_epoch_1200.npz"
+  }
+]

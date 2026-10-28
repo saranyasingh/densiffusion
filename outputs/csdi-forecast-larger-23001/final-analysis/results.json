@@ -1,0 +1,79 @@
+{
+  "bootstrap": {
+    "replicates": 50000,
+    "seed": 23031,
+    "method": "paired nonparametric trajectory bootstrap; percentile intervals",
+    "independent_units": 155,
+    "windows_per_unit": 2,
+    "estimand": "mean empirical 32-draw CRPS difference, left minus right",
+    "scope": "test-trajectory uncertainty conditional on this training run and the saved forecast draws; no retraining or ensemble resampling",
+    "comparisons": {
+      "densiffusion minus direct_csdi": {
+        "crps_difference": 0.05811269157272522,
+        "percentile_95_interval": [
+          0.039432134258028564,
+          0.07812722593748493
+        ]
+      },
+      "linear_densification minus direct_csdi": {
+        "crps_difference": -0.0003416926437839676,
+        "percentile_95_interval": [
+          -0.010995009853051952,
+          0.010182185799430053
+        ]
+      },
+      "densiffusion minus linear_densification": {
+        "crps_difference": 0.05845438421650918,
+        "percentile_95_interval": [
+          0.03945021706486123,
+          0.07874157150525639
+        ]
+      }
+    }
+  },
+  "gp": {
+    "parameters": {
+      "kernel": "exponential",
+      "mean": 0.0,
+      "variance": 1.0,
+      "lengthscale": 1.0
+    },
+    "normal_95_percentile": 1.6448536269514715,
+    "analytic": {
+      "coverage_90": 0.9145161290322581,
+      "interval_width_90": 1.9851019476059681,
+      "mse_conditional_mean": 0.34569168702554115,
+      "coverage_trajectory_bootstrap_95_interval": [
+        0.8911290322580645,
+        0.9354838709677419
+      ]
+    },
+    "empirical_32_draws": {
+      "crps": 0.33949782614546037,
+      "mse": 0.36272315748356027,
+      "coverage_90": 0.8491935483870968,
+      "interval_width_90": 1.81746828877197,
+      "coverage_trajectory_bootstrap_95_interval": [
+        0.8185483870967742,
+        0.8782258064516129
+      ]
+    },
+    "mean_mse_decomposition": {
+      "analytic_conditional_mean_mse": 0.34569168702554115,
+      "sample_mean_mse": 0.36272315748356027,
+      "realized_mse_difference": 0.017031470458019116,
+      "sample_mean_error_relative_to_analytic_mean_mse": 0.011507676814423818,
+      "realized_cross_term": 0.005523793643595272,
+      "expected_sampling_mse_penalty": 0.011818817192774451,
+      "identity": "sample_mean_mse = analytic_mean_mse + sampling_mse + cross_term",
+      "expectation": "conditional on these histories and targets, independent posterior sampling adds average posterior variance / 32 in expectation; the cross term has zero expectation"
+    }
+  },
+  "checks": {
+    "two_windows_kept_together_by_recorded_trajectory_id": true,
+    "original_crps_and_gp_scores_recomputed": true,
+    "crps_formula_matches_pairwise_definition": true,
+    "gp_posterior_recomputed_from_generator_parameters": true,
+    "mse_decomposition_verified": true
+  }
+}

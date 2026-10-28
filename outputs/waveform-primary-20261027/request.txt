@@ -1,0 +1,106 @@
+Implement and run a synthetic forecasting experiment to test whether Densiffusion improves forecasting over direct forecasting when both methods use the same CSDI forecasting architecture.
+
+Work in the existing repository, expected at `/Users/kaanbaykara/densiffusion`. Read its instructions and inspect the current forecasting pipeline before changing anything. Preserve existing work and results. Do not commit or push unless I request it.
+
+The goal is an honest empirical comparison—not a guaranteed positive result. Report the outcome even if learned densification loses.
+
+## Synthetic task
+
+Generate independent trajectories using
+
+X_i(t_j) = A_i [sin(theta_i(t_j)) + 0.3 sin(2 theta_i(t_j) + psi_i)] + epsilon_ij,
+
+theta_i(t) = 2 pi f_i t + phi_i.
+
+Draw independently for each trajectory:
+
+- A_i ~ Uniform(0.7, 1.3)
+- f_i ~ Uniform(0.6, 0.9)
+- phi_i ~ Uniform(0, 2 pi)
+- psi_i ~ Uniform(0, 2 pi)
+- epsilon_ij ~ Normal(0, 0.02²), independently across observations.
+
+Amplitude, frequency, and phases remain fixed within each trajectory. Models must not receive these latent parameters.
+
+Use these initial settings:
+
+- Original observation spacing: 0.1.
+- History: 25 observations at times 0 through 2.4.
+- Forecast: 8 observations at times 2.5 through 3.2.
+- Densification factor: 2, giving spacing 0.05.
+- Primary training set: 1,024 independent trajectories.
+- Separate validation and test sets: 256 and 1,024 independent trajectories.
+- Three paired experimental seeds, sharing each seed’s dataset and forecaster initialization across methods.
+
+The hypothesis is that learned interpolation preserves waveform curvature and expresses phase/frequency structure in a form that helps finite-data forecasting. Generated history points do not add information about the actual future, so do not describe any improvement as recovering information unavailable in the observed history.
+
+## Required comparisons
+
+Run:
+
+1. Direct CSDI forecasting on the original grid.
+2. Linear densification followed by CSDI forecasting.
+3. Learned Densiffusion followed by CSDI forecasting.
+
+Use the same forecasting architecture, parameter count, initialization within each paired seed, optimizer settings, diffusion schedule, training-example ordering where feasible, and optimization-update budget. Train separate forecasting weights for each method.
+
+Keep the physical history duration, forecast horizon, original-grid evaluation times, and scored ensemble size identical. Use at least 64 forecast samples per example, including appropriate pooling over sampled histories for Densiffusion.
+
+Record the additional densifier parameters, training cost, and inference cost. Equal forecasting architecture does not imply equal total compute.
+
+## Respect and audit the existing pipeline
+
+Inspect `docs/forecasting.md` and the relevant training, sampling, and experiment code.
+
+The current implementation reportedly:
+
+- Trains the densifier by masking alternate original-grid points: 0.2 → 0.1 spacing.
+- Applies it at 0.1 → 0.05 spacing.
+- Independently densifies histories and future training targets.
+- Forecasts the fine-grid future, then evaluates at original-grid times.
+
+Verify these details. Preserve this construction for the main experiment rather than silently changing the method.
+
+Densify each history using only its observed past, during both training and inference. Never use its future to construct the conditioning history. Original observations must remain exactly preserved.
+
+Keep simulated fine-grid truth out of training, normalization, hyperparameter selection, and checkpoint selection. After models and choices are frozen, it may be used for a separately labeled interpolation diagnostic. Do not assume that independently generated dense histories and futures form a true joint fine-resolution trajectory.
+
+## Implementation and execution
+
+Reuse existing interfaces and experiment infrastructure where practical. Add a reproducible generator, configuration, and experiment entry point.
+
+First run a small end-to-end smoke test to check shapes, masks, timing, observation preservation, sampling, and scoring. Do not interpret smoke-test accuracy as evidence.
+
+Then run the primary comparison across the three paired seeds. Use available hardware appropriately. Choose a reasonable training budget from existing repository experience, record it, and inspect training/validation behavior before claiming convergence.
+
+Select checkpoints and any pilot configuration using validation data only. Prefer forecast CRPS at original-grid times for final validation selection; raw denoising losses on different target grids are not directly comparable forecasting scores. Give each method comparable tuning opportunities.
+
+Do not repeatedly inspect test results while adjusting settings. Freeze the configuration before confirmatory test evaluation.
+
+If runtime makes the full experiment impractical, complete a clearly labeled pilot and report exactly what remains rather than presenting it as the requested full comparison.
+
+## Evaluation and interpretation
+
+Report:
+
+- Original-grid CRPS as the primary metric.
+- Ensemble-mean MSE.
+- Empirical 90% interval coverage and width.
+- Per-horizon performance.
+- Training and inference time.
+- Per-seed scores and paired differences.
+
+Bootstrap test trajectories for paired uncertainty estimates, and report variation across training seeds separately. Do not treat correlated windows or samples as independent observations.
+
+If the primary result is promising, add a history-only learned-densification ablation to distinguish improved history representation from synthetic future supervision. Keep the forecasting architecture unchanged. Treat further task or hyperparameter exploration as exploratory, followed by a fresh test set for any new claim.
+
+Save configurations, seeds, trajectory splits, checkpoints, training logs, exact scored forecast samples, metrics, timings, and representative forecast plots in a new output directory. Ensure metrics can be recomputed from saved samples.
+
+Add meaningful tests for the generator and any changed pipeline behavior, and run relevant existing checks.
+
+Finish with a concise report explaining:
+- What was implemented and run.
+- Whether learned densification beat direct and linear baselines.
+- The size and consistency of any difference.
+- Whether convergence, calibration, or resolution-transfer problems limit interpretation.
+- Where all reproducible artifacts are saved.

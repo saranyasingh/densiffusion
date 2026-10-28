@@ -1,0 +1,133 @@
+{
+  "experiment": {
+    "seeds": [
+      27101,
+      27102,
+      27103
+    ],
+    "n_train": 1024,
+    "n_validation": 256,
+    "n_test": 1024,
+    "context_length": 25,
+    "horizon": 8,
+    "dt": 0.1,
+    "factor": 2,
+    "epochs": 600,
+    "densifier_epochs": 400,
+    "validation_interval": 100,
+    "densifier_validation_interval": 50,
+    "batch_size": 64,
+    "sample_batch_size": 256,
+    "diffusion_steps": 50,
+    "n_histories": 8,
+    "n_futures": 8,
+    "n_augmentations": 1,
+    "device": "cpu",
+    "threads": 1,
+    "workers": 3,
+    "label": "primary"
+  },
+  "architecture": {
+    "n_channels": 1,
+    "hidden_channels": 16,
+    "residual_layers": 2,
+    "attention_heads": 2,
+    "diffusion_embedding_dim": 32,
+    "time_embedding_dim": 32,
+    "feature_embedding_dim": 8,
+    "feedforward_dim": 32,
+    "dropout": 0.1
+  },
+  "forecaster_training": {
+    "epochs": 600,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "diffusion_steps": 50,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "cpu",
+    "schedule": "quadratic",
+    "weight_decay": 1e-06,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "sampled",
+    "validation_interval": 100
+  },
+  "densifier_training": {
+    "epochs": 400,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "diffusion_steps": 50,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "cpu",
+    "schedule": "quadratic",
+    "weight_decay": 1e-06,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "sampled",
+    "validation_interval": 50
+  },
+  "created_utc": "2026-10-27T14:39:04.671787+00:00",
+  "versions": {
+    "python": "3.12.15",
+    "numpy": "2.5.3",
+    "torch": "2.14.1",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  },
+  "normalization": "none",
+  "fine_grid_truth_before_freeze": false,
+  "test_data_generated_before_all_models_frozen": false,
+  "model_selection": "original-grid validation forecast CRPS, fixed ensemble seeds; draw count equals test draw count",
+  "densifier_selection": "original-grid alternating-mask validation noise MSE",
+  "augmentation": "existing independent history-only and anchored-future draws; cached once",
+  "resolution_transfer": "densifier learns 0.2 to 0.1; applies at 0.1 to 0.05 for primary settings",
+  "joint_fine_truth_assumption": false,
+  "budget_rationale": "primary: 600 forecaster epochs and 400 densifier epochs, based on prior 400-epoch repository runs; assess convergence from curves",
+  "seeds": {
+    "27101": {
+      "train_data": 1125722087,
+      "validation_data": 1483576074,
+      "test_data": 2792223796,
+      "densifier_initialization": 4261402382,
+      "densifier_training": 3835603300,
+      "forecaster_initialization": 695290319,
+      "forecaster_training": 617407134,
+      "validation_sampling": 1440474180,
+      "test_sampling": 1529888889,
+      "diagnostic_sampling": 1796336504
+    },
+    "27102": {
+      "train_data": 3911635381,
+      "validation_data": 3838435769,
+      "test_data": 199098648,
+      "densifier_initialization": 1405770684,
+      "densifier_training": 2829968929,
+      "forecaster_initialization": 3932282528,
+      "forecaster_training": 2599596461,
+      "validation_sampling": 3544459212,
+      "test_sampling": 1724072420,
+      "diagnostic_sampling": 1168988461
+    },
+    "27103": {
+      "train_data": 3310837079,
+      "validation_data": 2474286923,
+      "test_data": 128424897,
+      "densifier_initialization": 2615204607,
+      "densifier_training": 3565798277,
+      "forecaster_initialization": 3541212226,
+      "forecaster_training": 3021261344,
+      "validation_sampling": 3816477754,
+      "test_sampling": 1289673945,
+      "diagnostic_sampling": 954189260
+    }
+  }
+}

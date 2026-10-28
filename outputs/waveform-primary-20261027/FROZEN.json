@@ -1,0 +1,19 @@
+{
+  "frozen_utc": "2026-10-27T15:08:57.549274+00:00",
+  "checkpoint_sha256": {
+    "seed_27101/densiffusion_forecaster.pt": "051b8356557f229a752f81a250ee200f175f7146c5575ca75a7292843d19520c",
+    "seed_27101/densifier.pt": "7f93192766f9cfbabc5058a3deb7578791fa4570dae320a4d08f0a73b4dda88d",
+    "seed_27101/direct_csdi_forecaster.pt": "c7131675e5f6c01567b45baabec5857945616347e9c1739b9dcb54d9c598ac96",
+    "seed_27101/linear_densification_forecaster.pt": "a88bf8a10ac9059d205880bc21cdde2545ec584e7a4bed9b9c74c978759c6077",
+    "seed_27102/densiffusion_forecaster.pt": "c8b7d233fba6a037961ed71eedeffe01870a69722c50a5d1df547fe275bb097d",
+    "seed_27102/densifier.pt": "bac7b03d652629b6275a6da5e321b09d3552de814b2bd432f2b80ddbc76f7dc0",
+    "seed_27102/direct_csdi_forecaster.pt": "e5846fc4253c1fdd7c63c97ba48d8ea5e9ebeceea3ed744f1a4c96f5a3c1bc49",
+    "seed_27102/linear_densification_forecaster.pt": "b54f6c67c2fe9e51b46094ad8d11aed0f7d34100832d11aaf3ff841b335cfb5b",
+    "seed_27103/densiffusion_forecaster.pt": "d3049299e0f1d405b355918273461f56c43fcc918f3743e49a80d9c8b563559b",
+    "seed_27103/densifier.pt": "32b853f80c2a5c8d937255ea79f341530e611a4b1658e14166fa6bb5759a5337",
+    "seed_27103/direct_csdi_forecaster.pt": "c1e0ae4d98dee92db728ce1d4f64a10006a546b7cdfc6ba7a3caf337b646c75d",
+    "seed_27103/linear_densification_forecaster.pt": "dc9d649d74481035395beda3e4b11df9ea5867bade4f5a6f5971f54666792f67"
+  },
+  "config_sha256": "e3dfabcf9693101f9996acec84321caa4d8bda4450a7242b1542604813bb702d",
+  "test_evaluated": false
+}

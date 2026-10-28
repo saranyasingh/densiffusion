@@ -1,0 +1,418 @@
+{
+  "diagnostic_version": 1,
+  "created_after_freeze_and_test_evaluation": true,
+  "config_sha256": "e3dfabcf9693101f9996acec84321caa4d8bda4450a7242b1542604813bb702d",
+  "n_examples_per_seed": 256,
+  "n_samples": 64,
+  "subset": "first test trajectories in saved order, chosen without scores",
+  "noise_std": 0.02,
+  "interpretation": [
+    "Post-freeze diagnostic only; never used for training or selection.",
+    "trained_resolution withholds alternate original noisy observations.",
+    "transferred_resolution adds independent noise at new fine timestamps.",
+    "Noiseless signal scores are separate from noisy observation scores.",
+    "Linear interpolation repeats one point estimate, so its interval width is zero and its coverage is not a probabilistic calibration baseline.",
+    "Differences between resolutions also reflect different gap sizes; these diagnostics do not by themselves isolate resolution transfer.",
+    "These history-only interpolation diagnostics do not establish that independently densified histories and futures form joint fine truth."
+  ],
+  "seeds": {
+    "seed_27101": {
+      "original_test_rng_reproduced_exactly": true,
+      "tasks": {
+        "trained_resolution": {
+          "input_dt": 0.2,
+          "output_dt": 0.1,
+          "n_observed": 13,
+          "n_hidden": 12,
+          "n_samples": 64,
+          "sampling_seed": 155657697,
+          "observations_preserved": true,
+          "scores": {
+            "learned": {
+              "noisy_observations": {
+                "crps": 0.4291177614504065,
+                "mse": 0.57860293125525,
+                "coverage_90": 0.8430989583333334,
+                "interval_width_90": 2.060757534203003
+              },
+              "noiseless_signal": {
+                "crps": 0.4289763380584266,
+                "mse": 0.5785516708496397,
+                "coverage_90": 0.8411458333333334,
+                "interval_width_90": 2.060757534203003
+              }
+            },
+            "linear": {
+              "noisy_observations": {
+                "crps": 0.09993199420734032,
+                "mse": 0.016124700143878772,
+                "coverage_90": 0.0,
+                "interval_width_90": 0.0
+              },
+              "noiseless_signal": {
+                "crps": 0.09837840235304524,
+                "mse": 0.015687025053239743,
+                "coverage_90": 0.0,
+                "interval_width_90": 0.0
+              }
+            }
+          },
+          "learned_minus_linear": {
+            "noisy_observations": {
+              "crps": 0.32918576724306614,
+              "mse": 0.5624782311113712,
+              "coverage_90": 0.8430989583333334,
+              "interval_width_90": 2.060757534203003
+            },
+            "noiseless_signal": {
+              "crps": 0.3305979357053814,
+              "mse": 0.5628646457963999,
+              "coverage_90": 0.8411458333333334,
+              "interval_width_90": 2.060757534203003
+            }
+          },
+          "timings": {
+            "learned": {
+              "inference_seconds": 26.187511584023014,
+              "inference_seconds_per_trajectory": 0.1022949671250899
+            },
+            "linear": {
+              "inference_seconds": 0.0009899160359054804,
+              "inference_seconds_per_trajectory": 3.866859515255783e-06
+            }
+          }
+        },
+        "transferred_resolution": {
+          "input_dt": 0.1,
+          "output_dt": 0.05,
+          "n_observed": 25,
+          "n_hidden": 24,
+          "n_samples": 64,
+          "sampling_seed": 3845873714,
+          "observations_preserved": true,
+          "scores": {
+            "learned": {
+              "noisy_observations": {
+                "crps": 0.4250439467039222,
+                "mse": 0.5728476808143249,
+                "coverage_90": 0.8424479166666666,
+                "interval_width_90": 2.063660318489322
+              },
+              "noiseless_signal": {
+                "crps": 0.42510191198771047,
+                "mse": 0.5732837719397557,
+                "coverage_90": 0.84423828125,
+                "interval_width_90": 2.063660318489322
+              }
+            },
+            "linear": {
+              "noisy_observations": {
+                "crps": 0.0326234859462765,
+                "mse": 0.0016543635436162944,
+                "coverage_90": 0.0,
+                "interval_width_90": 0.0
+              },
+              "noiseless_signal": {
+                "crps": 0.02817169300345428,
+                "mse": 0.0012532992307141189,
+                "coverage_90": 0.0,
+                "interval_width_90": 0.0
+              }
+            }
+          },
+          "learned_minus_linear": {
+            "noisy_observations": {
+              "crps": 0.3924204607576457,
+              "mse": 0.5711933172707087,
+              "coverage_90": 0.8424479166666666,
+              "interval_width_90": 2.063660318489322
+            },
+            "noiseless_signal": {
+              "crps": 0.3969302189842562,
+              "mse": 0.5720304727090415,
+              "coverage_90": 0.84423828125,
+              "interval_width_90": 2.063660318489322
+            }
+          },
+          "timings": {
+            "learned": {
+              "inference_seconds": 55.34561895899242,
+              "inference_seconds_per_trajectory": 0.21619382405856413
+            },
+            "linear": {
+              "inference_seconds": 0.0011516669765114784,
+              "inference_seconds_per_trajectory": 4.498699126997963e-06
+            }
+          }
+        }
+      },
+      "fine_observation_noise_seed": 1124806756
+    },
+    "seed_27102": {
+      "original_test_rng_reproduced_exactly": true,
+      "tasks": {
+        "trained_resolution": {
+          "input_dt": 0.2,
+          "output_dt": 0.1,
+          "n_observed": 13,
+          "n_hidden": 12,
+          "n_samples": 64,
+          "sampling_seed": 2308100177,
+          "observations_preserved": true,
+          "scores": {
+            "learned": {
+              "noisy_observations": {
+                "crps": 0.42200432073916766,
+                "mse": 0.5618640783208676,
+                "coverage_90": 0.8401692708333334,
+                "interval_width_90": 2.043087653700301
+              },
+              "noiseless_signal": {
+                "crps": 0.42186278028179336,
+                "mse": 0.5616050849921302,
+                "coverage_90": 0.8382161458333334,
+                "interval_width_90": 2.043087653700301
+              }
+            },
+            "linear": {
+              "noisy_observations": {
+                "crps": 0.09765693162490474,
+                "mse": 0.015221111437785333,
+                "coverage_90": 0.0,
+                "interval_width_90": 0.0
+              },
+              "noiseless_signal": {
+                "crps": 0.09633237607681833,
+                "mse": 0.014873268007918975,
+                "coverage_90": 0.0,
+                "interval_width_90": 0.0
+              }
+            }
+          },
+          "learned_minus_linear": {
+            "noisy_observations": {
+              "crps": 0.3243473891142629,
+              "mse": 0.5466429668830822,
+              "coverage_90": 0.8401692708333334,
+              "interval_width_90": 2.043087653700301
+            },
+            "noiseless_signal": {
+              "crps": 0.32553040420497503,
+              "mse": 0.5467318169842112,
+              "coverage_90": 0.8382161458333334,
+              "interval_width_90": 2.043087653700301
+            }
+          },
+          "timings": {
+            "learned": {
+              "inference_seconds": 25.651974916982,
+              "inference_seconds_per_trajectory": 0.10020302701946093
+            },
+            "linear": {
+              "inference_seconds": 0.0010126249981112778,
+              "inference_seconds_per_trajectory": 3.955566398872179e-06
+            }
+          }
+        },
+        "transferred_resolution": {
+          "input_dt": 0.1,
+          "output_dt": 0.05,
+          "n_observed": 25,
+          "n_hidden": 24,
+          "n_samples": 64,
+          "sampling_seed": 2203160956,
+          "observations_preserved": true,
+          "scores": {
+            "learned": {
+              "noisy_observations": {
+                "crps": 0.4200672550648372,
+                "mse": 0.5580151389148185,
+                "coverage_90": 0.8400065104166666,
+                "interval_width_90": 2.0434325017709245
+              },
+              "noiseless_signal": {
+                "crps": 0.420057296375282,
+                "mse": 0.5581136738865559,
+                "coverage_90": 0.8414713541666666,
+                "interval_width_90": 2.0434325017709245
+              }
+            },
+            "linear": {
+              "noisy_observations": {
+                "crps": 0.031578667156753344,
+                "mse": 0.0015846206824116846,
+                "coverage_90": 0.0,
+                "interval_width_90": 0.0
+              },
+              "noiseless_signal": {
+                "crps": 0.027584810154057702,
+                "mse": 0.0012039602917090686,
+                "coverage_90": 0.0,
+                "interval_width_90": 0.0
+              }
+            }
+          },
+          "learned_minus_linear": {
+            "noisy_observations": {
+              "crps": 0.3884885879080839,
+              "mse": 0.5564305182324067,
+              "coverage_90": 0.8400065104166666,
+              "interval_width_90": 2.0434325017709245
+            },
+            "noiseless_signal": {
+              "crps": 0.39247248622122427,
+              "mse": 0.5569097135948468,
+              "coverage_90": 0.8414713541666666,
+              "interval_width_90": 2.0434325017709245
+            }
+          },
+          "timings": {
+            "learned": {
+              "inference_seconds": 54.91636350000044,
+              "inference_seconds_per_trajectory": 0.21451704492187673
+            },
+            "linear": {
+              "inference_seconds": 0.0011813329765573144,
+              "inference_seconds_per_trajectory": 4.614581939677009e-06
+            }
+          }
+        }
+      },
+      "fine_observation_noise_seed": 189277146
+    },
+    "seed_27103": {
+      "original_test_rng_reproduced_exactly": true,
+      "tasks": {
+        "trained_resolution": {
+          "input_dt": 0.2,
+          "output_dt": 0.1,
+          "n_observed": 13,
+          "n_hidden": 12,
+          "n_samples": 64,
+          "sampling_seed": 2212686593,
+          "observations_preserved": true,
+          "scores": {
+            "learned": {
+              "noisy_observations": {
+                "crps": 0.42721999711415903,
+                "mse": 0.5734771432583483,
+                "coverage_90": 0.8486328125,
+                "interval_width_90": 2.082734506674266
+              },
+              "noiseless_signal": {
+                "crps": 0.4269515009046472,
+                "mse": 0.5730087096830326,
+                "coverage_90": 0.8473307291666666,
+                "interval_width_90": 2.082734506674266
+              }
+            },
+            "linear": {
+              "noisy_observations": {
+                "crps": 0.10075312714638389,
+                "mse": 0.01619096870620884,
+                "coverage_90": 0.0,
+                "interval_width_90": 0.0
+              },
+              "noiseless_signal": {
+                "crps": 0.09925472645241547,
+                "mse": 0.015840909894595596,
+                "coverage_90": 0.0,
+                "interval_width_90": 0.0
+              }
+            }
+          },
+          "learned_minus_linear": {
+            "noisy_observations": {
+              "crps": 0.32646686996777513,
+              "mse": 0.5572861745521395,
+              "coverage_90": 0.8486328125,
+              "interval_width_90": 2.082734506674266
+            },
+            "noiseless_signal": {
+              "crps": 0.3276967744522317,
+              "mse": 0.557167799788437,
+              "coverage_90": 0.8473307291666666,
+              "interval_width_90": 2.082734506674266
+            }
+          },
+          "timings": {
+            "learned": {
+              "inference_seconds": 25.83852674998343,
+              "inference_seconds_per_trajectory": 0.10093174511712277
+            },
+            "linear": {
+              "inference_seconds": 0.0009779579704627395,
+              "inference_seconds_per_trajectory": 3.820148322120076e-06
+            }
+          }
+        },
+        "transferred_resolution": {
+          "input_dt": 0.1,
+          "output_dt": 0.05,
+          "n_observed": 25,
+          "n_hidden": 24,
+          "n_samples": 64,
+          "sampling_seed": 2126752049,
+          "observations_preserved": true,
+          "scores": {
+            "learned": {
+              "noisy_observations": {
+                "crps": 0.425940458224495,
+                "mse": 0.5712840527448597,
+                "coverage_90": 0.85107421875,
+                "interval_width_90": 2.0799024144454354
+              },
+              "noiseless_signal": {
+                "crps": 0.4256877228185994,
+                "mse": 0.5707853493503443,
+                "coverage_90": 0.8505859375,
+                "interval_width_90": 2.0799024144454354
+              }
+            },
+            "linear": {
+              "noisy_observations": {
+                "crps": 0.03234248677372314,
+                "mse": 0.0016499730237573417,
+                "coverage_90": 0.0,
+                "interval_width_90": 0.0
+              },
+              "noiseless_signal": {
+                "crps": 0.02811394853559766,
+                "mse": 0.0012666366906315119,
+                "coverage_90": 0.0,
+                "interval_width_90": 0.0
+              }
+            }
+          },
+          "learned_minus_linear": {
+            "noisy_observations": {
+              "crps": 0.39359797145077186,
+              "mse": 0.5696340797211024,
+              "coverage_90": 0.85107421875,
+              "interval_width_90": 2.0799024144454354
+            },
+            "noiseless_signal": {
+              "crps": 0.3975737742830017,
+              "mse": 0.5695187126597128,
+              "coverage_90": 0.8505859375,
+              "interval_width_90": 2.0799024144454354
+            }
+          },
+          "timings": {
+            "learned": {
+              "inference_seconds": 54.741184500046074,
+              "inference_seconds_per_trajectory": 0.21383275195330498
+            },
+            "linear": {
+              "inference_seconds": 0.0012428329791873693,
+              "inference_seconds_per_trajectory": 4.8548163249506615e-06
+            }
+          }
+        }
+      },
+      "fine_observation_noise_seed": 1005204838
+    }
+  },
+  "total_seconds": 244.05628666700795,
+  "finished_utc": "2026-10-27T15:27:06.670497+00:00"
+}

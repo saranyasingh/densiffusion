@@ -1,0 +1,132 @@
+{
+  "original_test_rng_reproduced_exactly": true,
+  "tasks": {
+    "trained_resolution": {
+      "input_dt": 0.2,
+      "output_dt": 0.1,
+      "n_observed": 13,
+      "n_hidden": 12,
+      "n_samples": 64,
+      "sampling_seed": 2308100177,
+      "observations_preserved": true,
+      "scores": {
+        "learned": {
+          "noisy_observations": {
+            "crps": 0.42200432073916766,
+            "mse": 0.5618640783208676,
+            "coverage_90": 0.8401692708333334,
+            "interval_width_90": 2.043087653700301
+          },
+          "noiseless_signal": {
+            "crps": 0.42186278028179336,
+            "mse": 0.5616050849921302,
+            "coverage_90": 0.8382161458333334,
+            "interval_width_90": 2.043087653700301
+          }
+        },
+        "linear": {
+          "noisy_observations": {
+            "crps": 0.09765693162490474,
+            "mse": 0.015221111437785333,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "noiseless_signal": {
+            "crps": 0.09633237607681833,
+            "mse": 0.014873268007918975,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          }
+        }
+      },
+      "learned_minus_linear": {
+        "noisy_observations": {
+          "crps": 0.3243473891142629,
+          "mse": 0.5466429668830822,
+          "coverage_90": 0.8401692708333334,
+          "interval_width_90": 2.043087653700301
+        },
+        "noiseless_signal": {
+          "crps": 0.32553040420497503,
+          "mse": 0.5467318169842112,
+          "coverage_90": 0.8382161458333334,
+          "interval_width_90": 2.043087653700301
+        }
+      },
+      "timings": {
+        "learned": {
+          "inference_seconds": 25.651974916982,
+          "inference_seconds_per_trajectory": 0.10020302701946093
+        },
+        "linear": {
+          "inference_seconds": 0.0010126249981112778,
+          "inference_seconds_per_trajectory": 3.955566398872179e-06
+        }
+      }
+    },
+    "transferred_resolution": {
+      "input_dt": 0.1,
+      "output_dt": 0.05,
+      "n_observed": 25,
+      "n_hidden": 24,
+      "n_samples": 64,
+      "sampling_seed": 2203160956,
+      "observations_preserved": true,
+      "scores": {
+        "learned": {
+          "noisy_observations": {
+            "crps": 0.4200672550648372,
+            "mse": 0.5580151389148185,
+            "coverage_90": 0.8400065104166666,
+            "interval_width_90": 2.0434325017709245
+          },
+          "noiseless_signal": {
+            "crps": 0.420057296375282,
+            "mse": 0.5581136738865559,
+            "coverage_90": 0.8414713541666666,
+            "interval_width_90": 2.0434325017709245
+          }
+        },
+        "linear": {
+          "noisy_observations": {
+            "crps": 0.031578667156753344,
+            "mse": 0.0015846206824116846,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "noiseless_signal": {
+            "crps": 0.027584810154057702,
+            "mse": 0.0012039602917090686,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          }
+        }
+      },
+      "learned_minus_linear": {
+        "noisy_observations": {
+          "crps": 0.3884885879080839,
+          "mse": 0.5564305182324067,
+          "coverage_90": 0.8400065104166666,
+          "interval_width_90": 2.0434325017709245
+        },
+        "noiseless_signal": {
+          "crps": 0.39247248622122427,
+          "mse": 0.5569097135948468,
+          "coverage_90": 0.8414713541666666,
+          "interval_width_90": 2.0434325017709245
+        }
+      },
+      "timings": {
+        "learned": {
+          "inference_seconds": 54.91636350000044,
+          "inference_seconds_per_trajectory": 0.21451704492187673
+        },
+        "linear": {
+          "inference_seconds": 0.0011813329765573144,
+          "inference_seconds_per_trajectory": 4.614581939677009e-06
+        }
+      }
+    }
+  },
+  "fine_observation_noise_seed": 189277146
+}

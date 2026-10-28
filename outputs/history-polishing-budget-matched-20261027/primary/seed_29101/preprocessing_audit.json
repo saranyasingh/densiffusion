@@ -1,0 +1,19 @@
+{
+  "mediator_sha256": "ccdee907cc825fae147a1f5993ee7a7dc485bc259a0bd9c01369fe025f67c8b2",
+  "history_only": true,
+  "future_targets_unchanged": true,
+  "normalization": "none",
+  "factor": 1,
+  "processed_sha256": {
+    "raw_train_history": "1594b2c0cb25b4d436a94f8dc78dc2e2dda68e0cdf5d0da9d9d3b0a2ba4c4013",
+    "learned_train_history": "64db7582210981cc583d879e79a265937cd4cda6f56a2e548b12c7bb9eb256d0",
+    "median_train_history": "143582f1fdd6c266f2168510dcdb8f47984e80497d5177086d5a175fcdf351cf",
+    "raw_validation_history": "b90435a63f6ece3323a149cfcee76f5bf77028721795e9aaccfe58dc5cbe5e31",
+    "learned_validation_history": "6320926d0995e999498a94762f6a9ae3b5cf0cc06ccefa4ac4005c9315705434",
+    "median_validation_history": "4831482d81a063d38edb3d8bc10d0eab20020fa56a7d36d2087df09476bd67c5",
+    "train_future": "9b2987a137cb938193a0447ec36e1b5339947c84f4964f3971cc2827d566be1d",
+    "validation_future": "b52aebe9bac1599e9248477bdcb39422090a712ace4cb02dce83c19f1b618b51"
+  },
+  "raw_train_history_sha256": "1594b2c0cb25b4d436a94f8dc78dc2e2dda68e0cdf5d0da9d9d3b0a2ba4c4013",
+  "raw_validation_history_sha256": "b90435a63f6ece3323a149cfcee76f5bf77028721795e9aaccfe58dc5cbe5e31"
+}

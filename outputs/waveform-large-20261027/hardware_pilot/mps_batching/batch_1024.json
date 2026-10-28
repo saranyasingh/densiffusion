@@ -1,0 +1,74 @@
+{
+  "status": "complete",
+  "device": "mps",
+  "worker_count": 1,
+  "torch_threads": 1,
+  "sample_batch_size": 1024,
+  "training_batch_size_unchanged": 64,
+  "draws_per_history": 64,
+  "n_histories": 16,
+  "sequence_length": 65,
+  "context_length": 49,
+  "hidden_suffix_length": 16,
+  "diffusion_steps": 50,
+  "dt": 0.05,
+  "architecture": {
+    "n_channels": 1,
+    "hidden_channels": 64,
+    "residual_layers": 4,
+    "attention_heads": 8,
+    "diffusion_embedding_dim": 128,
+    "time_embedding_dim": 128,
+    "feature_embedding_dim": 16,
+    "feedforward_dim": 64,
+    "dropout": 0.1
+  },
+  "sampling_config": {
+    "epochs": 200,
+    "batch_size": 1024,
+    "learning_rate": 0.001,
+    "diffusion_steps": 50,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "mps",
+    "schedule": "quadratic",
+    "weight_decay": 1e-06,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "all",
+    "validation_interval": 10
+  },
+  "parameter_count": 413521,
+  "initial_weights_sha256": "8d41e4badc2ac142f60c3dfd4d30dc717f595f49e6ad92214c209791bf305d7a",
+  "input_sha256": "6579b831b429032982cc48ab05475c5a9b0906f3335fead68ccd2a740ec55f71",
+  "shared_first_four_histories_sha256": "c341255fa5c1807c745fec647ce3b7e2600092bb68a5f0907580d32002258383",
+  "memory_fraction_cap": 0.1,
+  "recommended_max_memory_bytes": 55662788608,
+  "memory_before_sampling": {
+    "current_allocated_bytes": 1655040,
+    "driver_allocated_bytes": 8798208
+  },
+  "warmup_seconds": 6.320145791978575,
+  "memory_after_warmup": {
+    "current_allocated_bytes": 1655040,
+    "driver_allocated_bytes": 1372209152
+  },
+  "timed_seconds": 5.968920500017703,
+  "memory_after_timed": {
+    "current_allocated_bytes": 1655040,
+    "driver_allocated_bytes": 1372209152
+  },
+  "output_shape": [
+    16,
+    64,
+    16,
+    1
+  ],
+  "finite_outputs": true,
+  "seconds_per_draw": 0.005829023925798538,
+  "draws_per_second": 171.5553088698305
+}

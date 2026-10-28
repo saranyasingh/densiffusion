@@ -1,0 +1,23 @@
+Fresh waveform imputation review
+
+Validation gate: FAIL.
+Criteria: exactly three paired seeds; learned lower in every seed;
+ratio-of-means relative CRPS reduction >= 5.0%;
+every paired bootstrap 95% upper CRPS difference below zero.
+Criteria results: {"configured_seed_inventory_complete": true, "every_seed_ci95_upper_below_zero": false, "exactly_three_paired_seeds": false, "learned_crps_lower_in_every_seed": false, "mean_relative_crps_reduction_at_least_threshold": false}
+
+Validation (hidden entries only):
+  learned: crps=0.664421, seed SD=None; mse=1.002903, seed SD=None; coverage_90=0.710938, seed SD=None; interval_width_90=2.587904, seed SD=None
+  linear: crps=0.098146, seed SD=None; mse=0.015878, seed SD=None; coverage_90=0.000000, seed SD=None; interval_width_90=0.000000, seed SD=None
+  seed_27101 learned-linear CRPS=+0.566274, 95% CI [+0.506752, +0.639057]
+
+Bootstrap units are independent trajectories, conditional on models
+and saved ensembles; seed variation is described separately.
+Intervals are unadjusted across metrics/seeds/attempts. Finite-ensemble
+quantiles affect coverage; linear intervals have zero width.
+Repeated validation selection can be optimistic; this is no test claim.
+Transfer results do not enter the validation gate.
+All source observations and sample archives remain unchanged.
+Full scores and trajectories: imputation_analysis.json (validation)
+or transfer_analysis.json (transfer).
+Plots: imputation_plots/validation_reconstructions.svg, imputation_plots/validation_per_time.svg, imputation_plots/training_curves.svg

@@ -1,0 +1,196 @@
+{
+  "experiment": {
+    "seeds": [
+      29101,
+      29102,
+      29103
+    ],
+    "namespace": 2026102801,
+    "n_train": 256,
+    "n_validation": 256,
+    "n_test": 2048,
+    "context_length": 32,
+    "horizon": 8,
+    "dt": 1.0,
+    "base_epochs": 1200,
+    "batch_size": 64,
+    "validation_interval": 10,
+    "validation_epochs_prefix": [
+      10,
+      50,
+      100,
+      200,
+      400,
+      800
+    ],
+    "samples": 64,
+    "sample_batch_size": 1024,
+    "diffusion_steps": 50,
+    "device": "mps",
+    "threads": 1,
+    "smoke": false
+  },
+  "architecture": {
+    "n_channels": 1,
+    "hidden_channels": 64,
+    "residual_layers": 4,
+    "attention_heads": 8,
+    "diffusion_embedding_dim": 128,
+    "time_embedding_dim": 128,
+    "feature_embedding_dim": 16,
+    "feedforward_dim": 64,
+    "dropout": 0.1
+  },
+  "recovered_gp_recipe": {
+    "source": "/Users/kaanbaykara/densiffusion/outputs/csdi-gp-better",
+    "selected": "reference_size",
+    "architecture": {
+      "n_channels": 1,
+      "hidden_channels": 64,
+      "residual_layers": 4,
+      "attention_heads": 8,
+      "diffusion_embedding_dim": 128,
+      "time_embedding_dim": 128,
+      "feature_embedding_dim": 16,
+      "feedforward_dim": 64,
+      "dropout": 0.1
+    },
+    "training": {
+      "epochs": 200,
+      "batch_size": 64,
+      "learning_rate": 0.001,
+      "diffusion_steps": 50,
+      "beta_start": 0.0001,
+      "beta_end": 0.5,
+      "max_grad_norm": 1.0,
+      "device": "cpu",
+      "schedule": "quadratic",
+      "weight_decay": 1e-06,
+      "lr_decay_fractions": [
+        0.75,
+        0.9
+      ],
+      "lr_decay_factor": 0.1,
+      "validation_steps": "all",
+      "validation_interval": 10
+    },
+    "source_sha256": {
+      "plan.json": "7441c2ab014e23d608d152b7278f518fc0384723d16d76cd323866bbd6df9b34",
+      "selection.json": "04981641722804892872d35bf0fcc7916460fc6fc2cfc9c7ae7fa91ea15e7c73"
+    },
+    "gp_weights_reused": false
+  },
+  "forecaster_training": {
+    "epochs": 1200,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "diffusion_steps": 50,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "mps",
+    "schedule": "quadratic",
+    "weight_decay": 1e-06,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "all",
+    "validation_interval": 10
+  },
+  "work_profiles": {
+    "forecaster": {
+      "forward": 21158912.0,
+      "forward_operations": {
+        "aten.addmm": 15588352.0,
+        "aten.mm": 3932160.0,
+        "aten.bmm": 1638400.0
+      },
+      "training": 63433728.0,
+      "training_operations": {
+        "aten.addmm": 15588352.0,
+        "aten.mm": 42930176.0,
+        "aten.bmm": 4915200.0
+      },
+      "parameters": 413521,
+      "length": 40
+    },
+    "mediator_32": {
+      "forward": 2880.0,
+      "training": 7872.0,
+      "parameters": 1505
+    },
+    "mediator_64": {
+      "forward": 9856.0,
+      "training": 28032.0,
+      "parameters": 5057
+    }
+  },
+  "methods": [
+    "raw",
+    "learned",
+    "median"
+  ],
+  "seeds": {
+    "29101": {
+      "train_data": 527318443,
+      "validation_data": 2759362820,
+      "test_data": 2790262382,
+      "mediator_training": 2170268629,
+      "forecaster_initialization": 1882546837,
+      "forecaster_training": 1608600442,
+      "validation_sampling": 3140372751,
+      "test_sampling": 191492941
+    },
+    "29102": {
+      "train_data": 4197499792,
+      "validation_data": 2869530362,
+      "test_data": 1531408266,
+      "mediator_training": 1325787016,
+      "forecaster_initialization": 3985774158,
+      "forecaster_training": 2740175591,
+      "validation_sampling": 3105335587,
+      "test_sampling": 2559106467
+    },
+    "29103": {
+      "train_data": 2179904029,
+      "validation_data": 3915599409,
+      "test_data": 38842492,
+      "mediator_training": 1134181990,
+      "forecaster_initialization": 3729881022,
+      "forecaster_training": 3815328140,
+      "validation_sampling": 4021535460,
+      "test_sampling": 4287526948
+    }
+  },
+  "method_order": {
+    "29101": [
+      "raw",
+      "learned",
+      "median"
+    ],
+    "29102": [
+      "learned",
+      "median",
+      "raw"
+    ],
+    "29103": [
+      "median",
+      "raw",
+      "learned"
+    ]
+  },
+  "created_utc": "2026-10-28T02:02:32.862709+00:00",
+  "budget_definition": "full in-run dense matrix FLOPs; multiply plus add counts two",
+  "budget_tolerance": "less than 0.01% unused; maximal feasible whole epoch",
+  "excluded_from_primary_work": "nonmatrix operations, optimizer, median comparisons, I/O and data movement; wall time separately",
+  "search": "four fixed mediator candidates; all charged; same seven forecast opportunities; no further tuning",
+  "new_weights": true,
+  "fresh_all_data_splits": true,
+  "future_targets": "unchanged noisy observations",
+  "normalization": "none",
+  "history_only_preprocessing": true,
+  "no_clean_signal_exposed": true,
+  "no_densification": true
+}

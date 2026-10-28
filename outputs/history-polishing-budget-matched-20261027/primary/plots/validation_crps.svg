@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1040" viewBox="0 0 1200 1040">
+<title>Noisy-future validation CRPS checkpoint candidates</title>
+<rect width="100%" height="100%" fill="white"/>
+<style>text {font-family:Arial,sans-serif;fill:#263238;font-size:12px}</style>
+<text x="32" y="30" style="font-size:20px;font-weight:bold">Noisy-future validation CRPS checkpoint candidates</text>
+<text x="32" y="53">Each method selects its minimum recorded validation CRPS; curves do not certify convergence.</text>
+<path d="M 32 73 h 22" stroke="#1864ab" stroke-width="2"/>
+<text x="62" y="77">Raw history</text>
+<path d="M 332 73 h 22" stroke="#087f5b" stroke-width="2"/>
+<text x="362" y="77">Learned polishing</text>
+<path d="M 632 73 h 22" stroke="#e67700" stroke-width="2"/>
+<text x="662" y="77">Median (7)</text>
+<text x="66" y="113">seed_29101</text>
+<path d="M 66 348.0 h 1111" stroke="#e9ecef"/>
+<text x="58" y="352.0" text-anchor="end">0.00803</text>
+<path d="M 66 292.25 h 1111" stroke="#e9ecef"/>
+<text x="58" y="296.25" text-anchor="end">0.913</text>
+<path d="M 66 236.5 h 1111" stroke="#e9ecef"/>
+<text x="58" y="240.5" text-anchor="end">1.82</text>
+<path d="M 66 180.75 h 1111" stroke="#e9ecef"/>
+<text x="58" y="184.75" text-anchor="end">2.72</text>
+<path d="M 66 125.0 h 1111" stroke="#e9ecef"/>
+<text x="58" y="129.0" text-anchor="end">3.63</text>
+<text x="66.0" y="368" text-anchor="middle">10</text>
+<text x="343.75" y="368" text-anchor="middle">307.5</text>
+<text x="621.5" y="368" text-anchor="middle">605</text>
+<text x="899.25" y="368" text-anchor="middle">902.5</text>
+<text x="1177.0" y="368" text-anchor="middle">1200</text>
+<path d="M 66 125 v 223 h 1111" stroke="#868e96" fill="none"/>
+<text x="621.5" y="393" text-anchor="middle">Epoch</text>
+<text transform="translate(15,236.5) rotate(-90)" text-anchor="middle">crps</text>
+<polyline points="66.00,151.73 103.34,329.92 150.03,331.32 243.39,332.15 430.11,332.08 803.55,331.01 1177.00,331.26" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<circle cx="66.0" cy="151.7272459652297" r="3" fill="#1864ab"/>
+<circle cx="103.34453781512605" cy="329.9234228844863" r="3" fill="#1864ab"/>
+<circle cx="150.0252100840336" cy="331.3150088983359" r="3" fill="#1864ab"/>
+<circle cx="243.38655462184872" cy="332.1461313904794" r="3" fill="#1864ab"/>
+<circle cx="430.109243697479" cy="332.07984744468627" r="3" fill="#1864ab"/>
+<circle cx="803.5546218487394" cy="331.0070251543909" r="3" fill="#1864ab"/>
+<circle cx="1177.0" cy="331.2557432598908" r="3" fill="#1864ab"/>
+<polyline points="66.00,236.01 103.34,329.93 150.03,330.28 243.39,332.60 430.11,332.57 803.55,332.62 1169.53,332.40" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<circle cx="66.0" cy="236.00662095875805" r="3" fill="#087f5b"/>
+<circle cx="103.34453781512605" cy="329.9267594420611" r="3" fill="#087f5b"/>
+<circle cx="150.0252100840336" cy="330.27982351673927" r="3" fill="#087f5b"/>
+<circle cx="243.38655462184872" cy="332.5985469203653" r="3" fill="#087f5b"/>
+<circle cx="430.109243697479" cy="332.5658447586967" r="3" fill="#087f5b"/>
+<circle cx="803.5546218487394" cy="332.62068965517244" r="3" fill="#087f5b"/>
+<circle cx="1169.5310924369749" cy="332.39609578171513" r="3" fill="#087f5b"/>
+<polyline points="66.00,140.38 103.34,328.94 150.03,331.05 243.39,331.80 430.11,332.55 803.55,331.89 1177.00,331.70" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<circle cx="66.0" cy="140.3793103448276" r="3" fill="#e67700"/>
+<circle cx="103.34453781512605" cy="328.93758215441665" r="3" fill="#e67700"/>
+<circle cx="150.0252100840336" cy="331.04793656304145" r="3" fill="#e67700"/>
+<circle cx="243.38655462184872" cy="331.80136893186403" r="3" fill="#e67700"/>
+<circle cx="430.109243697479" cy="332.5474488002419" r="3" fill="#e67700"/>
+<circle cx="803.5546218487394" cy="331.88620757007584" r="3" fill="#e67700"/>
+<circle cx="1177.0" cy="331.69882293494936" r="3" fill="#e67700"/>
+<text x="66" y="423">seed_29102</text>
+<path d="M 66 658.0 h 1111" stroke="#e9ecef"/>
+<text x="58" y="662.0" text-anchor="end">0.19</text>
+<path d="M 66 602.25 h 1111" stroke="#e9ecef"/>
+<text x="58" y="606.25" text-anchor="end">0.436</text>
+<path d="M 66 546.5 h 1111" stroke="#e9ecef"/>
+<text x="58" y="550.5" text-anchor="end">0.682</text>
+<path d="M 66 490.75 h 1111" stroke="#e9ecef"/>
+<text x="58" y="494.75" text-anchor="end">0.928</text>
+<path d="M 66 435.0 h 1111" stroke="#e9ecef"/>
+<text x="58" y="439.0" text-anchor="end">1.17</text>
+<text x="66.0" y="678" text-anchor="middle">10</text>
+<text x="343.75" y="678" text-anchor="middle">307.5</text>
+<text x="621.5" y="678" text-anchor="middle">605</text>
+<text x="899.25" y="678" text-anchor="middle">902.5</text>
+<text x="1177.0" y="678" text-anchor="middle">1200</text>
+<path d="M 66 435 v 223 h 1111" stroke="#868e96" fill="none"/>
+<text x="621.5" y="703" text-anchor="middle">Epoch</text>
+<text transform="translate(15,546.5) rotate(-90)" text-anchor="middle">crps</text>
+<polyline points="66.00,450.38 103.34,624.10 150.03,631.33 243.39,637.80 430.11,637.45 803.55,638.21 1177.00,639.02" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<circle cx="66.0" cy="450.37931034482756" r="3" fill="#1864ab"/>
+<circle cx="103.34453781512605" cy="624.098452374382" r="3" fill="#1864ab"/>
+<circle cx="150.0252100840336" cy="631.3294855013218" r="3" fill="#1864ab"/>
+<circle cx="243.38655462184872" cy="637.7969990762392" r="3" fill="#1864ab"/>
+<circle cx="430.109243697479" cy="637.4507534794318" r="3" fill="#1864ab"/>
+<circle cx="803.5546218487394" cy="638.2106667227692" r="3" fill="#1864ab"/>
+<circle cx="1177.0" cy="639.0151062351742" r="3" fill="#1864ab"/>
+<polyline points="66.00,478.25 103.34,617.01 150.03,641.03 243.39,640.35 430.11,640.70 803.55,642.01 1169.53,642.62" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<circle cx="66.0" cy="478.2497549655253" r="3" fill="#087f5b"/>
+<circle cx="103.34453781512605" cy="617.0067891103349" r="3" fill="#087f5b"/>
+<circle cx="150.0252100840336" cy="641.0327147048519" r="3" fill="#087f5b"/>
+<circle cx="243.38655462184872" cy="640.3527819000067" r="3" fill="#087f5b"/>
+<circle cx="430.109243697479" cy="640.6970409811996" r="3" fill="#087f5b"/>
+<circle cx="803.5546218487394" cy="642.0134155630459" r="3" fill="#087f5b"/>
+<circle cx="1169.5310924369749" cy="642.6206896551723" r="3" fill="#087f5b"/>
+<polyline points="66.00,511.75 103.34,633.41 150.03,637.47 243.39,636.37 430.11,636.67 803.55,639.89 1177.00,639.67" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<circle cx="66.0" cy="511.74850456181" r="3" fill="#e67700"/>
+<circle cx="103.34453781512605" cy="633.4066463912588" r="3" fill="#e67700"/>
+<circle cx="150.0252100840336" cy="637.4711459732027" r="3" fill="#e67700"/>
+<circle cx="243.38655462184872" cy="636.3737272566593" r="3" fill="#e67700"/>
+<circle cx="430.109243697479" cy="636.6667709139424" r="3" fill="#e67700"/>
+<circle cx="803.5546218487394" cy="639.8872305195929" r="3" fill="#e67700"/>
+<circle cx="1177.0" cy="639.6710068276694" r="3" fill="#e67700"/>
+<text x="66" y="733">seed_29103</text>
+<path d="M 66 968.0 h 1111" stroke="#e9ecef"/>
+<text x="58" y="972.0" text-anchor="end">0.166</text>
+<path d="M 66 912.25 h 1111" stroke="#e9ecef"/>
+<text x="58" y="916.25" text-anchor="end">0.461</text>
+<path d="M 66 856.5 h 1111" stroke="#e9ecef"/>
+<text x="58" y="860.5" text-anchor="end">0.756</text>
+<path d="M 66 800.75 h 1111" stroke="#e9ecef"/>
+<text x="58" y="804.75" text-anchor="end">1.05</text>
+<path d="M 66 745.0 h 1111" stroke="#e9ecef"/>
+<text x="58" y="749.0" text-anchor="end">1.35</text>
+<text x="66.0" y="988" text-anchor="middle">10</text>
+<text x="343.75" y="988" text-anchor="middle">307.5</text>
+<text x="621.5" y="988" text-anchor="middle">605</text>
+<text x="899.25" y="988" text-anchor="middle">902.5</text>
+<text x="1177.0" y="988" text-anchor="middle">1200</text>
+<path d="M 66 745 v 223 h 1111" stroke="#868e96" fill="none"/>
+<text x="621.5" y="1013" text-anchor="middle">Epoch</text>
+<text transform="translate(15,856.5) rotate(-90)" text-anchor="middle">crps</text>
+<polyline points="66.00,865.09 103.34,931.44 150.03,940.68 243.39,947.35 430.11,949.31 803.55,946.73 1177.00,947.93" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<circle cx="66.0" cy="865.0898225350089" r="3" fill="#1864ab"/>
+<circle cx="103.34453781512605" cy="931.443194657991" r="3" fill="#1864ab"/>
+<circle cx="150.0252100840336" cy="940.6820883188004" r="3" fill="#1864ab"/>
+<circle cx="243.38655462184872" cy="947.3453117120022" r="3" fill="#1864ab"/>
+<circle cx="430.109243697479" cy="949.3093720992333" r="3" fill="#1864ab"/>
+<circle cx="803.5546218487394" cy="946.7312140076128" r="3" fill="#1864ab"/>
+<circle cx="1177.0" cy="947.929243437146" r="3" fill="#1864ab"/>
+<polyline points="66.00,812.42 103.34,932.16 150.03,945.73 243.39,952.62 430.11,952.38 803.55,951.03 1169.53,951.67" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<circle cx="66.0" cy="812.4199123156839" r="3" fill="#087f5b"/>
+<circle cx="103.34453781512605" cy="932.1586294966846" r="3" fill="#087f5b"/>
+<circle cx="150.0252100840336" cy="945.7325759324859" r="3" fill="#087f5b"/>
+<circle cx="243.38655462184872" cy="952.6206896551723" r="3" fill="#087f5b"/>
+<circle cx="430.109243697479" cy="952.378036543404" r="3" fill="#087f5b"/>
+<circle cx="803.5546218487394" cy="951.0345011181839" r="3" fill="#087f5b"/>
+<circle cx="1169.5310924369749" cy="951.6735992354861" r="3" fill="#087f5b"/>
+<polyline points="66.00,760.38 103.34,942.17 150.03,945.16 243.39,949.72 430.11,950.16 803.55,949.46 1177.00,949.26" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<circle cx="66.0" cy="760.3793103448276" r="3" fill="#e67700"/>
+<circle cx="103.34453781512605" cy="942.165893284011" r="3" fill="#e67700"/>
+<circle cx="150.0252100840336" cy="945.1574896028353" r="3" fill="#e67700"/>
+<circle cx="243.38655462184872" cy="949.7184895085147" r="3" fill="#e67700"/>
+<circle cx="430.109243697479" cy="950.1616478790573" r="3" fill="#e67700"/>
+<circle cx="803.5546218487394" cy="949.4602640818845" r="3" fill="#e67700"/>
+<circle cx="1177.0" cy="949.2595628379615" r="3" fill="#e67700"/>
+</svg>

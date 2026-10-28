@@ -1,0 +1,17 @@
+{
+  "seeds": [
+    27101,
+    27102,
+    27103
+  ],
+  "epochs": 200,
+  "score_interval": 50,
+  "samples": 64,
+  "sample_batch_size": 256,
+  "device": "cpu",
+  "threads": 1,
+  "workers": 3,
+  "transfer_examples": 256,
+  "diagnostic_namespace": 2026102701,
+  "label": "gp_recipe"
+}

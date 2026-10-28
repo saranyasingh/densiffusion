@@ -1,0 +1,47 @@
+{
+  "scientific_observations_accessed": false,
+  "model": "fresh untrained large CSDI, discarded",
+  "history": "32 zero-valued 32-point histories",
+  "samples": 64,
+  "diffusion_steps": 50,
+  "selection": "minimum median of three timed complete sampler calls after one warmup, no quality scores",
+  "selected_batch_size": 1024,
+  "results": {
+    "256": {
+      "seconds": [
+        9.40130779199535,
+        9.214286667003762,
+        9.248707166989334
+      ],
+      "median_seconds": 9.248707166989334,
+      "driver_memory_bytes": 1145716736
+    },
+    "512": {
+      "seconds": [
+        6.062361916003283,
+        6.067017207969911,
+        6.065141916973516
+      ],
+      "median_seconds": 6.065141916973516,
+      "driver_memory_bytes": 1170882560
+    },
+    "1024": {
+      "seconds": [
+        5.640916707983706,
+        5.64293066598475,
+        5.862791082996409
+      ],
+      "median_seconds": 5.64293066598475,
+      "driver_memory_bytes": 1191854080
+    },
+    "2048": {
+      "seconds": [
+        5.669959417020436,
+        5.667584375012666,
+        5.67596041696379
+      ],
+      "median_seconds": 5.669959417020436,
+      "driver_memory_bytes": 1309294592
+    }
+  }
+}

@@ -1,0 +1,70 @@
+[
+  {
+    "epoch": 50,
+    "scores": {
+      "crps": 0.42541786433593315,
+      "mse": 0.5737583339111528,
+      "coverage_90": 0.872314453125,
+      "interval_width_90": 2.1020259412398445
+    },
+    "linear": {
+      "crps": 0.10031668790758302,
+      "mse": 0.016357348735383033,
+      "coverage_90": 0.0,
+      "interval_width_90": 0.0
+    },
+    "sampling_seconds": 260.97235220798757,
+    "samples": "validation_epoch_0050.npz"
+  },
+  {
+    "epoch": 100,
+    "scores": {
+      "crps": 0.42547424720816285,
+      "mse": 0.573825008848326,
+      "coverage_90": 0.84228515625,
+      "interval_width_90": 2.0679228372729996
+    },
+    "linear": {
+      "crps": 0.10031668790758302,
+      "mse": 0.016357348735383033,
+      "coverage_90": 0.0,
+      "interval_width_90": 0.0
+    },
+    "sampling_seconds": 259.07254387502326,
+    "samples": "validation_epoch_0100.npz"
+  },
+  {
+    "epoch": 150,
+    "scores": {
+      "crps": 0.42400725336312883,
+      "mse": 0.5717430810746297,
+      "coverage_90": 0.8701171875,
+      "interval_width_90": 2.0953193550180003
+    },
+    "linear": {
+      "crps": 0.10031668790758302,
+      "mse": 0.016357348735383033,
+      "coverage_90": 0.0,
+      "interval_width_90": 0.0
+    },
+    "sampling_seconds": 257.9173924160423,
+    "samples": "validation_epoch_0150.npz"
+  },
+  {
+    "epoch": 200,
+    "scores": {
+      "crps": 0.4230311401755341,
+      "mse": 0.5712849615643721,
+      "coverage_90": 0.846435546875,
+      "interval_width_90": 2.063015250295939
+    },
+    "linear": {
+      "crps": 0.10031668790758302,
+      "mse": 0.016357348735383033,
+      "coverage_90": 0.0,
+      "interval_width_90": 0.0
+    },
+    "sampling_seconds": 259.1967512499541,
+    "samples": "validation_epoch_0200.npz"
+  }
+]

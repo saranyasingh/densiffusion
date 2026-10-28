@@ -1,0 +1,17 @@
+{
+  "recorded_utc": "2026-10-28T03:55:59.621459+00:00",
+  "python": "3.12.15 (main, Oct 14 2026, 00:55:37) [Clang 23.1.3 ]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "processor": "Apple M1 Max",
+  "memory_bytes": 68719476736,
+  "logical_cpu_count": 10,
+  "torch": "2.14.1",
+  "numpy": "2.5.3",
+  "mps_available": true,
+  "configured_device": "mps",
+  "configured_workers": 1,
+  "configured_torch_threads": 1,
+  "uv_version": "uv 0.13.1 (62faed335 2026-10-13 aarch64-apple-darwin)",
+  "reproduction": "uv run --locked; exact scored samples retained; cross-device bitwise training identity is not claimed"
+}

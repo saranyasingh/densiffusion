@@ -1,0 +1,91 @@
+{
+  "recipe": {
+    "source": "/Users/kaanbaykara/densiffusion/outputs/csdi-gp-better",
+    "selected": "reference_size",
+    "architecture": {
+      "n_channels": 1,
+      "hidden_channels": 64,
+      "residual_layers": 4,
+      "attention_heads": 8,
+      "diffusion_embedding_dim": 128,
+      "time_embedding_dim": 128,
+      "feature_embedding_dim": 16,
+      "feedforward_dim": 64,
+      "dropout": 0.1
+    },
+    "training": {
+      "epochs": 200,
+      "batch_size": 64,
+      "learning_rate": 0.001,
+      "diffusion_steps": 50,
+      "beta_start": 0.0001,
+      "beta_end": 0.5,
+      "max_grad_norm": 1.0,
+      "device": "cpu",
+      "schedule": "quadratic",
+      "weight_decay": 1e-06,
+      "lr_decay_fractions": [
+        0.75,
+        0.9
+      ],
+      "lr_decay_factor": 0.1,
+      "validation_steps": "all",
+      "validation_interval": 10
+    },
+    "source_sha256": {
+      "plan.json": "7441c2ab014e23d608d152b7278f518fc0384723d16d76cd323866bbd6df9b34",
+      "selection.json": "04981641722804892872d35bf0fcc7916460fc6fc2cfc9c7ae7fa91ea15e7c73"
+    },
+    "gp_weights_reused": false,
+    "source_selection": "best all-step validation-MSE checkpoint per candidate, then lowest validation ensemble CRPS"
+  },
+  "attempt_01": {
+    "seeds": [
+      27101,
+      27102,
+      27103
+    ],
+    "epochs": 200,
+    "score_interval": 50,
+    "samples": 64,
+    "sample_batch_size": 256,
+    "device": "cpu",
+    "threads": 1,
+    "workers": 3,
+    "transfer_examples": 256,
+    "diagnostic_namespace": 2026102701,
+    "label": "gp_recipe"
+  },
+  "maximum_training_attempts": 2,
+  "bounded_adjustment": "If exact 200-epoch recipe fails validation gate, inspect training/validation CRPS and sample conditioning; allow at most one fresh 600-epoch run with the same architecture, data, optimizer and diffusion schedule, stretching LR decay milestones proportionally. Keep four CRPS opportunities at epochs150,300,450,600, with all-step denoising validation every10. No fine truth is available during either attempt.",
+  "validation_gate": {
+    "all_three_crps_below_linear": true,
+    "relative_reduction_in_mean_crps_at_least": 0.05,
+    "each_paired_trajectory_bootstrap_95pct_upper_below_zero": true
+  },
+  "transfer_gate": {
+    "after_selected_densifiers_frozen": true,
+    "fresh_diagnostic_paths_per_seed": 256,
+    "draws": 64,
+    "tasks": [
+      "49-point dense history",
+      "17-point independently anchored dense future"
+    ],
+    "each_seed_each_task_crps_ratio_at_most": 1.25,
+    "each_seed_each_task_mean_mse_ratio_at_most": 1.5,
+    "failure_action": "stop; no tuning using fine truth"
+  },
+  "forecast_if_gates_pass": {
+    "same_large_architecture_all_methods": true,
+    "fresh_test_paths_per_seed": 1024,
+    "draws": 64,
+    "original_history": 25,
+    "original_horizon": 8,
+    "dt": 0.1,
+    "factor": 2,
+    "test_namespace": 2026102702
+  },
+  "no_commit_or_push": true,
+  "source_data": "outputs/waveform-primary-20261027/seed_*/train_validation.npz copied byte-for-byte",
+  "fallback_crps_cadence_rationale": "Full256trajectory64draw validation sampling costs about262seconds perseed under3workers. Four checkpoint opportunities perattempt bound compute; this choice was made before the first attempt completed and before any fine truth."
+}

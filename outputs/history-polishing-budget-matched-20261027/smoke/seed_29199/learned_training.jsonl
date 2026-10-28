@@ -1,0 +1,19 @@
+{"epoch": 1, "train_loss": 0.8514203578233719, "learning_rate": 0.001, "elapsed_seconds": 0.03865683398908004}
+{"epoch": 2, "train_loss": 0.9361680150032043, "learning_rate": 0.001, "elapsed_seconds": 0.07535016699694097}
+{"epoch": 3, "train_loss": 0.7448491901159286, "learning_rate": 0.001, "elapsed_seconds": 0.11164645897224545}
+{"epoch": 4, "train_loss": 1.1582670509815216, "learning_rate": 0.001, "elapsed_seconds": 0.14801974996225908}
+{"epoch": 5, "train_loss": 0.7353976517915726, "learning_rate": 0.001, "elapsed_seconds": 0.1865581669844687}
+{"epoch": 6, "train_loss": 0.6287513077259064, "learning_rate": 0.001, "elapsed_seconds": 0.22664308396633714}
+{"epoch": 7, "train_loss": 0.7343199029564857, "learning_rate": 0.001, "elapsed_seconds": 0.2661609170027077}
+{"epoch": 8, "train_loss": 0.8791525363922119, "learning_rate": 0.001, "elapsed_seconds": 0.30477191699901596}
+{"epoch": 9, "train_loss": 0.6933606117963791, "learning_rate": 0.001, "elapsed_seconds": 0.34318083396647125}
+{"epoch": 10, "train_loss": 0.7847948521375656, "learning_rate": 0.001, "validation_loss": 0.7458584010601044, "selection_metric": "_fit.<locals>.score", "selection_score": 0.6792075988470749, "elapsed_seconds": 0.46596408396726474}
+{"epoch": 11, "train_loss": 0.5078871324658394, "learning_rate": 0.001, "elapsed_seconds": 0.5056800000020303}
+{"epoch": 12, "train_loss": 0.7159774750471115, "learning_rate": 0.001, "elapsed_seconds": 0.5436341249733232}
+{"epoch": 13, "train_loss": 0.8939179033041, "learning_rate": 0.001, "elapsed_seconds": 0.58203216700349}
+{"epoch": 14, "train_loss": 0.7087283357977867, "learning_rate": 0.001, "elapsed_seconds": 0.6185131669626571}
+{"epoch": 15, "train_loss": 0.9606163650751114, "learning_rate": 0.0001, "elapsed_seconds": 0.6548899589688517}
+{"epoch": 16, "train_loss": 0.6748405918478966, "learning_rate": 0.0001, "elapsed_seconds": 0.6914296670001931}
+{"epoch": 17, "train_loss": 0.8566789627075195, "learning_rate": 0.0001, "elapsed_seconds": 0.7278535419609398}
+{"epoch": 18, "train_loss": 0.7087023854255676, "learning_rate": 1e-05, "elapsed_seconds": 0.7644597499747761}
+{"epoch": 19, "train_loss": 0.625252977013588, "learning_rate": 1e-05, "validation_loss": 0.6466470956802368, "selection_metric": "_fit.<locals>.score", "selection_score": 0.6708777293298501, "elapsed_seconds": 0.8399212500080466}

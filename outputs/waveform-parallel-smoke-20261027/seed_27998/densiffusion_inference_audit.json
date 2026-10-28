@@ -1,0 +1,20 @@
+[
+  {
+    "input_shape": [
+      4,
+      25,
+      1
+    ],
+    "output_shape": [
+      4,
+      2,
+      49,
+      1
+    ],
+    "input_sha256": "886de9d0211e257dd53cfa4c35c354a6f8380fffca606afc90a0622c6dd1eee4",
+    "output_sha256": "a47049de2429fbec230c208317cefbd38e66be3d52900810744f09d15f840767",
+    "dt": 0.1,
+    "seconds": 0.002721416996791959,
+    "observations_preserved": true
+  }
+]

@@ -1,0 +1,45 @@
+History polishing forecast analysis
+Protocol completeness: complete
+Targets: saved noisy future observations; no clean signals.
+
+Equal-seed mean scores (seed SD and range are descriptive):
+raw
+  crps: 0.285006; SD=0.0010260017277168494; range=[0.283862, 0.285845]
+  mse: 0.506439; SD=0.01793234697908738; range=[0.490280, 0.525732]
+  coverage_90: 0.802490; SD=0.042507689074978795; range=[0.753418, 0.827942]
+  interval_width_90: 1.314918; SD=0.3189728988186702; range=[1.059858, 1.672561]
+learned
+  crps: 0.274400; SD=0.005654463123044016; range=[0.269609, 0.280637]
+  mse: 0.480770; SD=0.03696070746823646; range=[0.447757, 0.520701]
+  coverage_90: 0.822225; SD=0.058684607105096424; range=[0.765137, 0.882385]
+  interval_width_90: 1.493885; SD=0.4433129761791218; range=[1.164457, 1.997913]
+median
+  crps: 0.282228; SD=0.004950982925524088; range=[0.277060, 0.286929]
+  mse: 0.501469; SD=0.03048200200183416; range=[0.468313, 0.528278]
+  coverage_90: 0.795369; SD=0.01772599368123556; range=[0.780396, 0.814941]
+  interval_width_90: 0.922863; SD=0.059604707820661566; range=[0.875283, 0.989721]
+
+Per-seed paired CRPS differences (first minus second):
+  seed_28101 learned-minus-raw: -0.003225, 95% CI [-0.005765, -0.000619]
+  seed_28101 learned-minus-median: -0.006292, 95% CI [-0.009519, -0.003011]
+  seed_28101 median-minus-raw: +0.003067, 95% CI [-0.000272, +0.006319]
+  seed_28102 learned-minus-raw: -0.016236, 95% CI [-0.018920, -0.013613]
+  seed_28102 learned-minus-median: -0.007451, 95% CI [-0.009571, -0.005291]
+  seed_28102 median-minus-raw: -0.008784, 95% CI [-0.011386, -0.006190]
+  seed_28103 learned-minus-raw: -0.012357, 95% CI [-0.016354, -0.008462]
+  seed_28103 learned-minus-median: -0.009739, 95% CI [-0.013861, -0.005720]
+  seed_28103 median-minus-raw: -0.002618, 95% CI [-0.005892, +0.000591]
+
+Costs (mean worker seconds across available seeds):
+  mediator_training_seconds: 6.497
+  preprocessing_seconds: raw=0.000, learned=0.001, median=0.003
+  forecaster_training_seconds: raw=913.728, learned=917.465, median=919.645
+  validation_sampling_seconds: raw=497.929, learned=499.786, median=500.481
+  test_preprocessing_seconds: raw=0.000, learned=0.006, median=0.006
+  test_inference_seconds: raw=582.746, learned=560.542, median=552.823
+  method_total_seconds: raw=1496.474, learned=1484.512, median=1472.476
+Validation sampling is already included in forecaster training totals.
+Paired trajectory intervals condition on models, preprocessing, and saved draws; they are unadjusted across comparisons/metrics. Seed variation is separate.
+Finite ensembles affect quantiles and CRPS. Validation checkpoint selection and completed budgets do not establish convergence.
+Full per-horizon, per-trajectory, cost, and paired results: analysis.json
+Plots: plots/representative_forecasts.svg, plots/per_horizon.svg, plots/validation_crps.svg

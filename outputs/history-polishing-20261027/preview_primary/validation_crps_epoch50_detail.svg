@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+<title>Validation CRPS detail | epochs 50 through 1200</title>
+<rect width="100%" height="100%" fill="white"/>
+<style>text {font-family:Arial,sans-serif;fill:#263238;font-size:12px}</style>
+<text x="32" y="30" style="font-size:20px;font-weight:bold">Validation CRPS detail | epochs 50 through 1200</text>
+<text x="32" y="53">Epoch 10 omitted from this labeled detail view; full-range original retained. Curves do not certify convergence.</text>
+<path d="M 32 73 h 22" stroke="#1864ab" stroke-width="2"/>
+<text x="62" y="77">Raw history</text>
+<path d="M 332 73 h 22" stroke="#087f5b" stroke-width="2"/>
+<text x="362" y="77">Learned polishing</text>
+<path d="M 632 73 h 22" stroke="#e67700" stroke-width="2"/>
+<text x="662" y="77">Median (7)</text>
+<text x="66" y="113">seed_28101</text>
+<path d="M 66 348.0 h 1111" stroke="#e9ecef"/>
+<text x="58" y="352.0" text-anchor="end">0.276</text>
+<path d="M 66 292.25 h 1111" stroke="#e9ecef"/>
+<text x="58" y="296.25" text-anchor="end">0.302</text>
+<path d="M 66 236.5 h 1111" stroke="#e9ecef"/>
+<text x="58" y="240.5" text-anchor="end">0.327</text>
+<path d="M 66 180.75 h 1111" stroke="#e9ecef"/>
+<text x="58" y="184.75" text-anchor="end">0.353</text>
+<path d="M 66 125.0 h 1111" stroke="#e9ecef"/>
+<text x="58" y="129.0" text-anchor="end">0.378</text>
+<text x="66.0" y="368" text-anchor="middle">50</text>
+<text x="343.75" y="368" text-anchor="middle">337.5</text>
+<text x="621.5" y="368" text-anchor="middle">625</text>
+<text x="899.25" y="368" text-anchor="middle">912.5</text>
+<text x="1177.0" y="368" text-anchor="middle">1200</text>
+<path d="M 66 125 v 223 h 1111" stroke="#868e96" fill="none"/>
+<text x="621.5" y="393" text-anchor="middle">Epoch</text>
+<text transform="translate(15,236.5) rotate(-90)" text-anchor="middle">crps</text>
+<polyline points="66.00,140.38 114.30,262.73 210.91,290.48 404.13,319.29 790.57,289.70 1177.00,288.62" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<circle cx="66.0" cy="140.37931034482762" r="3" fill="#1864ab"/>
+<circle cx="114.30434782608695" cy="262.7277532556483" r="3" fill="#1864ab"/>
+<circle cx="210.91304347826087" cy="290.4771714176859" r="3" fill="#1864ab"/>
+<circle cx="404.13043478260875" cy="319.2871443988339" r="3" fill="#1864ab"/>
+<circle cx="790.5652173913044" cy="289.70130422993134" r="3" fill="#1864ab"/>
+<circle cx="1177.0" cy="288.61512106437556" r="3" fill="#1864ab"/>
+<polyline points="66.00,198.80 114.30,290.34 210.91,332.48 404.13,332.62 790.57,327.84 1177.00,317.61" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<circle cx="66.0" cy="198.8022700709173" r="3" fill="#087f5b"/>
+<circle cx="114.30434782608695" cy="290.33524872688577" r="3" fill="#087f5b"/>
+<circle cx="210.91304347826087" cy="332.4757624824359" r="3" fill="#087f5b"/>
+<circle cx="404.13043478260875" cy="332.6206896551724" r="3" fill="#087f5b"/>
+<circle cx="790.5652173913044" cy="327.84114220651327" r="3" fill="#087f5b"/>
+<circle cx="1177.0" cy="317.6094439495854" r="3" fill="#087f5b"/>
+<polyline points="66.00,176.37 114.30,320.30 210.91,325.26 404.13,323.25 790.57,302.45 1177.00,294.13" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<circle cx="66.0" cy="176.3724697756761" r="3" fill="#e67700"/>
+<circle cx="114.30434782608695" cy="320.30292380848726" r="3" fill="#e67700"/>
+<circle cx="210.91304347826087" cy="325.2555138219923" r="3" fill="#e67700"/>
+<circle cx="404.13043478260875" cy="323.24654499072045" r="3" fill="#e67700"/>
+<circle cx="790.5652173913044" cy="302.4490216601621" r="3" fill="#e67700"/>
+<circle cx="1177.0" cy="294.1326985879323" r="3" fill="#e67700"/>
+<text x="66" y="423">seed_28102</text>
+<path d="M 66 658.0 h 1111" stroke="#e9ecef"/>
+<text x="58" y="662.0" text-anchor="end">0.27</text>
+<path d="M 66 602.25 h 1111" stroke="#e9ecef"/>
+<text x="58" y="606.25" text-anchor="end">0.301</text>
+<path d="M 66 546.5 h 1111" stroke="#e9ecef"/>
+<text x="58" y="550.5" text-anchor="end">0.332</text>
+<path d="M 66 490.75 h 1111" stroke="#e9ecef"/>
+<text x="58" y="494.75" text-anchor="end">0.363</text>
+<path d="M 66 435.0 h 1111" stroke="#e9ecef"/>
+<text x="58" y="439.0" text-anchor="end">0.394</text>
+<text x="66.0" y="678" text-anchor="middle">50</text>
+<text x="343.75" y="678" text-anchor="middle">337.5</text>
+<text x="621.5" y="678" text-anchor="middle">625</text>
+<text x="899.25" y="678" text-anchor="middle">912.5</text>
+<text x="1177.0" y="678" text-anchor="middle">1200</text>
+<path d="M 66 435 v 223 h 1111" stroke="#868e96" fill="none"/>
+<text x="621.5" y="703" text-anchor="middle">Epoch</text>
+<text transform="translate(15,546.5) rotate(-90)" text-anchor="middle">crps</text>
+<polyline points="66.00,450.38 114.30,546.44 210.91,607.99 404.13,611.34 790.57,596.20 1177.00,595.67" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<circle cx="66.0" cy="450.37931034482756" r="3" fill="#1864ab"/>
+<circle cx="114.30434782608695" cy="546.4378865572712" r="3" fill="#1864ab"/>
+<circle cx="210.91304347826087" cy="607.9884255530187" r="3" fill="#1864ab"/>
+<circle cx="404.13043478260875" cy="611.3418790011734" r="3" fill="#1864ab"/>
+<circle cx="790.5652173913044" cy="596.203325822172" r="3" fill="#1864ab"/>
+<circle cx="1177.0" cy="595.6731779505552" r="3" fill="#1864ab"/>
+<polyline points="66.00,501.27 114.30,600.38 210.91,618.60 404.13,642.62 790.57,631.59 1177.00,635.30" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<circle cx="66.0" cy="501.2716090521377" r="3" fill="#087f5b"/>
+<circle cx="114.30434782608695" cy="600.379194768634" r="3" fill="#087f5b"/>
+<circle cx="210.91304347826087" cy="618.5966431220586" r="3" fill="#087f5b"/>
+<circle cx="404.13043478260875" cy="642.6206896551724" r="3" fill="#087f5b"/>
+<circle cx="790.5652173913044" cy="631.5902212964755" r="3" fill="#087f5b"/>
+<circle cx="1177.0" cy="635.3015428620599" r="3" fill="#087f5b"/>
+<polyline points="66.00,526.05 114.30,590.70 210.91,635.52 404.13,632.17 790.57,627.06 1177.00,625.22" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<circle cx="66.0" cy="526.0532288742955" r="3" fill="#e67700"/>
+<circle cx="114.30434782608695" cy="590.7045443279852" r="3" fill="#e67700"/>
+<circle cx="210.91304347826087" cy="635.5195527795001" r="3" fill="#e67700"/>
+<circle cx="404.13043478260875" cy="632.1703800105183" r="3" fill="#e67700"/>
+<circle cx="790.5652173913044" cy="627.0581443517841" r="3" fill="#e67700"/>
+<circle cx="1177.0" cy="625.215845910086" r="3" fill="#e67700"/>
+<text x="66" y="733">seed_28103</text>
+<path d="M 66 968.0 h 1111" stroke="#e9ecef"/>
+<text x="58" y="972.0" text-anchor="end">0.257</text>
+<path d="M 66 912.25 h 1111" stroke="#e9ecef"/>
+<text x="58" y="916.25" text-anchor="end">0.276</text>
+<path d="M 66 856.4999999999999 h 1111" stroke="#e9ecef"/>
+<text x="58" y="860.4999999999999" text-anchor="end">0.294</text>
+<path d="M 66 800.75 h 1111" stroke="#e9ecef"/>
+<text x="58" y="804.75" text-anchor="end">0.313</text>
+<path d="M 66 745.0 h 1111" stroke="#e9ecef"/>
+<text x="58" y="749.0" text-anchor="end">0.332</text>
+<text x="66.0" y="988" text-anchor="middle">50</text>
+<text x="343.75" y="988" text-anchor="middle">337.5</text>
+<text x="621.5" y="988" text-anchor="middle">625</text>
+<text x="899.25" y="988" text-anchor="middle">912.5</text>
+<text x="1177.0" y="988" text-anchor="middle">1200</text>
+<path d="M 66 745 v 223 h 1111" stroke="#868e96" fill="none"/>
+<text x="621.5" y="1013" text-anchor="middle">Epoch</text>
+<text transform="translate(15,856.5) rotate(-90)" text-anchor="middle">crps</text>
+<polyline points="66.00,760.38 114.30,855.24 210.91,855.44 404.13,899.41 790.57,881.72 1177.00,868.18" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<circle cx="66.0" cy="760.3793103448276" r="3" fill="#1864ab"/>
+<circle cx="114.30434782608695" cy="855.2402434534231" r="3" fill="#1864ab"/>
+<circle cx="210.91304347826087" cy="855.441803864898" r="3" fill="#1864ab"/>
+<circle cx="404.13043478260875" cy="899.4110049480173" r="3" fill="#1864ab"/>
+<circle cx="790.5652173913044" cy="881.7156037198225" r="3" fill="#1864ab"/>
+<circle cx="1177.0" cy="868.1761635247408" r="3" fill="#1864ab"/>
+<polyline points="66.00,822.51 114.30,935.00 210.91,943.83 404.13,919.65 790.57,952.62 1177.00,951.94" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<circle cx="66.0" cy="822.5139896356608" r="3" fill="#087f5b"/>
+<circle cx="114.30434782608695" cy="935.003464898155" r="3" fill="#087f5b"/>
+<circle cx="210.91304347826087" cy="943.8285256170897" r="3" fill="#087f5b"/>
+<circle cx="404.13043478260875" cy="919.6471876107478" r="3" fill="#087f5b"/>
+<circle cx="790.5652173913044" cy="952.6206896551724" r="3" fill="#087f5b"/>
+<circle cx="1177.0" cy="951.9359609244895" r="3" fill="#087f5b"/>
+<polyline points="66.00,772.30 114.30,897.53 210.91,909.67 404.13,884.22 790.57,908.13 1177.00,903.45" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<circle cx="66.0" cy="772.3016900680935" r="3" fill="#e67700"/>
+<circle cx="114.30434782608695" cy="897.5274467646358" r="3" fill="#e67700"/>
+<circle cx="210.91304347826087" cy="909.666330096783" r="3" fill="#e67700"/>
+<circle cx="404.13043478260875" cy="884.2238812780372" r="3" fill="#e67700"/>
+<circle cx="790.5652173913044" cy="908.1295745169821" r="3" fill="#e67700"/>
+<circle cx="1177.0" cy="903.4529731407009" r="3" fill="#e67700"/>
+</svg>

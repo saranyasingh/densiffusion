@@ -1,0 +1,20 @@
+{"epoch": 1, "train_loss": 0.8508527278900146, "learning_rate": 0.001, "elapsed_seconds": 0.043490208976436406}
+{"epoch": 2, "train_loss": 0.9372418522834778, "learning_rate": 0.001, "elapsed_seconds": 0.08138349995715544}
+{"epoch": 3, "train_loss": 0.7418858110904694, "learning_rate": 0.001, "elapsed_seconds": 0.12253612495260313}
+{"epoch": 4, "train_loss": 1.1668541133403778, "learning_rate": 0.001, "elapsed_seconds": 0.1631502919481136}
+{"epoch": 5, "train_loss": 0.7771616727113724, "learning_rate": 0.001, "elapsed_seconds": 0.20288337499368936}
+{"epoch": 6, "train_loss": 0.6523488909006119, "learning_rate": 0.001, "elapsed_seconds": 0.24214633397059515}
+{"epoch": 7, "train_loss": 0.7891052961349487, "learning_rate": 0.001, "elapsed_seconds": 0.2794677499914542}
+{"epoch": 8, "train_loss": 0.9017851501703262, "learning_rate": 0.001, "elapsed_seconds": 0.31665295897983015}
+{"epoch": 9, "train_loss": 0.6918325051665306, "learning_rate": 0.001, "elapsed_seconds": 0.353789874992799}
+{"epoch": 10, "train_loss": 0.7880682051181793, "learning_rate": 0.001, "validation_loss": 0.7395972609519958, "selection_metric": "_fit.<locals>.score", "selection_score": 0.6848407230613196, "elapsed_seconds": 0.43189504195470363}
+{"epoch": 11, "train_loss": 0.5216462016105652, "learning_rate": 0.001, "elapsed_seconds": 0.4705266249948181}
+{"epoch": 12, "train_loss": 0.7182531952857971, "learning_rate": 0.001, "elapsed_seconds": 0.5072328749811277}
+{"epoch": 13, "train_loss": 0.9032027423381805, "learning_rate": 0.001, "elapsed_seconds": 0.5438614999875426}
+{"epoch": 14, "train_loss": 0.6916429996490479, "learning_rate": 0.001, "elapsed_seconds": 0.5802318749483675}
+{"epoch": 15, "train_loss": 1.0157746821641922, "learning_rate": 0.001, "elapsed_seconds": 0.6165818339795806}
+{"epoch": 16, "train_loss": 0.7336439341306686, "learning_rate": 0.0001, "elapsed_seconds": 0.6530537919607013}
+{"epoch": 17, "train_loss": 0.8855652064085007, "learning_rate": 0.0001, "elapsed_seconds": 0.6893477919511497}
+{"epoch": 18, "train_loss": 0.7227074950933456, "learning_rate": 0.0001, "elapsed_seconds": 0.725684791977983}
+{"epoch": 19, "train_loss": 0.6407921612262726, "learning_rate": 1e-05, "elapsed_seconds": 0.7621272089891136}
+{"epoch": 20, "train_loss": 0.9557769447565079, "learning_rate": 1e-05, "validation_loss": 0.67598095536232, "selection_metric": "_fit.<locals>.score", "selection_score": 0.6906115293972134, "elapsed_seconds": 0.8306422499590553}

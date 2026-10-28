@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+<title>Noisy-future performance by forecast horizon</title>
+<rect width="100%" height="100%" fill="white"/>
+<style>text {font-family:Arial,sans-serif;fill:#263238;font-size:12px}</style>
+<text x="32" y="30" style="font-size:20px;font-weight:bold">Noisy-future performance by forecast horizon</text>
+<text x="32" y="53">Lines: equal-seed means; shading: descriptive seed range, not confidence intervals.</text>
+<path d="M 32 73 h 22" stroke="#1864ab" stroke-width="2"/>
+<text x="62" y="77">Raw history</text>
+<path d="M 332 73 h 22" stroke="#087f5b" stroke-width="2"/>
+<text x="362" y="77">Learned polishing</text>
+<path d="M 632 73 h 22" stroke="#e67700" stroke-width="2"/>
+<text x="662" y="77">Median (7)</text>
+<text x="66" y="113">crps</text>
+<path d="M 66 378.0 h 511" stroke="#e9ecef"/>
+<text x="58" y="382.0" text-anchor="end">0.242</text>
+<path d="M 66 314.75 h 511" stroke="#e9ecef"/>
+<text x="58" y="318.75" text-anchor="end">0.26</text>
+<path d="M 66 251.49999999999994 h 511" stroke="#e9ecef"/>
+<text x="58" y="255.49999999999994" text-anchor="end">0.279</text>
+<path d="M 66 188.25000000000006 h 511" stroke="#e9ecef"/>
+<text x="58" y="192.25000000000006" text-anchor="end">0.297</text>
+<path d="M 66 125.0 h 511" stroke="#e9ecef"/>
+<text x="58" y="129.0" text-anchor="end">0.315</text>
+<text x="66.0" y="398" text-anchor="middle">1</text>
+<text x="193.75" y="398" text-anchor="middle">2.75</text>
+<text x="321.5" y="398" text-anchor="middle">4.5</text>
+<text x="449.25" y="398" text-anchor="middle">6.25</text>
+<text x="577.0" y="398" text-anchor="middle">8</text>
+<path d="M 66 125 v 253 h 511" stroke="#868e96" fill="none"/>
+<text x="321.5" y="423" text-anchor="middle">Forecast step</text>
+<text transform="translate(15,251.5) rotate(-90)" text-anchor="middle">crps</text>
+<polygon points="66.00,344.90 139.00,273.18 212.00,299.91 285.00,296.16 358.00,251.57 431.00,211.05 504.00,230.40 577.00,225.59 577.00,173.58 504.00,142.45 431.00,189.30 358.00,185.02 285.00,201.37 212.00,158.42 139.00,186.86 66.00,263.12" fill="#1864ab" fill-opacity="0.16"/>
+<polyline points="66.00,299.32 139.00,223.21 212.00,237.66 285.00,256.60 358.00,221.42 431.00,198.82 504.00,197.52 577.00,197.49" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<polygon points="66.00,353.75 139.00,295.09 212.00,348.64 285.00,360.55 358.00,309.88 431.00,264.25 504.00,267.81 577.00,247.38 577.00,205.40 504.00,190.57 431.00,194.27 358.00,250.09 285.00,199.76 212.00,165.31 139.00,230.05 66.00,312.30" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="66.00,334.18 139.00,262.80 212.00,271.24 285.00,293.04 358.00,271.76 431.00,239.70 504.00,233.90 577.00,221.94" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<polygon points="66.00,329.31 139.00,271.12 212.00,322.37 285.00,336.05 358.00,289.51 431.00,241.15 504.00,240.67 577.00,207.01 577.00,172.51 504.00,154.16 431.00,156.86 358.00,210.24 285.00,197.53 212.00,152.39 139.00,193.15 66.00,294.36" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="66.00,309.81 139.00,236.12 212.00,239.95 285.00,271.52 358.00,241.81 431.00,212.03 504.00,211.07 577.00,187.41" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<text x="666" y="113">mse</text>
+<path d="M 666 378.0 h 511" stroke="#e9ecef"/>
+<text x="658" y="382.0" text-anchor="end">0.355</text>
+<path d="M 666 314.75 h 511" stroke="#e9ecef"/>
+<text x="658" y="318.75" text-anchor="end">0.428</text>
+<path d="M 666 251.50000000000003 h 511" stroke="#e9ecef"/>
+<text x="658" y="255.50000000000003" text-anchor="end">0.501</text>
+<path d="M 666 188.24999999999997 h 511" stroke="#e9ecef"/>
+<text x="658" y="192.24999999999997" text-anchor="end">0.574</text>
+<path d="M 666 125.0 h 511" stroke="#e9ecef"/>
+<text x="658" y="129.0" text-anchor="end">0.646</text>
+<text x="666.0" y="398" text-anchor="middle">1</text>
+<text x="793.75" y="398" text-anchor="middle">2.75</text>
+<text x="921.5" y="398" text-anchor="middle">4.5</text>
+<text x="1049.25" y="398" text-anchor="middle">6.25</text>
+<text x="1177.0" y="398" text-anchor="middle">8</text>
+<path d="M 666 125 v 253 h 511" stroke="#868e96" fill="none"/>
+<text x="921.5" y="423" text-anchor="middle">Forecast step</text>
+<text transform="translate(615,251.5) rotate(-90)" text-anchor="middle">mse</text>
+<polygon points="666.00,307.13 739.00,226.92 812.00,312.58 885.00,323.22 958.00,281.42 1031.00,258.42 1104.00,278.72 1177.00,291.78 1177.00,212.23 1104.00,202.76 1031.00,190.36 958.00,209.66 885.00,188.81 812.00,144.00 739.00,210.25 666.00,267.96" fill="#1864ab" fill-opacity="0.16"/>
+<polyline points="666.00,290.25 739.00,215.83 812.00,239.53 885.00,268.85 958.00,243.44 1031.00,221.06 1104.00,248.45 1177.00,245.69" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<polygon points="666.00,332.83 739.00,269.55 812.00,319.69 885.00,360.55 958.00,309.58 1031.00,279.28 1104.00,312.49 1177.00,293.85 1177.00,215.68 1104.00,211.49 1031.00,164.02 958.00,221.10 885.00,177.52 812.00,142.45 739.00,231.05 666.00,285.81" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="666.00,316.18 739.00,247.86 812.00,259.78 885.00,291.12 958.00,272.81 1031.00,237.10 1104.00,265.52 1177.00,261.29" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<polygon points="666.00,320.82 739.00,260.87 812.00,289.37 885.00,326.66 958.00,269.18 1031.00,255.39 1104.00,292.65 1177.00,264.09 1177.00,202.31 1104.00,196.34 1031.00,155.09 958.00,226.19 885.00,190.08 812.00,148.39 739.00,222.68 666.00,237.11" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="666.00,290.30 739.00,239.14 812.00,237.30 885.00,273.75 958.00,254.03 1031.00,219.66 1104.00,250.84 1177.00,242.65" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<text x="66" y="453">coverage_90</text>
+<path d="M 66 718.0 h 511" stroke="#e9ecef"/>
+<text x="58" y="722.0" text-anchor="end">0.723</text>
+<path d="M 66 654.75 h 511" stroke="#e9ecef"/>
+<text x="58" y="658.75" text-anchor="end">0.772</text>
+<path d="M 66 591.5 h 511" stroke="#e9ecef"/>
+<text x="58" y="595.5" text-anchor="end">0.821</text>
+<path d="M 66 528.25 h 511" stroke="#e9ecef"/>
+<text x="58" y="532.25" text-anchor="end">0.869</text>
+<path d="M 66 465.0 h 511" stroke="#e9ecef"/>
+<text x="58" y="469.0" text-anchor="end">0.918</text>
+<text x="66.0" y="738" text-anchor="middle">1</text>
+<text x="193.75" y="738" text-anchor="middle">2.75</text>
+<text x="321.5" y="738" text-anchor="middle">4.5</text>
+<text x="449.25" y="738" text-anchor="middle">6.25</text>
+<text x="577.0" y="738" text-anchor="middle">8</text>
+<path d="M 66 465 v 253 h 511" stroke="#868e96" fill="none"/>
+<text x="321.5" y="763" text-anchor="middle">Forecast step</text>
+<text transform="translate(15,591.5) rotate(-90)" text-anchor="middle">coverage_90</text>
+<polyline points="66.00,488.64 139.00,488.64 212.00,488.64 285.00,488.64 358.00,488.64 431.00,488.64 504.00,488.64 577.00,488.64" fill="none" stroke="#868e96" stroke-width="1.8" stroke-dasharray="5,3"/>
+<polygon points="66.00,651.24 139.00,678.43 212.00,665.78 285.00,662.62 358.00,697.39 431.00,694.23 504.00,687.91 577.00,689.80 577.00,570.32 504.00,589.29 431.00,586.13 358.00,549.46 285.00,551.36 212.00,546.93 139.00,581.07 66.00,632.91" fill="#1864ab" fill-opacity="0.16"/>
+<polyline points="66.00,644.92 139.00,617.52 212.00,591.82 285.00,588.66 358.00,608.04 431.00,625.11 504.00,628.27 577.00,614.79" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<polygon points="66.00,679.69 139.00,646.18 212.00,634.80 285.00,655.03 358.00,653.77 431.00,674.63 504.00,700.55 577.00,661.36 577.00,483.08 504.00,482.45 431.00,509.00 358.00,515.32 285.00,518.48 212.00,515.95 139.00,520.38 66.00,546.93" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="66.00,611.20 139.00,584.44 212.00,569.48 285.00,576.85 358.00,583.39 431.00,595.40 504.00,602.98 577.00,590.97" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<polygon points="66.00,632.91 139.00,626.59 212.00,643.02 285.00,641.76 358.00,642.39 431.00,657.56 504.00,663.89 577.00,658.83 577.00,600.03 504.00,629.75 431.00,610.15 358.00,591.18 285.00,565.26 212.00,585.49 139.00,599.40 66.00,608.89" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="66.00,624.27 139.00,614.15 212.00,615.84 285.00,605.93 358.00,619.63 431.00,635.44 504.00,644.50 577.00,633.12" fill="none" stroke="#e67700" stroke-width="1.8"/>
+<text x="666" y="453">interval_width_90</text>
+<path d="M 666 718.0 h 511" stroke="#e9ecef"/>
+<text x="658" y="722.0" text-anchor="end">0.603</text>
+<path d="M 666 654.75 h 511" stroke="#e9ecef"/>
+<text x="658" y="658.75" text-anchor="end">1.11</text>
+<path d="M 666 591.5 h 511" stroke="#e9ecef"/>
+<text x="658" y="595.5" text-anchor="end">1.62</text>
+<path d="M 666 528.25 h 511" stroke="#e9ecef"/>
+<text x="658" y="532.25" text-anchor="end">2.13</text>
+<path d="M 666 465.0 h 511" stroke="#e9ecef"/>
+<text x="658" y="469.0" text-anchor="end">2.63</text>
+<text x="666.0" y="738" text-anchor="middle">1</text>
+<text x="793.75" y="738" text-anchor="middle">2.75</text>
+<text x="921.5" y="738" text-anchor="middle">4.5</text>
+<text x="1049.25" y="738" text-anchor="middle">6.25</text>
+<text x="1177.0" y="738" text-anchor="middle">8</text>
+<path d="M 666 465 v 253 h 511" stroke="#868e96" fill="none"/>
+<text x="921.5" y="763" text-anchor="middle">Forecast step</text>
+<text transform="translate(615,591.5) rotate(-90)" text-anchor="middle">interval_width_90</text>
+<polygon points="666.00,681.37 739.00,651.11 812.00,662.02 885.00,672.77 958.00,668.49 1031.00,653.72 1104.00,661.17 1177.00,676.15 1177.00,580.83 1104.00,585.06 1031.00,584.52 958.00,568.00 885.00,554.96 812.00,557.10 739.00,597.25 666.00,643.06" fill="#1864ab" fill-opacity="0.16"/>
+<polyline points="666.00,658.18 739.00,629.58 812.00,615.02 885.00,622.87 958.00,627.85 1031.00,627.66 1104.00,627.14 1177.00,625.99" fill="none" stroke="#1864ab" stroke-width="1.8"/>
+<polygon points="666.00,672.83 739.00,644.65 812.00,639.30 885.00,651.95 958.00,663.61 1031.00,670.95 1104.00,659.51 1177.00,626.95 1177.00,482.45 1104.00,485.09 1031.00,529.55 958.00,558.53 885.00,561.90 812.00,543.73 739.00,556.24 666.00,636.11" fill="#087f5b" fill-opacity="0.16"/>
+<polyline points="666.00,649.65 739.00,607.28 812.00,601.77 885.00,615.54 958.00,617.30 1031.00,602.89 1104.00,584.30 1177.00,577.18" fill="none" stroke="#087f5b" stroke-width="1.8"/>
+<polygon points="666.00,700.55 739.00,692.79 812.00,683.60 885.00,677.41 958.00,684.82 1031.00,689.10 1104.00,685.83 1177.00,677.19 1177.00,648.48 1104.00,663.79 1031.00,672.77 958.00,678.29 885.00,674.19 812.00,666.12 739.00,667.60 666.00,687.02" fill="#e67700" fill-opacity="0.16"/>
+<polyline points="666.00,692.33 739.00,678.16 812.00,673.48 885.00,676.33 958.00,680.51 1031.00,680.69 1104.00,677.34 1177.00,666.19" fill="none" stroke="#e67700" stroke-width="1.8"/>
+</svg>

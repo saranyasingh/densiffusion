@@ -1,0 +1,30 @@
+{
+  "files": {
+    "seed_29199/mediator/summary.json": "a60156ccfc9d2c482e54aa6b19b412a47275cede2bd9d02255f4d4eee44c6c52",
+    "seed_29199/mediator/selected_predictions.npz": "54a147804ce037860593b4a7c8366a15669cbadd498d939c4021d9237668f74c",
+    "seed_29199/mediator/selected.pt": "5e44bfa5379cd03af05d2266e49bcf23b5e94f6371ee9c6b56223932a1733e6d",
+    "seed_29199/mediator/candidate_03_64_huber/config.json": "3f832b6f5c6eaa85ad6c37ab31b26f8f40de58b7f843259303abac0f531e9377",
+    "seed_29199/mediator/candidate_03_64_huber/best.pt": "5e44bfa5379cd03af05d2266e49bcf23b5e94f6371ee9c6b56223932a1733e6d",
+    "seed_29199/mediator/candidate_03_64_huber/training.jsonl": "34db3132b13f981a717eeab77604728d308d5c20f7ccc8a8f84cd740b1b25a97",
+    "seed_29199/mediator/candidate_03_64_huber/validation.json": "85d6f0832cf242d26edeb8084a3efeefae54583e81df6632c9f6373309c105c6",
+    "seed_29199/mediator/candidate_03_64_huber/best_validation_predictions.npy": "ac70b89e218bbe4b1cdb932b4dd7d209e3f116e47d31115eca1de0a99d9ebf96",
+    "seed_29199/mediator/candidate_00_32_mse/config.json": "2f4bc0c1822ee07cb9daec9fcf5092c4f809c8787aa095351d0e2b3e1dc58dc1",
+    "seed_29199/mediator/candidate_00_32_mse/best.pt": "9f0a6569f295daa9b86a7d9fed353c40667263e789ca26f19ba0399d85176f70",
+    "seed_29199/mediator/candidate_00_32_mse/training.jsonl": "02d0245afb262ca01bac405b9d9de55b1b31a82b2d7b20e111ddcd2e9ecd5e14",
+    "seed_29199/mediator/candidate_00_32_mse/validation.json": "feacd6e1929b8bb7c90f3ebc512183cd5f874b06fd361acf212e8df799289475",
+    "seed_29199/mediator/candidate_00_32_mse/best_validation_predictions.npy": "9862035114a5eda1efda1905bd3ded573cc360500d1118aede0f7c04c57e491d",
+    "seed_29199/mediator/candidate_01_32_huber/config.json": "47429f3f1b6ccdc718d82680e680ddc4bba71bbfd627752e4328966389a9f4f8",
+    "seed_29199/mediator/candidate_01_32_huber/best.pt": "c0d6a02cf5eb112f2eb981f46d884297149c4d64ebce47c62e31ae263ae89b24",
+    "seed_29199/mediator/candidate_01_32_huber/training.jsonl": "87bfdf395478936d36cbdec156dd215168dc2d827b11694424efa8c28d7d7139",
+    "seed_29199/mediator/candidate_01_32_huber/validation.json": "f66218029424008ceae85a5b935046fcce83c954e2d75fed9520826b5d5307ea",
+    "seed_29199/mediator/candidate_01_32_huber/best_validation_predictions.npy": "005a81bf0e80bf2bccc66b727f8d51998c5d95cfbabfb5286d910592a1505266",
+    "seed_29199/mediator/candidate_02_64_mse/config.json": "40aae8cebe3b006ac173758dc46643d6b6880eda29da8652c1302c8b6718d5d7",
+    "seed_29199/mediator/candidate_02_64_mse/best.pt": "0ff69ef9491b7e122b77cd0c1704b85dbdc1a0fe48a4cbe6addba81866ad3813",
+    "seed_29199/mediator/candidate_02_64_mse/training.jsonl": "83f48df332a9c8c009a1d43776c71d77206ce9c96171ed8c23ae3f0fcfc70fb7",
+    "seed_29199/mediator/candidate_02_64_mse/validation.json": "04b3bf6893abad505be01467e1185a7ee8b428c4e5864f30c32d4c591eed599d",
+    "seed_29199/mediator/candidate_02_64_mse/best_validation_predictions.npy": "9fcd9d73a2acc178cf98dde682be04103889685d751cac40cf8c3f9a5a976b95"
+  },
+  "frozen_utc": "2026-10-28T01:55:08.809972+00:00",
+  "before_any_forecaster_training": true,
+  "wall_seconds": 0.04112329101189971
+}

@@ -1,0 +1,14 @@
+{
+  "gp": {
+    "kernel": "exponential",
+    "mean": 0.0,
+    "variance": 1.0,
+    "lengthscale": 1.0
+  },
+  "gp_seed": 23021,
+  "draws": 32,
+  "conditioning": "noiseless observed history only; recorded generator parameters, no fitting",
+  "persistence": "32 copies of the last observed value at each forecast horizon",
+  "gp_sampling_seconds": 0.00040875000013329554,
+  "gp_posterior_checked_against_analytic_exponential_markov_formula": true
+}

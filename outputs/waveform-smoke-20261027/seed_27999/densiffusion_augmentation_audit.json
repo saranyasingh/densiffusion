@@ -1,0 +1,110 @@
+[
+  {
+    "input_shape": [
+      8,
+      25,
+      1
+    ],
+    "output_shape": [
+      8,
+      1,
+      49,
+      1
+    ],
+    "input_sha256": "52b35eaf807304ceeb76b512059e68798f2a6644e5fbc876d926b189079a9253",
+    "output_sha256": "ed303e63fa5220c125b7cc0e245ca74a2a2b01206630ede2246609b45cdf463d",
+    "dt": 0.1,
+    "seconds": 0.004072958021424711,
+    "observations_preserved": true
+  },
+  {
+    "input_shape": [
+      8,
+      9,
+      1
+    ],
+    "output_shape": [
+      8,
+      1,
+      17,
+      1
+    ],
+    "input_sha256": "9875ac73fa22a51bad0fb3c48246ef631cb0ab3ab9ff96975fd921607752e30a",
+    "output_sha256": "10ca78e3139dd8c87c736d4d9943299c51ea64ed3792ba3e3f4dd181e43aa3b5",
+    "dt": 0.1,
+    "seconds": 0.0023211249499581754,
+    "observations_preserved": true
+  },
+  {
+    "input_shape": [
+      8,
+      25,
+      1
+    ],
+    "output_shape": [
+      8,
+      1,
+      49,
+      1
+    ],
+    "input_sha256": "0c4a4ce8f7b608aac86dc568409d7d665bca0841cc51b0e0aa6149c62d453bc4",
+    "output_sha256": "9b36603c08b6c41d5363c3fa7e8cd805c1de66f27f3472686d39a378433bcd24",
+    "dt": 0.1,
+    "seconds": 0.0036925830063410103,
+    "observations_preserved": true
+  },
+  {
+    "input_shape": [
+      8,
+      9,
+      1
+    ],
+    "output_shape": [
+      8,
+      1,
+      17,
+      1
+    ],
+    "input_sha256": "ef227c7d65bb3e9dd7da168339f16bba4b1d6299a4d29cb65998925aeca67875",
+    "output_sha256": "e5eac48d3df37d3acf0f8c81403fd2c8f12b919228915e889f401d4da437be22",
+    "dt": 0.1,
+    "seconds": 0.0022617499926127493,
+    "observations_preserved": true
+  },
+  {
+    "input_shape": [
+      8,
+      25,
+      1
+    ],
+    "output_shape": [
+      8,
+      1,
+      49,
+      1
+    ],
+    "input_sha256": "5fe369d70d442f2b9e2cb1860b226fda5e1baae45150700f37a0e0ce0eb26325",
+    "output_sha256": "0570917f2e2ce2e8488bef0f27d6b9334d73f3bc59ecefa7724815b465c12a72",
+    "dt": 0.1,
+    "seconds": 0.0036789579899050295,
+    "observations_preserved": true
+  },
+  {
+    "input_shape": [
+      8,
+      9,
+      1
+    ],
+    "output_shape": [
+      8,
+      1,
+      17,
+      1
+    ],
+    "input_sha256": "5aad3bb611f6eaf19bd279ec0971862ae8af007ab4d1270d4ec0e08c67d13325",
+    "output_sha256": "dfb9e18fc91a61532dbe69698d4d2ff2db349544b752f6daa9888eab5d781ceb",
+    "dt": 0.1,
+    "seconds": 0.00224733300274238,
+    "observations_preserved": true
+  }
+]

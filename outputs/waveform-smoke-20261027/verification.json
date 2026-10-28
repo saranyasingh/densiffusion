@@ -1,0 +1,60 @@
+{
+  "status": "passed",
+  "verified_utc": "2026-10-27T14:50:28.366223+00:00",
+  "config_sha256": "d07898f22a7bd99bab7fde69e8e18f3e697189080e6fe2bcc08e81615c0bc9ef",
+  "draws_per_trajectory": 64,
+  "forecast_inference_or_training_performed": false,
+  "original_grid_data_replayed": true,
+  "observation_preservation_evidence": "Saved runtime checks and matching conditioning-input hashes; dense augmentation outputs are not resampled.",
+  "seeds": {
+    "27999": {
+      "samples_sha256": "a7736cd611262e90c5d6b394b4e39de6698786a8d7d908bd3af3b5c373a78f7f",
+      "trajectory_counts": {
+        "train": 16,
+        "validation": 8,
+        "test": 8
+      },
+      "selected_checkpoints": {
+        "densifier": {
+          "epoch": 2,
+          "selection_score": 1.020015001296997
+        },
+        "direct_csdi": {
+          "epoch": 2,
+          "selection_score": 0.5682967194623811
+        },
+        "linear_densification": {
+          "epoch": 2,
+          "selection_score": 0.574606084966381
+        },
+        "densiffusion": {
+          "epoch": 2,
+          "selection_score": 0.5745121040024765
+        }
+      },
+      "updates_per_forecaster": 4,
+      "matching_augmentation_calls_per_dense_method": 6,
+      "inference_audits_verified": [],
+      "exact_recomputed_scores": {
+        "direct_csdi": {
+          "crps": 0.5808468786921877,
+          "mse": 0.7918248403834438,
+          "coverage_90": 1.0,
+          "interval_width_90": 5.438696528691797
+        },
+        "linear_densification": {
+          "crps": 0.5926007800486841,
+          "mse": 0.814880310295008,
+          "coverage_90": 1.0,
+          "interval_width_90": 5.442888019885867
+        },
+        "densiffusion": {
+          "crps": 0.5925380707067388,
+          "mse": 0.815242542412508,
+          "coverage_90": 1.0,
+          "interval_width_90": 5.439468729309737
+        }
+      }
+    }
+  }
+}

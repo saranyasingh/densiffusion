@@ -1,0 +1,17 @@
+{
+  "scores_exactly_recomputed": {
+    "seed_27101": {
+      "trained_resolution": true,
+      "transferred_resolution": true
+    },
+    "seed_27102": {
+      "trained_resolution": true,
+      "transferred_resolution": true
+    },
+    "seed_27103": {
+      "trained_resolution": true,
+      "transferred_resolution": true
+    }
+  },
+  "frozen_config_and_checkpoints_unchanged": true
+}

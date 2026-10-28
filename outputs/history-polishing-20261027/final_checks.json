@@ -1,0 +1,21 @@
+{
+  "checked_utc": "2026-10-27T22:15:55.580951+00:00",
+  "status": "passed",
+  "protected_existing_result_files": 476,
+  "changed_existing_result_files": [],
+  "frozen_training_hashes_verified": true,
+  "git_head_unchanged": true,
+  "git_head": "007d3629b2ba3a78368d9ce3d5c8476e4a6b6837",
+  "commit_or_push_performed": false,
+  "git_diff_check": "passed",
+  "original_full_suite": "517 passed; see implementation_checks.json",
+  "targeted_analysis_tests_rechecked": "13 passed after source provenance review; subset of full suite",
+  "saved_artifact_verifier": "primary/verification.json",
+  "source_provenance": "runtime_source_check.json",
+  "post_execution_source_snapshot": "source_final/source.tar.gz",
+  "plot_review": "root_plot_review.json",
+  "finalized_utc": "2026-10-27T22:19:50.608066+00:00",
+  "independent_result_review": "final_result_review.json",
+  "artifact_manifest": "artifact_manifest.json",
+  "final_source_snapshot_files_verified": 101
+}

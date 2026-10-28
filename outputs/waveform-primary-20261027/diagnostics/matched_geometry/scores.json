@@ -1,0 +1,299 @@
+{
+  "diagnostic": "matched training geometry full-window imputation",
+  "started_utc": "2026-10-27T15:31:00.876540+00:00",
+  "post_freeze_and_confirmatory_test_evaluation": true,
+  "forecast_claim": false,
+  "scope": "Conditions on original indices 0,2,...,32 across the full test span; scores original indices 1,3,...,31. Future observations within that span are permitted solely for this completed-experiment imputation diagnostic. No forecasting histories or models are constructed.",
+  "geometry": {
+    "full_length": 33,
+    "observed_length": 17,
+    "hidden_length": 16,
+    "input_dt": 0.2,
+    "output_dt": 0.1
+  },
+  "n_examples_per_seed": 256,
+  "subset": "first test trajectories in saved order, chosen without scores",
+  "n_samples": 64,
+  "workers": 3,
+  "script_sha256": "62653b228f3d23ee321a4e2d990115d49591f3c18a74bded4ef90e071b079790",
+  "configuration_sha256": "e3dfabcf9693101f9996acec84321caa4d8bda4450a7242b1542604813bb702d",
+  "new_fine_grid_truth_generated": false,
+  "notes": [
+    "Noisy targets are existing original-grid test observations.",
+    "Noise-free targets are separately labeled replayed test signals.",
+    "Linear ensembles repeat one interpolation and have zero interval width.",
+    "Training geometry is matched in length, alternating mask, and spacing."
+  ],
+  "seeds": {
+    "27101": {
+      "input_dt": 0.2,
+      "output_dt": 0.1,
+      "n_observed": 17,
+      "n_hidden": 16,
+      "n_samples": 64,
+      "sampling_seed": 3941539980,
+      "observations_preserved": true,
+      "scores": {
+        "learned": {
+          "noisy_observations": {
+            "crps": 0.42668907036668785,
+            "mse": 0.5723903256334175,
+            "coverage_90": 0.83642578125,
+            "interval_width_90": 2.0604436205678214
+          },
+          "noiseless_signal": {
+            "crps": 0.4264630061022566,
+            "mse": 0.57208440647889,
+            "coverage_90": 0.83837890625,
+            "interval_width_90": 2.0604436205678214
+          }
+        },
+        "linear": {
+          "noisy_observations": {
+            "crps": 0.0995620227813561,
+            "mse": 0.016100778928392335,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "noiseless_signal": {
+            "crps": 0.09821331128695084,
+            "mse": 0.015693488607993362,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          }
+        }
+      },
+      "learned_minus_linear": {
+        "noisy_observations": {
+          "crps": 0.32712704758533173,
+          "mse": 0.5562895467050252,
+          "coverage_90": 0.83642578125,
+          "interval_width_90": 2.0604436205678214
+        },
+        "noiseless_signal": {
+          "crps": 0.3282496948153058,
+          "mse": 0.5563909178708967,
+          "coverage_90": 0.83837890625,
+          "interval_width_90": 2.0604436205678214
+        }
+      },
+      "timings": {
+        "learned": {
+          "inference_seconds": 37.31873808399541,
+          "inference_seconds_per_trajectory": 0.14577632064060708
+        },
+        "linear": {
+          "inference_seconds": 0.0010914590093307197,
+          "inference_seconds_per_trajectory": 4.263511755198124e-06
+        }
+      },
+      "n_examples": 256,
+      "original_test_rng_reproduced_exactly": true,
+      "scores_recomputed_from_saved_samples": true,
+      "artifact_sha256": "30c41d19952ff5dc4576ae1fad115db9bd08a683a5a52123653e6e3e46fd2f2d"
+    },
+    "27102": {
+      "input_dt": 0.2,
+      "output_dt": 0.1,
+      "n_observed": 17,
+      "n_hidden": 16,
+      "n_samples": 64,
+      "sampling_seed": 2717729068,
+      "observations_preserved": true,
+      "scores": {
+        "learned": {
+          "noisy_observations": {
+            "crps": 0.4208358672899721,
+            "mse": 0.5599163793097024,
+            "coverage_90": 0.84912109375,
+            "interval_width_90": 2.050488564768602
+          },
+          "noiseless_signal": {
+            "crps": 0.4208651258287716,
+            "mse": 0.5600794338940198,
+            "coverage_90": 0.843994140625,
+            "interval_width_90": 2.050488564768602
+          }
+        },
+        "linear": {
+          "noisy_observations": {
+            "crps": 0.09728513668146263,
+            "mse": 0.015248730658816954,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "noiseless_signal": {
+            "crps": 0.09624197434262531,
+            "mse": 0.01496451117902399,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          }
+        }
+      },
+      "learned_minus_linear": {
+        "noisy_observations": {
+          "crps": 0.3235507306085095,
+          "mse": 0.5446676486508855,
+          "coverage_90": 0.84912109375,
+          "interval_width_90": 2.050488564768602
+        },
+        "noiseless_signal": {
+          "crps": 0.3246231514861463,
+          "mse": 0.5451149227149958,
+          "coverage_90": 0.843994140625,
+          "interval_width_90": 2.050488564768602
+        }
+      },
+      "timings": {
+        "learned": {
+          "inference_seconds": 37.85317554202629,
+          "inference_seconds_per_trajectory": 0.1478639669610402
+        },
+        "linear": {
+          "inference_seconds": 0.0010739999706856906,
+          "inference_seconds_per_trajectory": 4.195312385490979e-06
+        }
+      },
+      "n_examples": 256,
+      "original_test_rng_reproduced_exactly": true,
+      "scores_recomputed_from_saved_samples": true,
+      "artifact_sha256": "4020d1f16e8b83d78abed4851bdf378fe5315b8056054d37d8148d32931cd8bd"
+    },
+    "27103": {
+      "input_dt": 0.2,
+      "output_dt": 0.1,
+      "n_observed": 17,
+      "n_hidden": 16,
+      "n_samples": 64,
+      "sampling_seed": 4103530075,
+      "observations_preserved": true,
+      "scores": {
+        "learned": {
+          "noisy_observations": {
+            "crps": 0.4264497986442005,
+            "mse": 0.5712303491640836,
+            "coverage_90": 0.8486328125,
+            "interval_width_90": 2.090173080419481
+          },
+          "noiseless_signal": {
+            "crps": 0.42630323372059076,
+            "mse": 0.5710569016127491,
+            "coverage_90": 0.847412109375,
+            "interval_width_90": 2.090173080419481
+          }
+        },
+        "linear": {
+          "noisy_observations": {
+            "crps": 0.10038129724075653,
+            "mse": 0.01612573099349547,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "noiseless_signal": {
+            "crps": 0.09897040891865663,
+            "mse": 0.01578912100554375,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          }
+        }
+      },
+      "learned_minus_linear": {
+        "noisy_observations": {
+          "crps": 0.326068501403444,
+          "mse": 0.5551046181705881,
+          "coverage_90": 0.8486328125,
+          "interval_width_90": 2.090173080419481
+        },
+        "noiseless_signal": {
+          "crps": 0.32733282480193415,
+          "mse": 0.5552677806072054,
+          "coverage_90": 0.847412109375,
+          "interval_width_90": 2.090173080419481
+        }
+      },
+      "timings": {
+        "learned": {
+          "inference_seconds": 37.1404082919471,
+          "inference_seconds_per_trajectory": 0.14507971989041835
+        },
+        "linear": {
+          "inference_seconds": 0.0011428330326452851,
+          "inference_seconds_per_trajectory": 4.464191533770645e-06
+        }
+      },
+      "n_examples": 256,
+      "original_test_rng_reproduced_exactly": true,
+      "scores_recomputed_from_saved_samples": true,
+      "artifact_sha256": "6765b7f3c069acb9b37ebe7685e7cf40c3142378b7ea0139c5d44f0a25fa2b6d"
+    }
+  },
+  "across_seed_mean": {
+    "learned": {
+      "noisy_observations": {
+        "crps": 0.42465824543362013,
+        "mse": 0.5678456847024012,
+        "coverage_90": 0.8447265625,
+        "interval_width_90": 2.0670350885853015
+      },
+      "noiseless_signal": {
+        "crps": 0.42454378855053965,
+        "mse": 0.567740247328553,
+        "coverage_90": 0.84326171875,
+        "interval_width_90": 2.0670350885853015
+      }
+    },
+    "linear": {
+      "noisy_observations": {
+        "crps": 0.09907615223452508,
+        "mse": 0.015825080193568253,
+        "coverage_90": 0.0,
+        "interval_width_90": 0.0
+      },
+      "noiseless_signal": {
+        "crps": 0.09780856484941092,
+        "mse": 0.015482373597520367,
+        "coverage_90": 0.0,
+        "interval_width_90": 0.0
+      }
+    }
+  },
+  "elapsed_seconds": 39.024565499974415,
+  "finished_utc": "2026-10-27T15:31:39.901105+00:00",
+  "verification": {
+    "frozen_inputs_unchanged": true,
+    "all_protected_existing_artifacts_unchanged": true,
+    "protected_sha256": {
+      "seed_27101/densiffusion_forecaster.pt": "051b8356557f229a752f81a250ee200f175f7146c5575ca75a7292843d19520c",
+      "seed_27101/densifier.pt": "7f93192766f9cfbabc5058a3deb7578791fa4570dae320a4d08f0a73b4dda88d",
+      "seed_27101/direct_csdi_forecaster.pt": "c7131675e5f6c01567b45baabec5857945616347e9c1739b9dcb54d9c598ac96",
+      "seed_27101/linear_densification_forecaster.pt": "a88bf8a10ac9059d205880bc21cdde2545ec584e7a4bed9b9c74c978759c6077",
+      "seed_27102/densiffusion_forecaster.pt": "c8b7d233fba6a037961ed71eedeffe01870a69722c50a5d1df547fe275bb097d",
+      "seed_27102/densifier.pt": "bac7b03d652629b6275a6da5e321b09d3552de814b2bd432f2b80ddbc76f7dc0",
+      "seed_27102/direct_csdi_forecaster.pt": "e5846fc4253c1fdd7c63c97ba48d8ea5e9ebeceea3ed744f1a4c96f5a3c1bc49",
+      "seed_27102/linear_densification_forecaster.pt": "b54f6c67c2fe9e51b46094ad8d11aed0f7d34100832d11aaf3ff841b335cfb5b",
+      "seed_27103/densiffusion_forecaster.pt": "d3049299e0f1d405b355918273461f56c43fcc918f3743e49a80d9c8b563559b",
+      "seed_27103/densifier.pt": "32b853f80c2a5c8d937255ea79f341530e611a4b1658e14166fa6bb5759a5337",
+      "seed_27103/direct_csdi_forecaster.pt": "c1e0ae4d98dee92db728ce1d4f64a10006a546b7cdfc6ba7a3caf337b646c75d",
+      "seed_27103/linear_densification_forecaster.pt": "dc9d649d74481035395beda3e4b11df9ea5867bade4f5a6f5971f54666792f67",
+      "config.json": "e3dfabcf9693101f9996acec84321caa4d8bda4450a7242b1542604813bb702d",
+      "FROZEN.json": "65bdb27c366ebe004c1a8bb607097375c5c5ef0a0900afee6e5fc22a5b7ea5ad",
+      "EVALUATED.json": "50fbb0722d82dbd83d98aae99643ba85a332b28281b2759a2907aa18c9bf8758",
+      "seed_27101/samples.npz": "13b37a688d40bab108d109f66b33d36a713ab6139bbc620d2a0bb2a8de25379a",
+      "seed_27102/samples.npz": "f5292657480e186c141b9a0ebe9e9f86cc3566b1de3ff06e9d91da5f68653cad",
+      "seed_27103/samples.npz": "497db9b5163c4e1526ebcd6c8a5ec097697a8de76a61e1d5ce799c838b04e3f5",
+      "diagnostics/scores.json": "be40eff2992776d38f3b9a6054040c3b9eb4b791504f0d3ee70a7f4eaebe4dfc",
+      "diagnostics/matched_geometry.py": "62653b228f3d23ee321a4e2d990115d49591f3c18a74bded4ef90e071b079790",
+      "diagnostics/verification.json": "853dc025cead36184e057533c392f8975762d6df3fb212d2fedbca08fd0143d3",
+      "diagnostics/seed_27102/transferred_resolution.npz": "2f43f0ac94f847e59921db5340fab7385f8978067998546dd67a4e8af27e3134",
+      "diagnostics/seed_27102/scores.json": "c4fd3621d79a7ab2188c8a0804e0df6bd6e4e888ac6277bab33eacde045e3ed8",
+      "diagnostics/seed_27102/trained_resolution.npz": "726c4a3f2e06e811aa64a484d855f45b7232daf51aa93f20150185bc718b977a",
+      "diagnostics/seed_27103/transferred_resolution.npz": "7a6233c347fd82410f98d904cca80892fd362d06f0cf4d2733e41ffaa970ebe7",
+      "diagnostics/seed_27103/scores.json": "2342990fc8cc92811e9122b0ea9c2d96dcc4e05d59517d628ef859d874f69456",
+      "diagnostics/seed_27103/trained_resolution.npz": "2a65f5c8b0e281f0a890d08bc4c77870d408f34dc39a066a56249f57b6302a72",
+      "diagnostics/seed_27101/transferred_resolution.npz": "d7abc26d86bdb7559e1d94c7f812097c863318b06bda591d0e4fba9882bde0e9",
+      "diagnostics/seed_27101/scores.json": "8c06aae36a1f376192ae579477f035ef19a5990b7aaa003eddbe993c1e920cd8",
+      "diagnostics/seed_27101/trained_resolution.npz": "5e8f25299efc448901c3f5747cab878d2b93955f78a3121929b9de7c8edea57d"
+    },
+    "scores_recomputed_from_saved_samples": true
+  }
+}

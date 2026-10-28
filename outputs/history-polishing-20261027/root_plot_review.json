@@ -1,0 +1,30 @@
+{
+  "reviewed_utc": "2026-10-27T22:15:55.602978+00:00",
+  "reviewer": "root assistant",
+  "status": "passed",
+  "viewed_images": [
+    {
+      "path": "preview_primary/representative_forecasts.svg.png",
+      "sha256": "74cb103291f8558a6a610a058467f4c08c8fee39c1c1e166b1be5f97af126af8"
+    },
+    {
+      "path": "preview_primary/per_horizon.svg.png",
+      "sha256": "dc979e9351b26887772116ced538cdfee166f4765862d96b72a2ab688ef46ce9"
+    },
+    {
+      "path": "preview_primary/validation_crps.svg.png",
+      "sha256": "4abba019a7fbbff94da98acfc77c52f3e7e5558a1d3c25a60aeaa9c91065aed6"
+    },
+    {
+      "path": "preview_primary/validation_crps_epoch50_detail.svg.png",
+      "sha256": "4179cac3eab38a8bd4b34164d34d3e62434fca4be49dbcc509cdaa805fea4fa9"
+    }
+  ],
+  "observations": [
+    "All plot labels and panels readable without clipping.",
+    "Full validation plot compresses later candidates; supplementary detail explicitly omits epoch 10 and retains the original full-range plot.",
+    "Representative plots show median endpoint retention and wider uneven learned intervals for the displayed first seed; no clean-signal fidelity inference.",
+    "Horizon plot shows lower equal-seed learned CRPS and MSE at all eight horizons, but coverage remains below nominal 90% on average."
+  ],
+  "scientific_artifacts_modified": false
+}

@@ -1,0 +1,28 @@
+{
+  "inspected": true,
+  "reviewed_utc": "2026-10-28T04:53:40.817480+00:00",
+  "method": "Quick Look PNG rendering at 1800 pixels, all four images inspected using view_image",
+  "layout": "No clipping or overlapping labels observed; square preview canvases retain the complete original SVG plots.",
+  "plots": [
+    {
+      "png": "preview/representative_forecasts.svg.png",
+      "sha256": "fd4ba5f7a15712d430be36d70b9f8f1be04dec8e56b00671645e5ed6e5380338",
+      "notes": "All 18 panels are visible and readable: methods in columns and the first six test trajectories (IDs 512 through 517, seed 29101) in rows. Both preprocessing methods remove large historical spikes; median histories contain flat segments. The future spike in trajectory 513 lies outside the displayed central bands. The plots show noisy targets only. Fixed examples are illustrative, not evidence of an aggregate win."
+    },
+    {
+      "png": "preview/per_horizon.svg.png",
+      "sha256": "8b3d404f8238a6504b6cb3fc1dbbf5df3212c3be624c8b2233ec3bc2b52ea744",
+      "notes": "All four metric panels, legends, axes and the nominal 90% reference are visible. Learned has lower mean CRPS than raw at all eight horizons, and lower than median at steps 1 through 6; median is lower at steps 7 and 8. Median has lower mean MSE at every horizon. All coverage means are below 90%. Shading is explicitly a descriptive seed range, not a confidence interval."
+    },
+    {
+      "png": "preview/validation_crps.svg.png",
+      "sha256": "768fef22f23ffe0c523a92ab429b5eef15f1f419050fd9cfa19ed82703b0850a",
+      "notes": "All three seed panels and early checkpoint points are present with readable labels. Large epoch-10 scores compress later differences on the linear scale; the detail plot resolves these."
+    },
+    {
+      "png": "preview/validation_detail.svg.png",
+      "sha256": "180038cec74dcd759cb69aa3d3c2bc7764403783a8e5639d1bfa16fe83051875",
+      "notes": "All three panels are readable. The title and caption explicitly omit epoch 10. Late improvements and reversals differ by seed and method; endpoint selections and apparent flatness do not certify convergence. No scientific curves or selected checkpoints were changed for plotting."
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+/usr/bin/caffeinate -is uv run --locked python -u scripts/train_csdi_forecast.py --device cpu --n-series 1024 --densifier-epochs 400 --epochs 400 --n-histories 4 --n-futures 8 --seed 23001 --output outputs/csdi-forecast-larger-23001
+/usr/bin/caffeinate -is uv run --locked python -u outputs/csdi-forecast-larger-23001/assess.py

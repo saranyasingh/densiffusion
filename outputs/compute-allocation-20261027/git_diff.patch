@@ -1,0 +1,286 @@
+diff --git a/README.md b/README.md
+index 1aaeb10..23c3a2c 100644
+--- a/README.md
++++ b/README.md
+@@ -68,3 +68,20 @@ uv run python scripts/train_csdi_forecast.py --output outputs/csdi-forecast
+ 
+ See [docs/forecasting.md](docs/forecasting.md) for the training/inference flow,
+ leakage boundaries, baselines, saved artifacts, and forecast APIs.
++
++The [paired waveform forecasting experiment](docs/waveform_forecasting.md)
++compares the same CSDI forecaster across direct, linear, and learned
++densification using three seeds, forecast-CRPS checkpoint selection, frozen
++test evaluation, and paired trajectory bootstrap analysis.
++
++The [larger waveform imputation follow-up](docs/waveform_imputation_large.md)
++recovers the successful GP network and training recipe, requires sampled
++validation interpolation to improve before forecasting, and separately checks
++resolution transfer after freezing the densifiers.
++
++The [history-polishing forecasting experiment](docs/history_polishing_forecasting.md)
++compares raw, blind-spot MLP, and median-filtered noisy histories with paired
++larger CSDI forecasters, unchanged noisy future targets, and fresh frozen-model
++test evaluation. The completed local run found lower CRPS for learned polishing
++than both baselines in all three seeds, with undercoverage of nominal 90%
++intervals.
+diff --git a/src/densiffusion/training.py b/src/densiffusion/training.py
+index 8a33928..ae14f0f 100644
+--- a/src/densiffusion/training.py
++++ b/src/densiffusion/training.py
+@@ -1,4 +1,6 @@
+ import logging
++from collections.abc import Callable, Sequence
++from contextlib import contextmanager
+ from copy import deepcopy
+ from dataclasses import asdict, dataclass
+ from pathlib import Path
+@@ -89,12 +91,27 @@ def train_densifier[T: nn.Module](
+     checkpoint: Path | None = None,
+     train_mask: Mask | None = None,
+     validation_mask: Mask | None = None,
++    validation_score: Callable[[T, int], float] | None = None,
++    validation_score_interval: int | None = None,
++    validation_score_epochs: Sequence[int] | None = None,
++    epoch_callback: Callable[[dict], None] | None = None,
+ ) -> T:
+     """Fit masked imputation and return the best validation weights.
+ 
+     forward(noisy, steps, *, observed, mask, dt) returns objective predictions.
+     Value tensors are (batch, time, channels); mask is True at hidden points.
+     Without masks, use alternate interior points, cropping even-length series.
++    An optional validation_score(model, epoch) selects checkpoints by a finite
++    lower-is-better score, evaluated without gradients in evaluation mode at
++    validation intervals. Its Torch RNG use and module modes are isolated from
++    training. epoch_callback receives one metrics dictionary per epoch.
++    validation_score_interval can evaluate expensive custom scores less often
++    than denoising validation. It must be a multiple of validation_interval;
++    the final epoch is always scored. Only custom-score epochs select weights.
++    Alternatively, validation_score_epochs supplies strictly increasing epochs,
++    each a multiple of validation_interval and no greater than config.epochs.
++    It requires validation_score and is mutually exclusive with the interval.
++    The final epoch is still scored, including when the sequence is empty.
+     """
+     train = validate_array(train, (None, None, None))
+     validation = validate_array(validation, (None, *train.shape[1:]))
+@@ -114,6 +131,10 @@ def train_densifier[T: nn.Module](
+         seed=seed,
+         checkpoint=checkpoint,
+         metadata={"stage": "densifier", "factor": factor, "target_dt": dt},
++        validation_score=validation_score,
++        validation_score_interval=validation_score_interval,
++        validation_score_epochs=validation_score_epochs,
++        epoch_callback=epoch_callback,
+     )
+ 
+ 
+@@ -130,8 +151,15 @@ def _fit_masked[T: nn.Module](
+     seed: int,
+     checkpoint: Path | None,
+     metadata: dict,
++    validation_score: Callable[[T, int], float] | None = None,
++    validation_score_interval: int | None = None,
++    validation_score_epochs: Sequence[int] | None = None,
++    epoch_callback: Callable[[dict], None] | None = None,
+ ) -> T:
+     """Shared masked-diffusion optimizer for imputation and suffix forecasting."""
++    validation_score_epochs = _validate_score_schedule(
++        config, validation_score, validation_score_interval, validation_score_epochs
++    )
+     model.to(config.device)
+     parameters = [p for p in model.parameters() if p.requires_grad]
+     if not parameters:
+@@ -151,8 +179,13 @@ def _fit_masked[T: nn.Module](
+     order_rng = np.random.default_rng(seeds[0])
+     train_noise = torch.Generator().manual_seed(int(seeds[1]))
+     torch.manual_seed(seed)
+-    best_loss = float("inf")
++    best_score = float("inf")
+     best_state = None
++    selection_metric = (
++        getattr(validation_score, "__qualname__", type(validation_score).__qualname__)
++        if validation_score is not None
++        else "validation_loss"
++    )
+ 
+     for epoch in range(1, config.epochs + 1):
+         learning_rate = optimizer.param_groups[0]["lr"]
+@@ -215,19 +248,50 @@ def _fit_masked[T: nn.Module](
+             losses.append(total / int(masks.sum()))
+ 
+         scheduler.step()
++        record = {
++            "epoch": epoch,
++            "train_loss": losses[0],
++            "learning_rate": learning_rate,
++        }
+         if not validate:
+             logger.info(
+                 "epoch=%d train_loss=%.6g lr=%.6g", epoch, losses[0], learning_rate
+             )
++            if epoch_callback is not None:
++                with _isolated_hook(model, device):
++                    epoch_callback(record)
+             continue
++        score = losses[1] if validation_score is None else None
++        score_interval = validation_score_interval or config.validation_interval
++        score_due = epoch == config.epochs or (
++            epoch in validation_score_epochs
++            if validation_score_epochs is not None
++            else epoch % score_interval == 0
++        )
++        if validation_score is not None and score_due:
++            with _isolated_hook(model, device):
++                model.eval()
++                score = validation_score(model, epoch)
++            if isinstance(score, (Tensor, np.ndarray)) and score.ndim != 0:
++                raise ValueError("validation_score must return a scalar")
++            score = float(score)
++            if not np.isfinite(score):
++                raise FloatingPointError("Non-finite validation_score")
++        record.update(
++            validation_loss=losses[1],
++            selection_metric=selection_metric,
++        )
++        if score is not None:
++            record["selection_score"] = score
+         logger.info(
+-            "epoch=%d train_loss=%.6g validation_loss=%.6g lr=%.6g",
++            "epoch=%d train_loss=%.6g validation_loss=%.6g lr=%.6g%s",
+             epoch,
+             *losses,
+             learning_rate,
++            f" selection_score={score:.6g}" if score is not None else "",
+         )
+-        if losses[1] < best_loss:
+-            best_loss = losses[1]
++        if score is not None and score < best_score:
++            best_score = score
+             best_state = deepcopy(model.state_dict())
+             if checkpoint is not None:
+                 _save_checkpoint(
+@@ -240,12 +304,12 @@ def _fit_masked[T: nn.Module](
+                         ),
+                         **metadata,
+                         "seed": seed,
+-                        "epoch": epoch,
+-                        "train_loss": losses[0],
+-                        "validation_loss": losses[1],
+-                        "learning_rate": learning_rate,
++                        **record,
+                     },
+                 )
++        if epoch_callback is not None:
++            with _isolated_hook(model, device):
++                epoch_callback(record)
+     model.load_state_dict(best_state)
+     model.eval()
+     return model
+@@ -264,6 +328,10 @@ def train_forecaster[T: nn.Module](
+     seed: int = 0,
+     checkpoint: Path | None = None,
+     n_augmentations: int = 1,
++    validation_score: Callable[[T, int], float] | None = None,
++    validation_score_interval: int | None = None,
++    validation_score_epochs: Sequence[int] | None = None,
++    epoch_callback: Callable[[dict], None] | None = None,
+ ) -> T:
+     """Fit future-only diffusion to cached frozen-densifier augmentations.
+ 
+@@ -276,6 +344,9 @@ def train_forecaster[T: nn.Module](
+     Validation augmentation and diffusion noise are also fixed. At factor=1,
+     train directly on coarse windows without calling the densifier. Models may
+     not share parameters, including at factor=1, to preserve densifier weights.
++    validation_score, validation_score_interval, validation_score_epochs, and
++    epoch_callback behave as in train_densifier; scoring can evaluate forecasts
++    at original-grid times.
+     """
+     positive_int("factor", factor)
+     positive_int("n_augmentations", n_augmentations)
+@@ -293,6 +364,9 @@ def train_forecaster[T: nn.Module](
+     if not any(parameter.requires_grad for parameter in model.parameters()):
+         raise ValueError("Model must have trainable parameters")
+     config = config or TrainingConfig()
++    validation_score_epochs = _validate_score_schedule(
++        config, validation_score, validation_score_interval, validation_score_epochs
++    )
+     frozen_model = getattr(densifier, "model", densifier)
+     if isinstance(frozen_model, nn.Module):
+         _reject_shared_parameters(model, frozen_model)
+@@ -364,9 +438,29 @@ def train_forecaster[T: nn.Module](
+                 "densifier_bypassed": factor == 1,
+             },
+         },
++        validation_score=validation_score,
++        validation_score_interval=validation_score_interval,
++        validation_score_epochs=validation_score_epochs,
++        epoch_callback=epoch_callback,
+     )
+ 
+ 
++@contextmanager
++def _isolated_hook(model: nn.Module, device: torch.device):
++    """Prevent optional monitoring from changing dropout RNG or module modes."""
++    modes = [(module, module.training) for module in model.modules()]
++    cuda_devices = [device.index] if device.type == "cuda" else []
++    mps_state = torch.mps.get_rng_state() if device.type == "mps" else None
++    try:
++        with torch.random.fork_rng(devices=cuda_devices), torch.no_grad():
++            yield
++    finally:
++        if mps_state is not None:
++            torch.mps.set_rng_state(mps_state)
++        for module, training in modes:
++            module.training = training
++
++
+ def _validate_training_options(dt: float, seed: int, checkpoint: Path | None) -> None:
+     if not np.isfinite(dt) or dt <= 0:
+         raise ValueError("dt must be finite and positive")
+@@ -376,6 +470,47 @@ def _validate_training_options(dt: float, seed: int, checkpoint: Path | None) ->
+         raise FileExistsError(f"Checkpoint already exists: {checkpoint}")
+ 
+ 
++def _validate_score_interval(config, validation_score, interval):
++    if interval is None:
++        return
++    positive_int("validation_score_interval", interval)
++    if validation_score is None:
++        raise ValueError("validation_score_interval requires validation_score")
++    if interval % config.validation_interval:
++        raise ValueError(
++            "validation_score_interval must be a multiple of validation_interval"
++        )
++
++
++def _validate_score_schedule(config, validation_score, interval, epochs):
++    _validate_score_interval(config, validation_score, interval)
++    if epochs is None:
++        return None
++    if interval is not None:
++        raise ValueError(
++            "validation_score_epochs and validation_score_interval "
++            "are mutually exclusive"
++        )
++    if validation_score is None:
++        raise ValueError("validation_score_epochs requires validation_score")
++    if not isinstance(epochs, Sequence) or isinstance(epochs, (str, bytes)):
++        raise ValueError("validation_score_epochs must be a sequence of integers")
++    # Copy caller-owned lists so callbacks cannot alter a running schedule.
++    epochs = tuple(epochs)
++    for epoch in epochs:
++        positive_int("validation_score_epochs entry", epoch)
++        if epoch > config.epochs:
++            raise ValueError("validation_score_epochs entries must not exceed epochs")
++        if epoch % config.validation_interval:
++            raise ValueError(
++                "validation_score_epochs entries must be "
++                "multiples of validation_interval"
++            )
++    if any(left >= right for left, right in zip(epochs, epochs[1:], strict=False)):
++        raise ValueError("validation_score_epochs must be strictly increasing")
++    return epochs
++
++
+ def _validate_forecast_pair(values: tuple[Array, Array]) -> tuple[Array, Array]:
+     if not isinstance(values, tuple) or len(values) != 2:
+         raise ValueError("Forecast data must be a (history, future) tuple")

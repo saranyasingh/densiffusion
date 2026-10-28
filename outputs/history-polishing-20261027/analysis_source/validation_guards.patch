@@ -1,0 +1,58 @@
+--- training_snapshot/polishing_analysis.py
++++ evaluation_analysis/polishing_analysis.py
+@@ -160,10 +160,12 @@
+         _number(row["crps"], f"{path}: crps")
+         if "sampling_seconds" in row:
+             _number(row["sampling_seconds"], f"{path}: sampling_seconds")
+-        if "scores" in row and not np.isclose(
+-            row["scores"]["crps"], row["crps"], rtol=1e-9
+-        ):
+-            raise ValueError(f"{path}: validation crps and scores.crps differ")
++        if "scores" in row:
++            if not isinstance(row["scores"], dict) or "crps" not in row["scores"]:
++                raise ValueError(f"{path}: validation scores must contain crps")
++            value = _number(row["scores"]["crps"], f"{path}: scores.crps")
++            if not np.isclose(value, row["crps"], rtol=1e-9):
++                raise ValueError(f"{path}: validation crps and scores.crps differ")
+     if epochs != sorted(set(epochs)):
+         raise ValueError(f"{path}: validation epochs must be unique and increasing")
+     best = min(rows, key=lambda row: row["crps"])
+@@ -208,6 +210,14 @@
+             costs[key][method] = _number(
+                 recorded[key][method], f"{path}: {key}.{method}"
+             )
++    for method in METHODS:
++        if (
++            costs["validation_sampling_seconds"][method]
++            > costs["forecaster_training_seconds"][method]
++        ):
++            raise ValueError(
++                f"{path}: {method} validation subset exceeds training time"
++            )
+     costs["method_total_seconds"] = {
+         method: sum(
+             costs[key][method]
+@@ -230,7 +240,11 @@
+     path = folder / "scores.json"
+     if path.is_file():
+         saved = _json(path)
++        if not isinstance(saved, dict):
++            raise ValueError(f"{path}: expected method-to-metric objects")
+         for method in METHODS:
++            if not isinstance(saved.get(method), dict):
++                raise ValueError(f"{path}: missing metric object for {method}")
+             for metric in METRICS:
+                 try:
+                     value = _number(saved[method][metric], f"{path}: {method}.{metric}")
+@@ -326,7 +340,11 @@
+         raise ValueError("bootstrap seed must be a nonnegative integer")
+     root = Path(output_dir)
+     manifest = _json(root / "config.json") if (root / "config.json").is_file() else None
++    if manifest is not None and not isinstance(manifest, dict):
++        raise ValueError("config.json must contain an object")
+     config = manifest.get("experiment", {}) if manifest is not None else {}
++    if not isinstance(config, dict):
++        raise ValueError("config.json experiment must contain an object")
+     folders = [path for path in root.glob("seed_*") if path.is_dir()]
+     try:
+         folders.sort(key=lambda path: int(path.name.removeprefix("seed_")))

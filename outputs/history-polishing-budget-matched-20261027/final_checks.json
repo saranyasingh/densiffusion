@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "completed_utc": "2026-10-28T04:53:45.742182+00:00",
+  "protected_prior_files_unchanged": 644,
+  "scientific_source_hashes_match_protocol": true,
+  "snapshot_files_match_current_repo": 111,
+  "frozen_training_artifacts_unchanged": 187,
+  "independent_pipeline_verification": true,
+  "bootstrap_intervals_independently_recomputed": 36,
+  "plots_inspected": 4,
+  "report_links_resolve": true,
+  "implementation_checks": {
+    "full_tests": {
+      "passed": 542,
+      "seconds": 10.41
+    },
+    "smoke_end_to_end": "completed using actual larger architecture and sampler",
+    "smoke_independent_verification": "passed",
+    "ruff": "passed",
+    "ruff_format_files": 87
+  },
+  "git_head_unchanged": "007d3629b2ba3a78368d9ce3d5c8476e4a6b6837",
+  "no_commit_or_push": true,
+  "test_based_tuning": false,
+  "scope": "one prospective matrix-work-matched polishing budget; no optimality or densification claim"
+}

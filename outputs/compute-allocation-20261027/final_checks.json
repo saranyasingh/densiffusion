@@ -1,0 +1,32 @@
+{
+  "verified_utc": "2026-10-28T00:59:23.981723+00:00",
+  "full_pytest": {
+    "passed": 526,
+    "seconds": 10.42
+  },
+  "focused_pipeline_pytest": {
+    "passed": 118,
+    "seconds": 2.79
+  },
+  "ruff_check_src_scripts_tests": "passed",
+  "ruff_format_check": {
+    "passed": true,
+    "files": 83
+  },
+  "git_diff_check": "passed",
+  "new_forward_profiles_match_independent_formula": 8,
+  "polishing_validation_ensembles_recomputed": 63,
+  "all_candidate_costs_and_budget_frontiers_reconstructed_exactly": true,
+  "key_report_comparisons_checked_per_seed": true,
+  "protected_prior_files_unchanged": 625,
+  "git_head_unchanged": "007d3629b2ba3a78368d9ce3d5c8476e4a6b6837",
+  "commit_or_push_performed": false,
+  "new_scientific_training_performed": false,
+  "new_test_generation_or_evaluation_performed": false,
+  "plot_review": {
+    "svg": "3a921793f8e121d35d1a522c5f9d88220265a380d3097f489558b9300f3e41df",
+    "png": "4b9c6346b6fe780f54a15ba2fed05259460aef06d1a08aeb7b64fbdd7c16a694",
+    "inspected": true,
+    "notes": "Four panels visible after square-canvas fix; axes/legends readable, no cropped right column. Early polishing outliers explicitly omitted from detail range. Full costs and scores retained in audit.json; flat tails denote best saved checkpoint, not measured further training."
+  }
+}

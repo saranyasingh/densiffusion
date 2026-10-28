@@ -1,0 +1,30 @@
+{
+  "created_utc": "2026-10-28T01:49:36.744828+00:00",
+  "question": "Does the prior learned polishing improvement survive prospectively matched full pipeline matrix-work budgets?",
+  "scope": "raw vs learned blind-spot MLP vs median7, original noisy-periodic distribution; no densification",
+  "fresh_all_splits": true,
+  "n_train": 256,
+  "n_validation": 256,
+  "n_test": 2048,
+  "seeds": [
+    29101,
+    29102,
+    29103
+  ],
+  "namespace": 2026102801,
+  "base_forecaster_epochs": 1200,
+  "forecaster_score_epochs_prefix": [
+    10,
+    50,
+    100,
+    200,
+    400,
+    800
+  ],
+  "final_score": "each method final epoch after maximal feasible allocation",
+  "search": "same four mediator candidates, all charged; no further task-specific tuning",
+  "compute_metric": "counted forward/backward dense matrix FLOPs, including setup and all validation; full actual elapsed times separately",
+  "cpu_threads": 1,
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "no_commit_or_push": true
+}

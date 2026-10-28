@@ -1,0 +1,50 @@
+{
+  "raw": {
+    "conditioning_sha256": "41dec6ae9d19b424e7a377fd357f7a61cb73f1b16ebac6cb0982f777b7dd10cb",
+    "observed_argument_sha256": "41dec6ae9d19b424e7a377fd357f7a61cb73f1b16ebac6cb0982f777b7dd10cb",
+    "dense_history_argument_sha256": "41dec6ae9d19b424e7a377fd357f7a61cb73f1b16ebac6cb0982f777b7dd10cb",
+    "conditioning_shape": [
+      2048,
+      32,
+      1
+    ],
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 64,
+    "horizon": 8,
+    "dt": 1,
+    "sampling_seed": 3735589470
+  },
+  "learned": {
+    "conditioning_sha256": "5f379eec69a4771a63f6d9ac536d8fcee4aea6dfba07739e53b6f2d79a886b59",
+    "observed_argument_sha256": "5f379eec69a4771a63f6d9ac536d8fcee4aea6dfba07739e53b6f2d79a886b59",
+    "dense_history_argument_sha256": "5f379eec69a4771a63f6d9ac536d8fcee4aea6dfba07739e53b6f2d79a886b59",
+    "conditioning_shape": [
+      2048,
+      32,
+      1
+    ],
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 64,
+    "horizon": 8,
+    "dt": 1,
+    "sampling_seed": 3735589470
+  },
+  "median": {
+    "conditioning_sha256": "3041060599d84e09f2d5a91f8d68ab3e2100389a3be457538e1915e30f9d2eec",
+    "observed_argument_sha256": "3041060599d84e09f2d5a91f8d68ab3e2100389a3be457538e1915e30f9d2eec",
+    "dense_history_argument_sha256": "3041060599d84e09f2d5a91f8d68ab3e2100389a3be457538e1915e30f9d2eec",
+    "conditioning_shape": [
+      2048,
+      32,
+      1
+    ],
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 64,
+    "horizon": 8,
+    "dt": 1,
+    "sampling_seed": 3735589470
+  }
+}

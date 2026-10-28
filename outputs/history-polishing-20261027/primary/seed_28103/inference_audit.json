@@ -1,0 +1,50 @@
+{
+  "raw": {
+    "conditioning_sha256": "e93d92616ed0e2f48d82d6ea13f685f246b18aca150799515a9c563a71d4e970",
+    "observed_argument_sha256": "e93d92616ed0e2f48d82d6ea13f685f246b18aca150799515a9c563a71d4e970",
+    "dense_history_argument_sha256": "e93d92616ed0e2f48d82d6ea13f685f246b18aca150799515a9c563a71d4e970",
+    "conditioning_shape": [
+      2048,
+      32,
+      1
+    ],
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 64,
+    "horizon": 8,
+    "dt": 1,
+    "sampling_seed": 2706350942
+  },
+  "learned": {
+    "conditioning_sha256": "6bdf27136b8a358e97c71c66c30ed0c606863e457dd7c6049595fab3991834ba",
+    "observed_argument_sha256": "6bdf27136b8a358e97c71c66c30ed0c606863e457dd7c6049595fab3991834ba",
+    "dense_history_argument_sha256": "6bdf27136b8a358e97c71c66c30ed0c606863e457dd7c6049595fab3991834ba",
+    "conditioning_shape": [
+      2048,
+      32,
+      1
+    ],
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 64,
+    "horizon": 8,
+    "dt": 1,
+    "sampling_seed": 2706350942
+  },
+  "median": {
+    "conditioning_sha256": "2240f94ed56ec3be0994209d323482aaf1504bf10511fc74a98b991e72e113d1",
+    "observed_argument_sha256": "2240f94ed56ec3be0994209d323482aaf1504bf10511fc74a98b991e72e113d1",
+    "dense_history_argument_sha256": "2240f94ed56ec3be0994209d323482aaf1504bf10511fc74a98b991e72e113d1",
+    "conditioning_shape": [
+      2048,
+      32,
+      1
+    ],
+    "raw_side_channel": false,
+    "future_conditioning": false,
+    "samples": 64,
+    "horizon": 8,
+    "dt": 1,
+    "sampling_seed": 2706350942
+  }
+}

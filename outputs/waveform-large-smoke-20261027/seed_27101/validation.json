@@ -1,0 +1,36 @@
+[
+  {
+    "epoch": 1,
+    "scores": {
+      "crps": 0.6644833438167044,
+      "mse": 1.003017084079422,
+      "coverage_90": 0.7109375,
+      "interval_width_90": 2.588312853142633
+    },
+    "linear": {
+      "crps": 0.0981464699494771,
+      "mse": 0.015878210947677156,
+      "coverage_90": 0.0,
+      "interval_width_90": 0.0
+    },
+    "sampling_seconds": 0.020601583004463464,
+    "samples": "validation_epoch_0001.npz"
+  },
+  {
+    "epoch": 2,
+    "scores": {
+      "crps": 0.6644206350244051,
+      "mse": 1.0029034962479955,
+      "coverage_90": 0.7109375,
+      "interval_width_90": 2.587904190392203
+    },
+    "linear": {
+      "crps": 0.0981464699494771,
+      "mse": 0.015878210947677156,
+      "coverage_90": 0.0,
+      "interval_width_90": 0.0
+    },
+    "sampling_seconds": 0.020816333999391645,
+    "samples": "validation_epoch_0002.npz"
+  }
+]

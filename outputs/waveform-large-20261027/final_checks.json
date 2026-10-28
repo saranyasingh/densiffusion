@@ -1,0 +1,14 @@
+{
+  "completed_utc": "2026-10-27T17:18:19.384861+00:00",
+  "report_links_resolved": 45,
+  "protected_prior_artifacts_unchanged": 121,
+  "git_head_unchanged": "007d3629b2ba3a78368d9ce3d5c8476e4a6b6837",
+  "no_commit_or_push": true,
+  "independent_report_audit": "passed without material findings",
+  "scientific_outcome": "validation imputation passed after longer budget; transfer failed; forecasting stopped",
+  "plot_qa": [
+    "attempt_01_plot_qa.txt",
+    "attempt_02_plot_qa.txt",
+    "transfer_plot_qa.txt"
+  ]
+}

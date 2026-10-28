@@ -1,0 +1,44 @@
+[
+  {
+    "phase": "evaluation",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "scripts/train_polishing_forecast.py",
+      "--phase",
+      "evaluate",
+      "--output",
+      "/Users/kaanbaykara/densiffusion/outputs/history-polishing-20261027/primary"
+    ],
+    "started_utc": "2026-10-27T20:45:11.537011+00:00",
+    "finished_utc": "2026-10-27T22:10:08.254882+00:00"
+  },
+  {
+    "phase": "analysis",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "scripts/analyze_polishing_forecast.py",
+      "/Users/kaanbaykara/densiffusion/outputs/history-polishing-20261027/primary"
+    ],
+    "started_utc": "2026-10-27T22:10:08.255318+00:00",
+    "finished_utc": "2026-10-27T22:10:12.636468+00:00"
+  },
+  {
+    "phase": "verification",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "scripts/verify_polishing_forecast.py",
+      "/Users/kaanbaykara/densiffusion/outputs/history-polishing-20261027/primary"
+    ],
+    "started_utc": "2026-10-27T22:10:12.636822+00:00",
+    "finished_utc": "2026-10-27T22:10:15.130696+00:00"
+  }
+]

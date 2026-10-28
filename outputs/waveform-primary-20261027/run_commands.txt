@@ -1,0 +1,7 @@
+uv run --locked python scripts/train_waveform_forecast.py --smoke --output outputs/waveform-smoke-20261027
+caffeinate -is uv run --locked python -u scripts/train_waveform_forecast.py --config configs/waveform_forecast.json --phase train --output outputs/waveform-primary-20261027
+uv run --locked python scripts/train_waveform_forecast.py --phase evaluate --output outputs/waveform-primary-20261027
+uv run --locked python scripts/analyze_waveform_forecast.py outputs/waveform-primary-20261027
+uv run --locked python scripts/verify_waveform_forecast.py outputs/waveform-primary-20261027
+uv run --locked python -c "from densiffusion.waveform_diagnostics import run_diagnostics; run_diagnostics('outputs/waveform-primary-20261027', n_examples=256, n_samples=64)"
+uv run --locked python outputs/waveform-primary-20261027/diagnostics/matched_geometry.py --output outputs/waveform-primary-20261027

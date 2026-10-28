@@ -1,0 +1,148 @@
+{
+  "passed": false,
+  "gate": {
+    "maximum_crps_ratio_to_linear": 1.25,
+    "maximum_mse_ratio_to_linear": 1.5,
+    "required_tasks": [
+      "history",
+      "anchored_future"
+    ],
+    "required_each_seed": true,
+    "no_tuning_after_fine_truth": true
+  },
+  "diagnostic_only": true,
+  "no_tuning_after_fine_truth": true,
+  "seeds": {
+    "27101": {
+      "data_seed": 2491000545,
+      "tasks": {
+        "history": {
+          "learned": {
+            "crps": 0.04804888412015493,
+            "mse": 0.007028577776939132,
+            "coverage_90": 0.69287109375,
+            "interval_width_90": 0.17290193453742445
+          },
+          "linear": {
+            "crps": 0.03269718887591592,
+            "mse": 0.0016735078073308377,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "sampling_seconds": 402.2143715839484,
+          "sampling_seed": 4033983955,
+          "observations_preserved": true,
+          "crps_ratio": 1.4695111650881632,
+          "mse_ratio": 4.19990737189889
+        },
+        "anchored_future": {
+          "learned": {
+            "crps": 0.06261674578141405,
+            "mse": 0.011589313860136374,
+            "coverage_90": 0.5830078125,
+            "interval_width_90": 0.16268548574923894
+          },
+          "linear": {
+            "crps": 0.03331990474267778,
+            "mse": 0.0017314956927718286,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "sampling_seconds": 134.7542760000215,
+          "sampling_seed": 2590484562,
+          "observations_preserved": true,
+          "crps_ratio": 1.8792594476181508,
+          "mse_ratio": 6.693238630922531
+        }
+      }
+    },
+    "27102": {
+      "data_seed": 179552743,
+      "tasks": {
+        "history": {
+          "learned": {
+            "crps": 0.04981707196908636,
+            "mse": 0.007449052525145786,
+            "coverage_90": 0.7216796875,
+            "interval_width_90": 0.18040183840931925
+          },
+          "linear": {
+            "crps": 0.03261263061989749,
+            "mse": 0.0016818794454662028,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "sampling_seconds": 402.53358849999495,
+          "sampling_seed": 1170418398,
+          "observations_preserved": true,
+          "crps_ratio": 1.527539208649184,
+          "mse_ratio": 4.429005030786241
+        },
+        "anchored_future": {
+          "learned": {
+            "crps": 0.06485052741853731,
+            "mse": 0.012050732494033812,
+            "coverage_90": 0.623046875,
+            "interval_width_90": 0.18264053639113909
+          },
+          "linear": {
+            "crps": 0.03270077001031463,
+            "mse": 0.0016732480250106659,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "sampling_seconds": 131.8157012499869,
+          "sampling_seed": 819601640,
+          "observations_preserved": true,
+          "crps_ratio": 1.983149858492074,
+          "mse_ratio": 7.202000130229944
+        }
+      }
+    },
+    "27103": {
+      "data_seed": 2491086410,
+      "tasks": {
+        "history": {
+          "learned": {
+            "crps": 0.0523664559745732,
+            "mse": 0.007858123310515636,
+            "coverage_90": 0.62451171875,
+            "interval_width_90": 0.1616812017512501
+          },
+          "linear": {
+            "crps": 0.03192366776057485,
+            "mse": 0.0016192578840838253,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "sampling_seconds": 402.8026932920329,
+          "sampling_seed": 2132588063,
+          "observations_preserved": true,
+          "crps_ratio": 1.64036464629684,
+          "mse_ratio": 4.852916504378643
+        },
+        "anchored_future": {
+          "learned": {
+            "crps": 0.06861110010898638,
+            "mse": 0.012745515977942679,
+            "coverage_90": 0.53564453125,
+            "interval_width_90": 0.15796025518849033
+          },
+          "linear": {
+            "crps": 0.03261060534941719,
+            "mse": 0.0016903323248001663,
+            "coverage_90": 0.0,
+            "interval_width_90": 0.0
+          },
+          "sampling_seconds": 134.1124200829654,
+          "sampling_seed": 508429035,
+          "observations_preserved": true,
+          "crps_ratio": 2.1039505208146214,
+          "mse_ratio": 7.540242703132044
+        }
+      }
+    }
+  },
+  "wall_seconds": 538.0615768330172,
+  "finished_utc": "2026-10-27T17:11:03.510169+00:00"
+}

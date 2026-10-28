@@ -1,0 +1,7 @@
+{
+  "validation_crps": 0.3276497106706518,
+  "selected_epoch": 390,
+  "validation_noise_mse": 0.3110121190547943,
+  "training_seconds": 49.26567283299937,
+  "optimizer_updates": 6400
+}

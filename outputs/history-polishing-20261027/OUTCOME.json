@@ -1,0 +1,119 @@
+{
+  "recorded_utc": "2026-10-27T22:14:07.293516+00:00",
+  "experiment": "History polishing with unchanged noisy future targets; no densification or resolution transfer.",
+  "status": "completed",
+  "seeds": [
+    28101,
+    28102,
+    28103
+  ],
+  "test_trajectories_per_seed": 2048,
+  "forecast_draws_per_example": 64,
+  "primary_metric": "empirical ensemble CRPS",
+  "equal_seed_mean_metrics": {
+    "raw": {
+      "crps": 0.2850062793068739,
+      "mse": 0.5064394027935688,
+      "coverage_90": 0.802490234375,
+      "interval_width_90": 1.3149175603697323
+    },
+    "learned": {
+      "crps": 0.27440038503468633,
+      "mse": 0.4807696029462565,
+      "coverage_90": 0.8222249348958334,
+      "interval_width_90": 1.4938849550958462
+    },
+    "median": {
+      "crps": 0.2822279757354143,
+      "mse": 0.5014691696284398,
+      "coverage_90": 0.7953694661458334,
+      "interval_width_90": 0.9228633643518758
+    }
+  },
+  "relative_crps_reduction": {
+    "raw": 0.03721284421515466,
+    "median": 0.02773499218258311
+  },
+  "paired_crps_differences_and_ci95": {
+    "seed_28101": {
+      "learned-minus-raw": {
+        "difference": -0.0032248447879240708,
+        "ci95": [
+          -0.0057645266654791395,
+          -0.0006190142335935514
+        ]
+      },
+      "learned-minus-median": {
+        "difference": -0.006292138652773508,
+        "ci95": [
+          -0.009518595844255549,
+          -0.0030108723180585534
+        ]
+      },
+      "median-minus-raw": {
+        "difference": 0.0030672938648494373,
+        "ci95": [
+          -0.0002716202802743016,
+          0.006319038033047437
+        ]
+      }
+    },
+    "seed_28102": {
+      "learned-minus-raw": {
+        "difference": -0.016235577358786037,
+        "ci95": [
+          -0.018920471167827028,
+          -0.013613457617435378
+        ]
+      },
+      "learned-minus-median": {
+        "difference": -0.007451466737841846,
+        "ci95": [
+          -0.009570849465804106,
+          -0.005291382020152296
+        ]
+      },
+      "median-minus-raw": {
+        "difference": -0.008784110620944195,
+        "ci95": [
+          -0.011385968979116028,
+          -0.00618975545232075
+        ]
+      }
+    },
+    "seed_28103": {
+      "learned-minus-raw": {
+        "difference": -0.012357260669852446,
+        "ci95": [
+          -0.01635439721658522,
+          -0.008461530579465401
+        ]
+      },
+      "learned-minus-median": {
+        "difference": -0.00973916671156868,
+        "ci95": [
+          -0.013860850986787215,
+          -0.005720226056037762
+        ]
+      },
+      "median-minus-raw": {
+        "difference": -0.0026180939582837667,
+        "ci95": [
+          -0.005891874318602631,
+          0.0005910356269014403
+        ]
+      }
+    }
+  },
+  "learned_crps_beats_raw_and_median_each_seed": true,
+  "all_six_learned_crps_ci95_upper_bounds_below_zero": true,
+  "bootstrap_replicates": 10000,
+  "interval_scope": "Unadjusted paired trajectory percentile intervals conditional on fitted models, selected checkpoints, preprocessing and saved forecast draws; seed variation reported separately.",
+  "calibration": "All methods undercovered nominal 90% intervals; learned mean 82.22%, and learned seed 28103 coverage 76.51% was below both baselines.",
+  "convergence_established": false,
+  "training_wall_seconds": 8272.914196915983,
+  "evaluation_wall_seconds": 5095.745485541993,
+  "verification": "primary/verification.json",
+  "full_analysis": "primary/analysis.json",
+  "report": "REPORT.md"
+}

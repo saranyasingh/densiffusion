@@ -1,0 +1,5 @@
+{"epoch": 1, "training_loss": 0.9391464293003082, "optimizer_updates": 2, "validation_mse": 0.8712311458655497}
+{"epoch": 2, "training_loss": 0.8897936344146729, "optimizer_updates": 4}
+{"epoch": 3, "training_loss": 0.843738853931427, "optimizer_updates": 6}
+{"epoch": 4, "training_loss": 0.8048457503318787, "optimizer_updates": 8}
+{"epoch": 5, "training_loss": 0.7629770934581757, "optimizer_updates": 10, "validation_mse": 0.6632940099652889}

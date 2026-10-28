@@ -1,0 +1,150 @@
+{
+  "methods": {
+    "learned": {
+      "initialization_sha256": "e16532c55b2c8885710b563d090b2993e90a474b6e5a48df0199fcb2454aafa4",
+      "parameter_count": 413521,
+      "measured_counts": {
+        "optimizer_updates": 4768,
+        "train_examples": 305152,
+        "eval_examples": 7270400
+      },
+      "epochs_completed": 1192,
+      "selected_epoch": 1192,
+      "selected_validation_crps": 0.2577808581319789,
+      "training_config": {
+        "epochs": 1192,
+        "batch_size": 64,
+        "learning_rate": 0.001,
+        "diffusion_steps": 50,
+        "beta_start": 0.0001,
+        "beta_end": 0.5,
+        "max_grad_norm": 1.0,
+        "device": "mps",
+        "schedule": "quadratic",
+        "weight_decay": 1e-06,
+        "lr_decay_fractions": [
+          0.75,
+          0.9
+        ],
+        "lr_decay_factor": 0.1,
+        "validation_steps": "all",
+        "validation_interval": 10
+      },
+      "validation_candidate_epochs": [
+        10,
+        50,
+        100,
+        200,
+        400,
+        800,
+        1192
+      ],
+      "training_seed": 2740175591,
+      "started_utc": "2026-10-28T02:40:23.733367+00:00",
+      "completed_utc": "2026-10-28T02:52:49.520233+00:00",
+      "train_history_sha256": "94eab45103e059c390f65841e84d1d33769fef0816fb2cbe6b5993c3c9292750",
+      "train_future_sha256": "bce5fe5b39ab7492fcbeae155426f0238cba409c259beefba35c7fec9bf8e0d2",
+      "validation_history_sha256": "932b47ee73f7bea1ff9ec28287366f3e84275ad1772b8e7669565be829bb7a3d",
+      "validation_future_sha256": "6672dea2babcb5733e6fff85e2dc3b67455b583712600f34a52f35cc89c16d38",
+      "checkpoint_sha256": "7cd0eb2563eac09a6382986a795bc083724186ed93a6ef112ebbf1a6b0515b0d"
+    },
+    "median": {
+      "initialization_sha256": "e16532c55b2c8885710b563d090b2993e90a474b6e5a48df0199fcb2454aafa4",
+      "parameter_count": 413521,
+      "measured_counts": {
+        "optimizer_updates": 4800,
+        "train_examples": 307200,
+        "eval_examples": 7270400
+      },
+      "epochs_completed": 1200,
+      "selected_epoch": 800,
+      "selected_validation_crps": 0.26985159579092427,
+      "training_config": {
+        "epochs": 1200,
+        "batch_size": 64,
+        "learning_rate": 0.001,
+        "diffusion_steps": 50,
+        "beta_start": 0.0001,
+        "beta_end": 0.5,
+        "max_grad_norm": 1.0,
+        "device": "mps",
+        "schedule": "quadratic",
+        "weight_decay": 1e-06,
+        "lr_decay_fractions": [
+          0.75,
+          0.9
+        ],
+        "lr_decay_factor": 0.1,
+        "validation_steps": "all",
+        "validation_interval": 10
+      },
+      "validation_candidate_epochs": [
+        10,
+        50,
+        100,
+        200,
+        400,
+        800,
+        1200
+      ],
+      "training_seed": 2740175591,
+      "started_utc": "2026-10-28T02:52:49.593541+00:00",
+      "completed_utc": "2026-10-28T03:05:10.862461+00:00",
+      "train_history_sha256": "5ccfb8acb3eaaf5de235b24673dc249d7815b887dfcce45044e403eb96714325",
+      "train_future_sha256": "bce5fe5b39ab7492fcbeae155426f0238cba409c259beefba35c7fec9bf8e0d2",
+      "validation_history_sha256": "6f5ee911369a2c680b344324aad2c1be57b36a4f96abca2a0b47820da1977aca",
+      "validation_future_sha256": "6672dea2babcb5733e6fff85e2dc3b67455b583712600f34a52f35cc89c16d38",
+      "checkpoint_sha256": "3f1480754243c13471499adf9f475e577836c42003638a8551dd99e9a3882dbf"
+    },
+    "raw": {
+      "initialization_sha256": "e16532c55b2c8885710b563d090b2993e90a474b6e5a48df0199fcb2454aafa4",
+      "parameter_count": 413521,
+      "measured_counts": {
+        "optimizer_updates": 4800,
+        "train_examples": 307200,
+        "eval_examples": 7270400
+      },
+      "epochs_completed": 1200,
+      "selected_epoch": 1200,
+      "selected_validation_crps": 0.27370282711397126,
+      "training_config": {
+        "epochs": 1200,
+        "batch_size": 64,
+        "learning_rate": 0.001,
+        "diffusion_steps": 50,
+        "beta_start": 0.0001,
+        "beta_end": 0.5,
+        "max_grad_norm": 1.0,
+        "device": "mps",
+        "schedule": "quadratic",
+        "weight_decay": 1e-06,
+        "lr_decay_fractions": [
+          0.75,
+          0.9
+        ],
+        "lr_decay_factor": 0.1,
+        "validation_steps": "all",
+        "validation_interval": 10
+      },
+      "validation_candidate_epochs": [
+        10,
+        50,
+        100,
+        200,
+        400,
+        800,
+        1200
+      ],
+      "training_seed": 2740175591,
+      "started_utc": "2026-10-28T03:05:10.940869+00:00",
+      "completed_utc": "2026-10-28T03:17:33.805737+00:00",
+      "train_history_sha256": "78c112ba32d08136a517050a47535c7fa680e10c753f8923e22fed9654975c3e",
+      "train_future_sha256": "bce5fe5b39ab7492fcbeae155426f0238cba409c259beefba35c7fec9bf8e0d2",
+      "validation_history_sha256": "c1fae34e5445ab7509c8986a86161d433e54ecba1960773685d901feb90381ce",
+      "validation_future_sha256": "6672dea2babcb5733e6fff85e2dc3b67455b583712600f34a52f35cc89c16d38",
+      "checkpoint_sha256": "1333a25e86cd2edb8e7e66fff5673081822a13bab02ad39320861ed99bc4977f"
+    }
+  },
+  "future_targets_unchanged": true,
+  "factor": 1
+}

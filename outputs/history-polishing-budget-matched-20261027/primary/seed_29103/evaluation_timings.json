@@ -1,0 +1,12 @@
+{
+  "test_preprocessing_seconds": {
+    "raw": 2.0875013433396816e-05,
+    "learned": 0.00442554202163592,
+    "median": 0.003935249987989664
+  },
+  "test_inference_seconds": {
+    "median": 373.3566750410246,
+    "raw": 368.63905991701176,
+    "learned": 373.08406962495064
+  }
+}

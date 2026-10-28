@@ -1,0 +1,51 @@
+{
+  "replicates": 10000,
+  "unit": "paired whole test trajectory",
+  "checks": [
+    {
+      "seed": "seed_29101",
+      "contrast": "learned-minus-raw",
+      "all_four_metrics_passed": true
+    },
+    {
+      "seed": "seed_29102",
+      "contrast": "learned-minus-raw",
+      "all_four_metrics_passed": true
+    },
+    {
+      "seed": "seed_29103",
+      "contrast": "learned-minus-raw",
+      "all_four_metrics_passed": true
+    },
+    {
+      "seed": "seed_29101",
+      "contrast": "learned-minus-median",
+      "all_four_metrics_passed": true
+    },
+    {
+      "seed": "seed_29102",
+      "contrast": "learned-minus-median",
+      "all_four_metrics_passed": true
+    },
+    {
+      "seed": "seed_29103",
+      "contrast": "learned-minus-median",
+      "all_four_metrics_passed": true
+    },
+    {
+      "seed": "seed_29101",
+      "contrast": "median-minus-raw",
+      "all_four_metrics_passed": true
+    },
+    {
+      "seed": "seed_29102",
+      "contrast": "median-minus-raw",
+      "all_four_metrics_passed": true
+    },
+    {
+      "seed": "seed_29103",
+      "contrast": "median-minus-raw",
+      "all_four_metrics_passed": true
+    }
+  ]
+}

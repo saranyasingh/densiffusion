@@ -1,0 +1,18 @@
+Branch: kaan/csdi
+Source commit: 007d3629b2ba3a78368d9ce3d5c8476e4a6b6837
+Working tree was clean before this experiment. All new artifacts are under ignored outputs/.
+No AGENTS.md was found in the repository or applicable ancestor directories.
+
+Command:
+uv run --locked pytest tests/test_forecast_training.py tests/test_forecast_pipeline.py tests/test_forecast_sampler.py tests/test_csdi_forecast_example.py tests/test_gp_posterior.py tests/test_metrics.py
+Result: 102 passed in 1.43s
+
+Read-only code audit:
+make_dataset splits independent series before creating windows.
+Training augmentation passes history alone to the history densifier.
+Synthetic future targets are densified separately with the last history value as anchor.
+The entire future suffix is hidden from forecasting conditioning.
+Test targets enter scoring only after all models have been trained and selected by validation.
+
+Keep-awake:
+pmset confirmed PreventUserIdleSystemSleep and PreventSystemSleep assertions held by caffeinate on behalf of uv during training.

@@ -1,0 +1,38 @@
+{
+  "densifier_training_seconds": 0.6475558329839259,
+  "methods": {
+    "direct_csdi": {
+      "augmentation_and_forecaster_training_seconds": 0.022520166006870568,
+      "augmentation_sampling_seconds": 0,
+      "forecast_validation_seconds": 0.0035195419914089143,
+      "forecaster_fit_seconds": 0.019000624015461653,
+      "total_training_seconds": 0.022520166006870568,
+      "forecast_seconds": 0.004761042015161365,
+      "inference_history_densification_seconds": 0,
+      "inference_future_and_overhead_seconds": 0.004761042015161365,
+      "forecast_seconds_per_trajectory": 0.0011902605037903413
+    },
+    "linear_densification": {
+      "augmentation_and_forecaster_training_seconds": 0.022672499995678663,
+      "augmentation_sampling_seconds": 0.0003945420030504465,
+      "forecast_validation_seconds": 0.005244083993602544,
+      "forecaster_fit_seconds": 0.017033873999025673,
+      "total_training_seconds": 0.022672499995678663,
+      "forecast_seconds": 0.005168500007130206,
+      "inference_history_densification_seconds": 8.683401392772794e-05,
+      "inference_future_and_overhead_seconds": 0.005081665993202478,
+      "forecast_seconds_per_trajectory": 0.0012921250017825514
+    },
+    "densiffusion": {
+      "augmentation_and_forecaster_training_seconds": 0.035581415984779596,
+      "augmentation_sampling_seconds": 0.00991837406763807,
+      "forecast_validation_seconds": 0.007642665994353592,
+      "forecaster_fit_seconds": 0.018020375922787935,
+      "total_training_seconds": 0.6831372489687055,
+      "forecast_seconds": 0.007805707980878651,
+      "inference_history_densification_seconds": 0.0028662079712376,
+      "inference_future_and_overhead_seconds": 0.004939500009641051,
+      "forecast_seconds_per_trajectory": 0.0019514269952196628
+    }
+  }
+}

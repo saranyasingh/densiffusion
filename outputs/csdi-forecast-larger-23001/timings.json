@@ -1,0 +1,20 @@
+{
+  "densifier_training_seconds": 72.60144641700026,
+  "methods": {
+    "densiffusion": {
+      "augmentation_and_forecaster_training_seconds": 100.5325955419994,
+      "total_training_seconds": 173.13404195899966,
+      "forecast_seconds": 21.90268804199968
+    },
+    "direct_csdi": {
+      "augmentation_and_forecaster_training_seconds": 70.21144583300065,
+      "total_training_seconds": 70.21144583300065,
+      "forecast_seconds": 13.49225445799948
+    },
+    "linear_densification": {
+      "augmentation_and_forecaster_training_seconds": 95.99574891700013,
+      "total_training_seconds": 95.99574891700013,
+      "forecast_seconds": 19.835210249999363
+    }
+  }
+}

@@ -1,0 +1,26 @@
+Fresh waveform imputation review
+
+Transfer_history (hidden entries only):
+  learned: crps=0.050077, seed SD=0.002170532722421146; mse=0.007445, seed SD=0.0004147858310018316; coverage_90=0.679688, seed SD=0.04990750340253481; interval_width_90=0.171662, seed SD=0.009421744700689592
+  linear: crps=0.032411, seed SD=0.0004242944802974699; mse=0.001658, seed SD=3.3996564648365734e-05; coverage_90=0.000000, seed SD=0.0; interval_width_90=0.000000, seed SD=0.0
+  seed_27101 learned-linear CRPS=+0.015352, 95% CI [+0.013977, +0.016765]
+  seed_27102 learned-linear CRPS=+0.017204, 95% CI [+0.015542, +0.018908]
+  seed_27103 learned-linear CRPS=+0.020443, 95% CI [+0.018855, +0.022105]
+
+Transfer_future (hidden entries only):
+  learned: crps=0.065359, seed SD=0.0030294105908296727; mse=0.012129, seed SD=0.0005820129698497721; coverage_90=0.580566, seed SD=0.04375228875849177; interval_width_90=0.167762, seed SD=0.013099924492243249
+  linear: crps=0.032877, seed SD=0.0003861267305287581; mse=0.001698, seed SD=2.9941851873486323e-05; coverage_90=0.000000, seed SD=0.0; interval_width_90=0.000000, seed SD=0.0
+  seed_27101 learned-linear CRPS=+0.029297, 95% CI [+0.026823, +0.031881]
+  seed_27102 learned-linear CRPS=+0.032150, 95% CI [+0.029393, +0.034991]
+  seed_27103 learned-linear CRPS=+0.036000, 95% CI [+0.033170, +0.038814]
+
+Bootstrap units are independent trajectories, conditional on models
+and saved ensembles; seed variation is described separately.
+Intervals are unadjusted across metrics/seeds/attempts. Finite-ensemble
+quantiles affect coverage; linear intervals have zero width.
+Repeated validation selection can be optimistic; this is no test claim.
+Transfer results do not enter the validation gate.
+All source observations and sample archives remain unchanged.
+Full scores and trajectories: imputation_analysis.json (validation)
+or transfer_analysis.json (transfer).
+Plots: imputation_plots/transfer_history_reconstructions.svg, imputation_plots/transfer_history_per_time.svg, imputation_plots/transfer_future_reconstructions.svg, imputation_plots/transfer_future_per_time.svg

@@ -1,0 +1,67 @@
+{
+  "input_dt": 0.2,
+  "output_dt": 0.1,
+  "n_observed": 17,
+  "n_hidden": 16,
+  "n_samples": 64,
+  "sampling_seed": 4103530075,
+  "observations_preserved": true,
+  "scores": {
+    "learned": {
+      "noisy_observations": {
+        "crps": 0.4264497986442005,
+        "mse": 0.5712303491640836,
+        "coverage_90": 0.8486328125,
+        "interval_width_90": 2.090173080419481
+      },
+      "noiseless_signal": {
+        "crps": 0.42630323372059076,
+        "mse": 0.5710569016127491,
+        "coverage_90": 0.847412109375,
+        "interval_width_90": 2.090173080419481
+      }
+    },
+    "linear": {
+      "noisy_observations": {
+        "crps": 0.10038129724075653,
+        "mse": 0.01612573099349547,
+        "coverage_90": 0.0,
+        "interval_width_90": 0.0
+      },
+      "noiseless_signal": {
+        "crps": 0.09897040891865663,
+        "mse": 0.01578912100554375,
+        "coverage_90": 0.0,
+        "interval_width_90": 0.0
+      }
+    }
+  },
+  "learned_minus_linear": {
+    "noisy_observations": {
+      "crps": 0.326068501403444,
+      "mse": 0.5551046181705881,
+      "coverage_90": 0.8486328125,
+      "interval_width_90": 2.090173080419481
+    },
+    "noiseless_signal": {
+      "crps": 0.32733282480193415,
+      "mse": 0.5552677806072054,
+      "coverage_90": 0.847412109375,
+      "interval_width_90": 2.090173080419481
+    }
+  },
+  "timings": {
+    "learned": {
+      "inference_seconds": 37.1404082919471,
+      "inference_seconds_per_trajectory": 0.14507971989041835
+    },
+    "linear": {
+      "inference_seconds": 0.0011428330326452851,
+      "inference_seconds_per_trajectory": 4.464191533770645e-06
+    }
+  },
+  "n_examples": 256,
+  "original_test_rng_reproduced_exactly": true,
+  "scores_recomputed_from_saved_samples": true,
+  "artifact_sha256": "6765b7f3c069acb9b37ebe7685e7cf40c3142378b7ea0139c5d44f0a25fa2b6d"
+}

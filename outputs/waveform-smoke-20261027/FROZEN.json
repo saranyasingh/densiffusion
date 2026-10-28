@@ -1,0 +1,11 @@
+{
+  "frozen_utc": "2026-10-27T14:37:58.092324+00:00",
+  "checkpoint_sha256": {
+    "seed_27999/densiffusion_forecaster.pt": "959df1ff1c89b7a8efea96218e1fe69e4b906fa339bad36ae3033f36c46da81f",
+    "seed_27999/densifier.pt": "fc03ea604cb74f1ac3f29033e57b8fe8505c6724f3db8004a67300b6d7ed3e21",
+    "seed_27999/direct_csdi_forecaster.pt": "da9a19a63698430d8244da805f5768af0c5ea43d25db23eefbcb484dc9447b52",
+    "seed_27999/linear_densification_forecaster.pt": "23f4e8fa255f8decc4a8449b88115acfeecfb97838d026b1092f71f9b7476483"
+  },
+  "config_sha256": "d07898f22a7bd99bab7fde69e8e18f3e697189080e6fe2bcc08e81615c0bc9ef",
+  "test_evaluated": false
+}
