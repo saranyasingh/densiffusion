@@ -256,24 +256,7 @@ def main() -> None:
         "bilinear": interpolate(test, args.factor, "linear"),
         "bicubic": interpolate(test, args.factor, "cubic"),
     }
-    scores = {}
-    for name, values in estimates.items():
-        pixels = to_pixels(values[:, 0], colours)
-        scores[name] = {
-            "crps": crps(values, target, mask=test_mask) / 2,
-            "psnr": psnr(pixels, truth),
-            "ssim": ssim(pixels, truth),
-        }
-    mean, single = (
-        to_pixels(draws.mean(axis=1), colours),
-        to_pixels(draws[:, 0], colours),
-    )
-    scores["csdi_mean"] = {
-        "crps": crps(draws, target, mask=test_mask) / 2,
-        "psnr": psnr(mean, truth),
-        "ssim": ssim(mean, truth),
-    }
-    scores["csdi_sample"] = {"psnr": psnr(single, truth), "ssim": ssim(single, truth)}
+    scores = score_methods(estimates, draws, target, test_mask, colours)
     results = {
         "scores": scores,
         "parameters": parameters,
@@ -308,9 +291,58 @@ def main() -> None:
         to_pixels(estimates["bicubic"][:, 0], colours),
         to_pixels(draws, colours),
     )
+    low_size = len(range(0, size, args.factor))
+    scores_table(
+        args.output / "table.png",
+        scores,
+        {
+            "bilinear": "Bilinear",
+            "bicubic": "Bicubic",
+            "csdi_mean": f"CSDI ×{args.factor}\n(mean of {args.n_samples})",
+            "csdi_sample": f"CSDI ×{args.factor}\n(single sample)",
+        },
+        title="CSDI super-resolution on cat photos",
+        subtitle=(
+            f"{data_config['dataset']}: {len(test)} test images, "
+            f"{low_size}×{low_size} → {size}×{size} RGB (×{args.factor})\n"
+            "CRPS on hidden pixels (= MAE for deterministic methods); "
+            "PSNR and SSIM on whole images"
+        ),
+    )
+
+
+def score_methods(estimates, draws, target, mask, colours) -> dict:
+    """Score deterministic estimates and CSDI draws in [0, 1] pixel units.
+
+    estimates maps names to (images, 1, rows, columns * colours) values in
+    [-1, 1]; draws holds (images, samples, ...) CSDI values; target is the
+    true layout. CRPS covers masked values; PSNR and SSIM whole images.
+    """
+    truth = to_pixels(target, colours)
+    scores = {}
+    for name, values in estimates.items():
+        pixels = to_pixels(values[:, 0], colours)
+        scores[name] = {
+            "crps": crps(values, target, mask=mask) / 2,
+            "psnr": psnr(pixels, truth),
+            "ssim": ssim(pixels, truth),
+        }
+    mean = to_pixels(draws.mean(axis=1), colours)
+    single = to_pixels(draws[:, 0], colours)
+    scores["csdi_mean"] = {
+        "crps": crps(draws, target, mask=mask) / 2,
+        "psnr": psnr(mean, truth),
+        "ssim": ssim(mean, truth),
+    }
+    scores["csdi_sample"] = {"psnr": psnr(single, truth), "ssim": ssim(single, truth)}
+    return scores
+
+
+def scores_table(path, scores, labels, *, title, subtitle) -> None:
+    """Draw CRPS, PSNR, and SSIM for the methods in labels, bolding each best."""
     from plot_forecast_table import draw_table
 
-    names = ["bilinear", "bicubic", "csdi_mean", "csdi_sample"]
+    names = list(labels)
     metrics = [
         ("crps", "{:.4f}", min),
         ("psnr", "{:.2f}", max),
@@ -320,36 +352,21 @@ def main() -> None:
     for column, (metric, _, best) in enumerate(metrics, start=1):
         ranked = [name for name in names if metric in scores[name]]
         bold.add((names.index(best(ranked, key=lambda n: scores[n][metric])), column))
-    low_size = len(range(0, size, args.factor))
     draw_table(
         [
-            [label]
+            [labels[name]]
             + [
                 form.format(scores[name][metric]) if metric in scores[name] else "—"
                 for metric, form, _ in metrics
             ]
-            for name, label in zip(
-                names,
-                (
-                    "Bilinear",
-                    "Bicubic",
-                    f"CSDI ×{args.factor}\n(mean of {args.n_samples})",
-                    f"CSDI ×{args.factor}\n(single sample)",
-                ),
-                strict=True,
-            )
+            for name in names
         ],
         ["Method", "CRPS ↓", "PSNR ↑", "SSIM ↑"],
         bold=bold,
         widths=[1, 1, 1],
-        title="CSDI super-resolution on cat photos",
-        subtitle=(
-            f"{data_config['dataset']}: {len(test)} test images, "
-            f"{low_size}×{low_size} → {size}×{size} RGB (×{args.factor})\n"
-            "CRPS on hidden pixels (= MAE for deterministic methods); "
-            "PSNR and SSIM on whole images"
-        ),
-        output=args.output / "table.png",
+        title=title,
+        subtitle=subtitle,
+        output=path,
     )
 
 
