@@ -1,9 +1,10 @@
 #!/bin/bash
-# Train and evaluate CSDI super-resolution on Oxford-IIIT Pet cats on one GPU.
+# Train and evaluate CSDI super-resolution on AFHQ-v2 cat faces on one GPU.
 #
-# One-time setup on a login node (needs internet; compute nodes often lack it):
+# One-time setup on a login node (needs internet; compute nodes often lack it).
+# The AFHQ-v2 download is about 7 GB and is cached in data/raw:
 #   uv sync --extra research
-#   uv run --with pillow python scripts/prepare_cats.py --output data/cats65.npz
+#   uv run --with pillow python scripts/prepare_cats.py --output data/afhq_cats65.npz
 #   uv run --extra research --with matplotlib python -c "import matplotlib, torch"
 #   mkdir -p logs
 #
@@ -22,8 +23,8 @@
 #SBATCH --mem=32G
 #SBATCH --time=08:00:00
 #SBATCH --output=logs/%x-%j.out
-##SBATCH --partition=gpu
-##SBATCH --account=your-account
+#SBATCH --partition=kempner_h100
+#SBATCH --account=kempner_undergrads
 
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:-.}"
@@ -33,7 +34,7 @@ export MPLCONFIGDIR="${TMPDIR:-/tmp}/matplotlib-${SLURM_JOB_ID:-local}"
 nvidia-smi || true
 
 uv run --extra research --with matplotlib python scripts/impute_cats_csdi.py \
-    --data data/cats65.npz \
+    --data data/afhq_cats65.npz \
     --output "outputs/cats_csdi_${SLURM_JOB_ID:-local}" \
     --device cuda \
     "$@"

@@ -97,7 +97,7 @@ def upscale(low, sampler, *, colours, n_samples, seed) -> np.ndarray:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--data", type=Path, default=Path("data/cats65.npz"))
+    parser.add_argument("--data", type=Path, default=Path("data/afhq_cats65.npz"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument(
         "--supervised", type=Path, help="results.json from impute_cats_csdi.py"

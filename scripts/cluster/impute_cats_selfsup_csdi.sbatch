@@ -1,8 +1,8 @@
 #!/bin/bash
-# Self-supervised CSDI super-resolution on Oxford-IIIT Pet cats on one GPU:
+# Self-supervised CSDI super-resolution on AFHQ-v2 cat faces on one GPU:
 # trains on 33x33 low-resolution images only, then upscales to 65x65.
 #
-# Uses the same one-time setup as impute_cats_csdi.sbatch (data/cats65.npz and
+# Uses the same one-time setup as impute_cats_csdi.sbatch (data/afhq_cats65.npz and
 # a logs/ directory). Submit from the repository root; extra arguments go to
 # impute_cats_selfsup_csdi.py, for example the supervised x2 results to compare:
 #   sbatch scripts/cluster/impute_cats_selfsup_csdi.sbatch
@@ -30,7 +30,7 @@ export MPLCONFIGDIR="${TMPDIR:-/tmp}/matplotlib-${SLURM_JOB_ID:-local}"
 nvidia-smi || true
 
 uv run --extra research --with matplotlib python scripts/impute_cats_selfsup_csdi.py \
-    --data data/cats65.npz \
+    --data data/afhq_cats65.npz \
     --output "outputs/cats_selfsup_${SLURM_JOB_ID:-local}" \
     --device cuda \
     "$@"

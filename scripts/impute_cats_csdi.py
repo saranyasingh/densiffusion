@@ -1,7 +1,7 @@
 """Super-resolve cat photos with CSDI and compare against classical upscaling.
 
     uv run --extra research --with matplotlib python scripts/impute_cats_csdi.py \
-        --data data/cats65.npz --output outputs/cats_csdi --device cuda
+        --data data/afhq_cats65.npz --output outputs/cats_csdi --device cuda
 
 Reads the uint8 RGB crops written by `prepare_cats.py`. `--factor 2` keeps
 every other row and column (33x33 -> 65x65 super-resolution, 3 of 4 pixels
@@ -135,7 +135,7 @@ def plot_examples(path, truth, low, bicubic, draws, n_examples=4) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--data", type=Path, default=Path("data/cats65.npz"))
+    parser.add_argument("--data", type=Path, default=Path("data/afhq_cats65.npz"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--factor", type=int, default=2)
     parser.add_argument("--no-flip", action="store_true", help="Skip mirrored copies")
