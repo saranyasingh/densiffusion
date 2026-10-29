@@ -1,0 +1,72 @@
+{
+  "scores": {
+    "bilinear": {
+      "crps": 0.03147156935690944,
+      "psnr": 27.079192339410724,
+      "ssim": 0.8740533451782323
+    },
+    "bicubic": {
+      "crps": 0.032788965093843284,
+      "psnr": 27.00231602626936,
+      "ssim": 0.8687834003438449
+    },
+    "csdi_mean": {
+      "crps": 0.022689211972281985,
+      "psnr": 27.635153088675334,
+      "ssim": 0.8806361162849295
+    },
+    "csdi_sample": {
+      "psnr": 25.888541683356564,
+      "ssim": 0.8396070389616282
+    }
+  },
+  "parameters": 416625,
+  "train_seconds": 7863.918205926195,
+  "sample_seconds": 237.28653872478753,
+  "data": {
+    "dataset": "Oxford-IIIT Pet (cats)",
+    "url": "https://thor.robots.ox.ac.uk/pets/images.tar.gz",
+    "size": 65,
+    "seed": 0
+  },
+  "args": {
+    "data": "data/cats65.npz",
+    "output": "outputs/cats_csdi_56194618",
+    "factor": "2",
+    "no_flip": "False",
+    "train_images": "None",
+    "test_images": "None",
+    "epochs": "200",
+    "batch_size": "32",
+    "learning_rate": "0.001",
+    "diffusion_steps": "50",
+    "beta_end": "0.5",
+    "hidden_channels": "64",
+    "residual_layers": "4",
+    "attention_heads": "8",
+    "n_samples": "10",
+    "sample_batch_size": "64",
+    "device": "cuda",
+    "seed": "0",
+    "no_plot": "False"
+  },
+  "training": {
+    "epochs": 200,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "diffusion_steps": 50,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "cuda",
+    "schedule": "quadratic",
+    "weight_decay": 0.0,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "sampled",
+    "validation_interval": 10
+  }
+}
