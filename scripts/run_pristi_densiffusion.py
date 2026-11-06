@@ -631,9 +631,9 @@ NAMES = {
     "gp": "Exact GP forecast (optimal)",
     "persistence": "Repeat last value",
     "sparse": "Sparse forecaster",
-    "learned_x2": "Densified x2",
-    "learned_x4": "Densified x4",
-    "learned_x8": "Densified x8",
+    "learned_x2": "Coarse-data x2",
+    "learned_x4": "Coarse-data x4",
+    "learned_x8": "Coarse-data x8",
     "interp_x8": "Interpolated x8",
     "fine_x2": "Fine-data x2",
     "fine_x8": "Fine-data x8",
@@ -909,26 +909,25 @@ def plot_sweep(plt, results, methods, output):
         ax.set_xlim(ratios.min() / 1.1, ratios.max() * 1.1)
         ax.set_xlabel("Period / coarse spacing (shaded: aliased)")
     ax = axes[0]
-    for method in ("persistence", "sparse", *densified):
-        values = [
-            r["forecast"][method]["crps"] / r["forecast"]["gp"]["crps"] for r in ordered
-        ]
-        ax.plot(
-            ratios,
-            values,
-            marker=MARKERS.get(method.split("_x")[0], "o"),
-            color=COLOURS[method],
-            linewidth=2,
-            ms=6,
-            mec=SURFACE,
-            mew=1,
-            label=NAMES[method],
+    ceiling, off_scale = 2.8, []
+    for method in ("sparse", *densified):
+        values = np.array(
+            [
+                r["forecast"][method]["crps"] / r["forecast"]["gp"]["crps"]
+                for r in ordered
+            ]
         )
+        style = {"color": COLOURS[method], "linewidth": 2, "label": NAMES[method]}
+        ax.plot(ratios, np.minimum(values, ceiling), **style)
+        off_scale += _clip_markers(ax, ratios, values, ceiling, method)
     ax.axhline(1, color=COLOURS["gp"], linewidth=2, label=NAMES["gp"])
+    ax.set_ylim(0.9, ceiling * 1.04)
+    _off_scale_note(ax, off_scale, ratios)
     ax.set_ylabel("Forecast CRPS / exact GP CRPS")
     ax.set_title("Forecast CRPS (lower is better; 1 = best possible)", loc="left")
     ax = axes[1]
     ax.axhline(0, color=AXIS, linewidth=1)
+    floor, off_scale = -1.0, []
     for index, method in enumerate(densified):
         offset = 1.025 ** (index - (len(densified) - 1) / 2)
         scale = np.array([r["forecast"]["gp"]["crps"] for r in ordered])
@@ -938,21 +937,14 @@ def plot_sweep(plt, results, methods, output):
         )
         ax.vlines(
             ratios * offset,
-            interval[:, 0] / scale,
-            interval[:, 1] / scale,
+            np.maximum(interval[:, 0] / scale, floor),
+            np.maximum(interval[:, 1] / scale, floor),
             color=COLOURS[method],
             linewidth=2,
         )
-        ax.plot(
-            ratios * offset,
-            gain / scale,
-            marker=MARKERS.get(method.split("_x")[0], "o"),
-            linestyle="none",
-            color=COLOURS[method],
-            ms=6,
-            mec=SURFACE,
-            mew=1,
-        )
+        off_scale += _clip_markers(ax, ratios * offset, gain / scale, floor, method)
+    ax.set_ylim(floor * 1.06, None)
+    _off_scale_note(ax, off_scale, ratios)
     ax.set_ylabel("CRPS gain over sparse / GP CRPS")
     ax.set_title(
         "Gain over the sparse forecaster (above 0 = better; 95% interval)", loc="left"
@@ -962,6 +954,46 @@ def plot_sweep(plt, results, methods, output):
     figure.tight_layout(rect=(0, 0.1, 1, 1))
     figure.savefig(output / "sweep.png", dpi=150, facecolor=SURFACE)
     plt.close(figure)
+
+
+def _clip_markers(ax, x, values, limit, method):
+    """Method markers, with arrows at the axis edge for points beyond limit.
+
+    Returns (method, x, value) for each clipped point.
+    """
+    beyond = values > limit if limit > 0 else values < limit
+    marker = MARKERS.get(method.split("_x")[0], "o")
+    style = {"color": COLOURS[method], "linestyle": "none", "mec": SURFACE, "mew": 1}
+    ax.plot(x[~beyond], values[~beyond], marker=marker, ms=6, **style)
+    ax.plot(
+        x[beyond],
+        np.full(beyond.sum(), limit),
+        marker="^" if limit > 0 else "v",
+        ms=8,
+        **style,
+    )
+    return [(method, a, b) for a, b in zip(x[beyond], values[beyond], strict=True)]
+
+
+def _off_scale_note(ax, clipped, ratios):
+    """List clipped values once, in the panel's corner."""
+    if not clipped:
+        return
+    nearest = [ratios[np.abs(np.log(ratios / a)).argmin()] for _, a, _ in clipped]
+    lines = [
+        f"{NAMES[method]}, P/dt = {ratio:g}: {value:.1f}"
+        for (method, _, value), ratio in zip(clipped, nearest, strict=True)
+    ]
+    ax.text(
+        0.99,
+        0.02 if clipped[0][2] < 0 else 0.98,
+        "Off scale (arrows):\n" + "\n".join(lines),
+        transform=ax.transAxes,
+        ha="right",
+        va="bottom" if clipped[0][2] < 0 else "top",
+        color=SECONDARY,
+        fontsize=7,
+    )
 
 
 def plot_scale_transfer(plt, results, output):

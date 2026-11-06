@@ -243,4 +243,78 @@ uv run --extra research --with matplotlib python \
 ```
 
 The report adds `sweep.png`: CRPS relative to the exact GP, and gain over the
-sparse forecaster, against P/dt.
+sparse forecaster, against P/dt. `scripts/plot_quasiperiodic_figures.py
+--output outputs/densiffusion_quasiperiodic` then draws example paths
+(`figure_tasks.png`), the four pipelines on one test window
+(`figure_setups.png`) and example forecasts (`figure_predictions.png`).
+
+Seven tasks in parallel, one thread each, take about 55 minutes on an M4 CPU.
+
+### Results
+
+Forecast CRPS relative to the exact GP forecast (1.00 is the best possible).
+"Coarse-data" is the coarse-only setting:
+
+| P/dt | Sparse | Coarse-data x2 | Coarse-data x8 | Interpolated x8 | Fine-data x2 | Fine-data x8 | Oracle x2 | Oracle x8 |
+|---|---|---|---|---|---|---|---|---|
+| 1.6 | 1.688 | 1.479 | 2.017 | 1.291 | 1.330 | 1.284 | 1.312 | **1.221** |
+| 2.5 | 1.778 | 1.584 | 2.694 | 1.483 | 1.256 | 1.404 | **1.230** | 1.324 |
+| 3 | 1.442 | 2.284 | 2.388 | 1.464 | 1.254 | 1.352 | **1.221** | 1.294 |
+| 4 | 1.370 | 3.258 | 4.381 | 1.423 | 1.258 | 1.359 | **1.207** | 1.276 |
+| 6 | **1.440** | 1.486 | 1.660 | 1.815 | 1.446 | 1.869 | 1.458 | 1.855 |
+| 8 | **1.585** | 1.672 | 1.988 | 2.118 | 1.655 | 2.028 | 1.670 | 2.052 |
+| 16 | 1.585 | 1.720 | 1.908 | 1.879 | 1.768 | 1.957 | 1.785 | 1.938 |
+
+Which methods beat the sparse forecaster (95% bootstrap intervals over test
+paths; full intervals are in the report's `results.md`):
+
+| P/dt | Significantly better than sparse | Significantly worse |
+|---|---|---|
+| 1.6 | coarse-data x2, interpolated, fine-data x2 and x8, oracle x2 and x8 | coarse-data x8 |
+| 2.5 | coarse-data x2, interpolated, fine-data x2 and x8, oracle x2 and x8 | coarse-data x8 |
+| 3 | fine-data x2 and x8, oracle x2 and x8 | coarse-data x2 and x8 |
+| 4 | fine-data x2, oracle x2 and x8 | coarse-data x2 and x8 |
+| 6 | none | all x8 methods |
+| 8 | none | all x8 methods |
+| 16 | none | fine-data x2, oracle x2, all x8 methods |
+
+Densified history CRPS relative to the exact GP given the coarse history, at
+x8: fine-data imputers 1.4-2.4x; coarse-trained imputer 2.1x at P/dt = 16,
+7-24x at 1.6, 2.5, 6 and 8, and 46-237x at 3 and 4. Linear interpolation is
+3.2-23x.
+
+### Findings
+
+- **With fine training data, densification helps where predicted.** For P/dt
+  from 2.5 to 4, fine-data x2 cuts the sparse forecaster's excess CRPS over the
+  exact GP by 30-67% (for example 1.778 to 1.256 at P/dt = 2.5). At the same
+  factor, fine-data x8 beats interpolated x8 by 0.06-0.11 of the GP's CRPS,
+  so the gain is not just from presenting a smoother input.
+- **The learned densifier is not the bottleneck.** Fine-data forecasts are
+  within 0.05 of the oracle's at x2, although the fine-data histories score
+  1.4-2.4x the exact GP.
+- **Below the Nyquist limit (P/dt = 1.6), fine training data still helps**,
+  because it shows the true frequency. But interpolation does about as well
+  there, so most of that gain is not from densification.
+- **Once the wave is resolved (P/dt >= 6), densifying does not help.** x2 is
+  neutral or slightly worse, and x8 is significantly worse for every
+  densifier, including the oracle.
+- **Coarse-only densification fails exactly where it would matter.** At
+  P/dt = 3-4 the coarse-trained imputer's histories are 46-237x worse than the
+  exact GP and the forecasts' CRPS is 1.6-3.2x the sparse forecaster's. The imputer is
+  trained at 2dt -> dt, where the inputs are aliased, and then applied at
+  finer, differently shaped scales. Its small gains at P/dt = 1.6 and 2.5
+  (x2) are matched or beaten by interpolation.
+- **x2 beats x8** for every densifier except at P/dt = 1.6. As in section 2, the x8 forecaster's
+  97-point windows cost more than the finer resolution gains.
+
+### Caveats
+
+- The fine-data forecaster also trains on true fine futures, which the sparse
+  one never sees. The gain could come from those richer training targets
+  rather than from densified test histories. A fine-data forecaster tested on
+  interpolated histories would separate the two; it has not been run.
+- Every neural forecaster is far from the exact GP (1.2x at best, sparse
+  1.4-1.8x), so all are undertrained or too small. One seed, 128 test windows.
+- Per-window normalisation removes the absolute level, which the exact GP
+  forecast uses for this stationary process.
