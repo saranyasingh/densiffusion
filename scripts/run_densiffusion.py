@@ -221,6 +221,11 @@ def main():
     parser.add_argument(
         "--device", default="cpu", help="Torch device, e.g. mps for the Apple GPU"
     )
+    parser.add_argument(
+        "--train-device",
+        help="Device for training if not --device; SSSD training on mps can "
+        "produce non-finite gradients, so train it on cpu and sample on mps",
+    )
     parser.add_argument("--seed", type=int, default=42)
     reuse = parser.add_mutually_exclusive_group()
     reuse.add_argument("--rescore", action="store_true", help="Reuse checkpoints")
@@ -288,6 +293,7 @@ def run_task(args):
     label, dt, gp = TASKS[task]
     folder = args.output / task
     reuse = args.rescore or args.extend
+    train_device = args.train_device or args.device
     folder.mkdir(parents=True, exist_ok=reuse)
     previous = folder / "results.json"
     previous = json.loads(previous.read_text()) if reuse else {}
@@ -332,6 +338,7 @@ def run_task(args):
             train()
         finally:
             logger.removeHandler(log)
+        model.to(args.device)
         return log.records
 
     windows = {
@@ -351,7 +358,7 @@ def run_task(args):
         epochs = dict(previous["epochs"])
         methods_fine = "densified_fine" in stored
     else:
-        imputer_config = config(args.imputer_epochs, args.device)
+        imputer_config = config(args.imputer_epochs, train_device)
         sampler = sampling_config(imputer_config)
         torch.manual_seed(args.seed)
         imputer = small_model(args.model)
@@ -373,6 +380,7 @@ def run_task(args):
         results = {"task": task, "label": label, "dt": dt, "gp": gp}
         results["model"] = args.model
         results["device"] = args.device
+        results["train_device"] = train_device
         results["methods"] = methods
         results["imputer_strides"] = strides
         results["scale_transfer"] = scale_transfer(
@@ -522,7 +530,7 @@ def run_task(args):
             1,
         )
 
-    forecaster_config = config(args.forecaster_epochs, args.device)
+    forecaster_config = config(args.forecaster_epochs, train_device)
     forecaster_sampler = sampling_config(forecaster_config)
     # FINE times the windows: train for the same number of updates as sparse.
     shifted_config = dataclasses.replace(
