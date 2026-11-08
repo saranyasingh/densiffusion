@@ -135,10 +135,11 @@ QUASI_METHODS = (
     "interp_x2",
     "fineinterp_x2",
     "sparse_shifted",
+    "joint_x2",
 )
 # Added after the first sweep; each draws its own seed (method_seed), so the
 # earlier methods' samples are unchanged and --extend matches a fresh run.
-ADDED_METHODS = ("interp_x2", "fineinterp_x2", "sparse_shifted")
+ADDED_METHODS = ("interp_x2", "fineinterp_x2", "sparse_shifted", "joint_x2")
 LEVELS_TESTED = (-2, -1, 0, 1, 2, 3)
 
 
@@ -502,6 +503,15 @@ def run_task(args):
                 dense.reshape(-1, dense.shape[-1]),
                 HISTORIES,
             )
+        if kind == "joint":
+            return (
+                name,
+                factor,
+                train_truth[:, :: FINE // factor],
+                validation_truth[:, :: FINE // factor],
+                test_history,
+                1,
+            )
         if kind == "fineinterp":
             return (
                 f"truefine_x{factor}",
@@ -560,6 +570,7 @@ def run_task(args):
                     factor=factor,
                     seed=args.seed,
                     checkpoint=folder / f"{key}.pt",
+                    joint=key.startswith("joint"),
                 ),
             )
             if not (args.extend and key in epochs):
@@ -574,6 +585,7 @@ def run_task(args):
             factor=factor,
             n_samples=draws,
             seed=method_seed(args.seed, name) if name in ADDED_METHODS else seed(),
+            joint=key.startswith("joint"),
         )
         samples[name] = predicted.reshape(len(test_windows), DRAWS, HORIZON)
         lap(f"forecaster {name}")
@@ -763,6 +775,7 @@ COLOURS = {
     "interp_x2": "#8fd9b6",
     "fineinterp_x2": "#a3245a",
     "sparse_shifted": "#8a5d00",
+    "joint_x2": "#0d7a8a",
     "model": "#2a78d6",
     "interpolation": "#1baf7a",
 }
@@ -781,6 +794,7 @@ NAMES = {
     "interp_x2": "Interpolated x2",
     "fineinterp_x2": "Fine-data x2, interpolated history",
     "sparse_shifted": "Sparse, all phase shifts",
+    "joint_x2": "Fine-data joint x2",
 }
 MARKERS = {
     "learned": "o",
@@ -789,6 +803,7 @@ MARKERS = {
     "interp": "D",
     "fineinterp": "v",
     "sparse_shifted": "P",
+    "joint": "X",
 }
 
 
@@ -1443,6 +1458,11 @@ CONTROLS = (
         "sparse_shifted",
         "Fine-data x2 beats a sparse forecaster trained on the fine paths at "
         "every coarse phase (densifying beats using fine data directly)",
+    ),
+    (
+        "joint_x2",
+        "Fine-data x2 (separate imputer and forecaster) beats one model that "
+        "fills in the history and forecasts together",
     ),
 )
 
