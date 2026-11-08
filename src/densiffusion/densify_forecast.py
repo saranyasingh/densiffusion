@@ -105,12 +105,21 @@ def small_model(name: str, **sizes) -> ImputationModel:
     return SMALL_MODELS[name](**sizes)
 
 
+# Smallest normalisation scale. 0 keeps every window's own scale; data with
+# flat stretches, such as night-time solar radiation, need a floor in data
+# units so that a flat history does not blow up the rest of its window.
+SCALE_FLOOR = 0.0
+
+
 def window_scale(values: np.ndarray, reference: np.ndarray):
-    """Mean and RMS increment of each row over the reference positions."""
+    """Mean and RMS increment of each row over the reference positions.
+
+    The scale is at least SCALE_FLOOR, and 1 for constant rows without a floor.
+    """
     points = values[:, reference]
     location = points.mean(axis=1)
     scale = np.sqrt((np.diff(points, axis=1) ** 2).mean(axis=1))
-    return location, np.where(scale > 1e-12, scale, 1.0)
+    return location, np.maximum(np.where(scale > 1e-12, scale, 1.0), SCALE_FLOOR)
 
 
 def normalise(values: np.ndarray, reference: np.ndarray) -> np.ndarray:

@@ -170,3 +170,13 @@ def test_every_small_model_trains_refines_and_forecasts(name):
 def test_small_model_rejects_unknown_names():
     with pytest.raises(ValueError, match="Unknown model"):
         small_model("unet")
+
+
+def test_scale_floor_bounds_small_scales(monkeypatch):
+    from densiffusion import densify_forecast
+
+    values = np.array([[0.0, 0.1, 0.0, 0.1], [0.0, 50.0, 0.0, 50.0]])
+    reference = np.ones(4, dtype=bool)
+    assert window_scale(values, reference)[1][0] == pytest.approx(0.1)
+    monkeypatch.setattr(densify_forecast, "SCALE_FLOOR", 20.0)
+    np.testing.assert_allclose(window_scale(values, reference)[1], [20.0, 50.0])

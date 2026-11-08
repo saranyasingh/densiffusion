@@ -1,0 +1,64 @@
+# Jena solar radiation: does the quasi-periodic result carry over?
+
+The quasi-periodic sweep (section 3 of
+[pristi_experiments.md](pristi_experiments.md)) used synthetic GP paths. This
+experiment repeats it on measured data: shortwave downward radiation (SWDR,
+W/m^2) from the Max Planck Institute for Biogeochemistry's rooftop weather
+station in Jena, recorded every 10 minutes since late 2003. The data are
+published under CC-BY-4.0 at
+<https://www.bgc-jena.mpg.de/wetter/weather_data.html>.
+
+Solar radiation has a fixed period, P = 24 h, so the coarse spacing dt sets
+P/dt as in the synthetic sweep. Unlike the synthetic wave, it is zero at
+night and peaks sharply by day, and clouds add irregular dips.
+
+## Setup
+
+- **Data:** `scripts/prepare_jena.py` downloads the station's files and puts
+  SWDR on a regular 10-minute grid (0.16% missing). Years 2004-2018 are for
+  training, 2019-2020 for validation and 2021-2024 for testing.
+- **Sweep:** dt in {880, 560, 480, 400, 240, 160, 80} minutes, i.e. P/dt in
+  {1.64, 2.57, 3, 3.6, 6, 9, 18}. Each dt is a multiple of 80 minutes, so the
+  x8 fine grid lies on the measurements.
+- **Paths:** 256 / 32 / 64 train / validation / test paths of 33 coarse
+  points, evenly spaced in time within each split, skipping any with missing
+  values. Windows (9 history and 4 future coarse points), model sizes,
+  training schedule and 100 draws per window match the synthetic sweep.
+- **Normalisation:** as in the synthetic sweep, but with the window scale
+  floored at 20 W/m^2 (about 2% of peak radiation). At dt = 80 minutes, 15% of
+  histories fall entirely at night, and without a floor their near-zero scale
+  would inflate the rest of the window by up to 2,000 times.
+- **Methods:** sparse, sparse with all phase shifts, coarse-data x2 and x8,
+  interpolated x2 and x8, fine-data x2 and x8, fine-data x2 with interpolated
+  history, and repeating the last value, all defined as in the synthetic
+  sweep.
+- **Oracle:** there is no exact GP, so the oracle gives the fine-data
+  forecaster the true fine history (one history, 100 futures).
+- **Scores:** CRPS relative to the sparse forecaster, with 95% bootstrap
+  intervals over test paths for the gain over sparse.
+
+```sh
+uv run python scripts/prepare_jena.py
+for task in jena_1.64 jena_2.57 jena_3 jena_3.6 jena_6 jena_9 jena_18; do
+    uv run --extra research python scripts/run_jena.py run --model pristi \
+        --device mps --task $task --output outputs/jena/pristi --threads 1 &
+done; wait
+uv run --extra research --with matplotlib python scripts/run_jena.py report \
+    --output outputs/jena/pristi
+```
+
+## Differences from the synthetic sweep
+
+- **No best-possible reference:** without an exact GP, there is no "1.00 =
+  perfect" line, and the oracle uses the true history instead of posterior
+  draws.
+- **Phase is locked to the clock:** at integer P/dt (3, 6, 9, 18) the coarse
+  points fall at the same times of day every day. The synthetic wave's phase
+  drifted.
+- **Time of day is a strong signal the models do not see:** windows carry no
+  timestamps. A forecaster given the time of day, or a physical clear-sky
+  model, would be a fairer real-world baseline and has not been run.
+
+## Results
+
+Pending: the PriSTI sweep is running.
