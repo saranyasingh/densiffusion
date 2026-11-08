@@ -141,7 +141,7 @@ checkpoints:
 
 - `scripts/plot_pristi_uncertainty.py`: each model's 90% interval at the
   filled-in points and over the forecast, against the exact GP's.
-- `scripts/run_pristi_densiffusion.py report`: result tables and summary
+- `scripts/run_densiffusion.py report`: result tables and summary
   plots, including `sweep.png` for Experiment 3.
 - `scripts/plot_quasiperiodic_figures.py`: example paths, the four pipelines
   on one test window, and example forecasts.

@@ -59,9 +59,11 @@ model = ImputationModel(PriSTIDenoiser(), encoder=PriSTIEncoder(channels=1))
 config = TrainingConfig(diffusion_steps=50, beta_end=0.2, schedule="quadratic")
 ```
 
-`architectures/pristi_densiffusion.py` adds a PriSTI-specific densify-and-forecast
-pipeline; `docs/pristi_experiments.md` describes the imputation and forecasting
-experiments and their results.
+`densify_forecast.py` adds a densify-and-forecast pipeline that works with
+any of the four denoisers (`small_model` builds each at about 45k parameters);
+`docs/pristi_experiments.md` describes the imputation and forecasting
+experiments and their results, and `docs/quasiperiodic_models.md` repeats the
+quasi-periodic sweep for every model.
 For a concrete conditional noise predictor, use
 `ImputationModel(CSDIDenoiser(n_channels=1))` from
 `densiffusion.architectures.csdi`, with `noise_mse` and `DDPMSampler`.

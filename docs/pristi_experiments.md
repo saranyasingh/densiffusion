@@ -68,9 +68,10 @@ predictive standard deviation divided by the exact posterior's.
 
 ## 2. Densified vs sparse forecasting
 
-`src/densiffusion/architectures/pristi_densiffusion.py` provides the pipeline
-and `scripts/run_pristi_densiffusion.py` the benchmark. It stays PriSTI-specific;
-the shared `Forecaster` interfaces remain stubs.
+`src/densiffusion/densify_forecast.py` provides the pipeline and
+`scripts/run_densiffusion.py` the benchmark, with `--model pristi` (the
+default). The shared `Forecaster` interfaces remain stubs. Section 3 is
+repeated for CSDI, SSSD and TimeAutoDiff in `docs/quasiperiodic_models.md`.
 
 ### Setup
 
@@ -106,11 +107,11 @@ the shared `Forecaster` interfaces remain stubs.
 
 ```sh
 for task in brownian fbm_h0.7 fbm_h0.3 matern52; do
-    uv run --extra research python scripts/run_pristi_densiffusion.py run \
+    uv run --extra research python scripts/run_densiffusion.py run \
         --task $task --output outputs/densiffusion --threads 2 &
 done; wait
 uv run --extra research --with matplotlib python \
-    scripts/run_pristi_densiffusion.py report --output outputs/densiffusion
+    scripts/run_densiffusion.py report --output outputs/densiffusion
 ```
 
 Four tasks in parallel take about 21 minutes on an M4 CPU at the original 16
@@ -253,11 +254,11 @@ coarse data, as section 2 did to teach several scales, would alias the wave.
 
 ```sh
 for task in qp_1.6 qp_2.5 qp_3 qp_4 qp_6 qp_8 qp_16; do
-    uv run --extra research python scripts/run_pristi_densiffusion.py run \
+    uv run --extra research python scripts/run_densiffusion.py run \
         --task $task --output outputs/densiffusion_quasiperiodic --threads 1 &
 done; wait
 uv run --extra research --with matplotlib python \
-    scripts/run_pristi_densiffusion.py report \
+    scripts/run_densiffusion.py report \
     --output outputs/densiffusion_quasiperiodic
 ```
 

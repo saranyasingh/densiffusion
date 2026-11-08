@@ -1,4 +1,8 @@
-"""Benchmark densified vs sparse PriSTI forecasting on GP paths.
+"""Benchmark densified vs sparse diffusion forecasting on GP paths.
+
+`--model` picks the network used for every imputer and forecaster: PriSTI,
+CSDI, SSSD or TimeAutoDiff, each at about 45k parameters (see
+densiffusion.densify_forecast). Everything else is identical across models.
 
 For each task, fine ground-truth paths are generated at spacing dt / 8 and
 observed every 8th point (spacing dt). Everything is trained on the coarse
@@ -25,12 +29,19 @@ spacing and compare two data settings (see docs/pristi_experiments.md):
 
 "Oracle" forecasters share the fine-data forecaster but densify test histories
 with the exact GP posterior: the best any densifier could do. Report each group
-of tasks into its own output folder. Run one task per process, then combine:
+of tasks and each model into its own output folder. Run one task per process,
+then combine:
 
-    uv run --extra research python scripts/run_pristi_densiffusion.py run \
-        --task brownian --output outputs/densiffusion
+    uv run --extra research python scripts/run_densiffusion.py run \
+        --model csdi --task qp_2.5 --output outputs/quasiperiodic/csdi
     uv run --extra research --with matplotlib python \
-        scripts/run_pristi_densiffusion.py report --output outputs/densiffusion
+        scripts/run_densiffusion.py report --output outputs/quasiperiodic/csdi
+
+`compare` reads one such folder per model under --output and writes a
+cross-model table, the checks of each quasi-periodic finding and a plot:
+
+    uv run --extra research --with matplotlib python \
+        scripts/run_densiffusion.py compare --output outputs/quasiperiodic
 """
 
 import argparse
@@ -43,8 +54,11 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from densiffusion.architectures.pristi_densiffusion import (
+from densiffusion.baselines import GPPosteriorSampler
+from densiffusion.densify_forecast import (
     CHUNK,
+    MODEL_LABELS,
+    SMALL_MODELS,
     densify,
     forecast,
     forecast_layout,
@@ -52,11 +66,10 @@ from densiffusion.architectures.pristi_densiffusion import (
     interpolate,
     refine,
     sampling_config,
-    small_pristi,
+    small_model,
     train_forecaster,
     train_imputer,
 )
-from densiffusion.baselines import GPPosteriorSampler
 from densiffusion.gp.kernels import matern_3_2
 from densiffusion.gp.posterior import gp_posterior
 from densiffusion.gp.sampling import sample_gp
@@ -158,8 +171,16 @@ def level_windows(paths, level, rng):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("mode", choices=("run", "report"))
+    parser.add_argument("mode", choices=("run", "report", "compare"))
     parser.add_argument("--task", choices=list(TASKS))
+    parser.add_argument("--model", choices=list(SMALL_MODELS), default="pristi")
+    parser.add_argument(
+        "--models",
+        nargs="+",
+        choices=list(SMALL_MODELS),
+        default=list(SMALL_MODELS),
+        help="Models to compare; each is read from --output/<model>",
+    )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--train-paths", type=int, default=256)
     parser.add_argument("--validation-paths", type=int, default=32)
@@ -167,6 +188,9 @@ def main():
     parser.add_argument("--imputer-epochs", type=int, default=60)
     parser.add_argument("--forecaster-epochs", type=int, default=150)
     parser.add_argument("--threads", type=int, default=2)
+    parser.add_argument(
+        "--device", default="cpu", help="Torch device, e.g. mps for the Apple GPU"
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--rescore", action="store_true", help="Reuse checkpoints")
     args = parser.parse_args()
@@ -174,11 +198,13 @@ def main():
         torch.set_num_threads(args.threads)
         logging.basicConfig(level=logging.INFO, format="%(message)s")
         run_task(args)
-    else:
+    elif args.mode == "report":
         report(args)
+    else:
+        compare(args)
 
 
-def config(epochs):
+def config(epochs, device="cpu"):
     return TrainingConfig(
         epochs=epochs,
         batch_size=64,
@@ -190,7 +216,7 @@ def config(epochs):
         lr_decay_fractions=(0.75, 0.9),
         validation_steps="all",
         validation_interval=10,
-        device="cpu",
+        device=device,
     )
 
 
@@ -260,7 +286,7 @@ def run_task(args):
         if args.rescore:
             state = torch.load(checkpoint, map_location="cpu", weights_only=True)
             model.load_state_dict(state["model_state_dict"])
-            model.eval()
+            model.to(args.device).eval()
             return None
         log = _EpochLog()
         logger.addHandler(log)
@@ -270,10 +296,10 @@ def run_task(args):
             logger.removeHandler(log)
         return log.records
 
-    imputer_config = config(args.imputer_epochs)
+    imputer_config = config(args.imputer_epochs, args.device)
     sampler = sampling_config(imputer_config)
     torch.manual_seed(args.seed)
-    imputer = small_pristi()
+    imputer = small_model(args.model)
     strides = imputer_strides(gp)
     imputer_epochs = fit(
         imputer,
@@ -291,6 +317,8 @@ def run_task(args):
 
     methods = task_methods(gp)
     results = {"task": task, "label": label, "dt": dt, "gp": gp}
+    results["model"] = args.model
+    results["device"] = args.device
     results["methods"] = methods
     results["imputer_strides"] = strides
     results["scale_transfer"] = scale_transfer(
@@ -331,7 +359,7 @@ def run_task(args):
             pick = np.random.default_rng(args.seed + level)
             checkpoint = folder / f"imputer_fine_level{level}.pt"
             torch.manual_seed(args.seed)
-            model = small_pristi()
+            model = small_model(args.model)
             epochs_fine = fit(
                 model,
                 checkpoint,
@@ -413,7 +441,7 @@ def run_task(args):
             1,
         )
 
-    forecaster_config = config(args.forecaster_epochs)
+    forecaster_config = config(args.forecaster_epochs, args.device)
     forecaster_sampler = sampling_config(forecaster_config)
     epochs = {"imputer": imputer_epochs}
     forecasters = {}
@@ -423,7 +451,7 @@ def run_task(args):
         key, factor, train, validation, histories, per_window = variant(name)
         if key not in forecasters:
             torch.manual_seed(args.seed)
-            forecasters[key] = small_pristi()
+            forecasters[key] = small_model(args.model)
             epochs[key] = fit(
                 forecasters[key],
                 folder / f"{key}.pt",
@@ -490,7 +518,7 @@ def scale_transfer(imputer, sampler, fine_test, gp_sampler, seed):
         window_times = np.broadcast_to(
             times[start : start + span + 1 : stride], truth.shape
         )
-        pristi = refine(imputer, sampler, truth[:, ::2], n_samples=DRAWS, seed=seed())
+        learned = refine(imputer, sampler, truth[:, ::2], n_samples=DRAWS, seed=seed())
         exact = impute(
             truth[..., None],
             gp_sampler,
@@ -504,7 +532,7 @@ def scale_transfer(imputer, sampler, fine_test, gp_sampler, seed):
         midpoint = (truth[:, :-1:2] + truth[:, 2::2]) / 2
         rows[str(level)] = {
             "trained_scale": level <= 0,
-            "pristi": float(ensemble_crps(pristi[:, :, 1::2], truth[:, 1::2]).mean()),
+            "model": float(ensemble_crps(learned[:, :, 1::2], truth[:, 1::2]).mean()),
             "gp": float(ensemble_crps(exact[:, :, 1::2], truth[:, 1::2]).mean()),
             "interpolation": float(np.abs(midpoint - truth[:, 1::2]).mean()),
         }
@@ -540,7 +568,7 @@ def history_quality(dense_test, exact_test, history, truth):
         new = np.arange(length) % factor != 0
         interpolated = interpolate(history, factor)
         rows[f"x{factor}"] = {
-            "pristi": float(
+            "model": float(
                 ensemble_crps(densified[:, :, new], fine_truth[:, new]).mean()
             ),
             "gp": float(ensemble_crps(exact[:, :, new], fine_truth[:, new]).mean()),
@@ -626,7 +654,7 @@ COLOURS = {
     "fine_x8": "#e87ba4",
     "oracle_x2": "#9085e9",
     "oracle_x8": "#6250d6",
-    "pristi": "#2a78d6",
+    "model": "#2a78d6",
     "interpolation": "#1baf7a",
 }
 NAMES = {
@@ -663,20 +691,34 @@ def report(args):
     if len(methods) > 1:
         raise ValueError("Report tasks with different methods into separate folders")
     methods = methods.pop()
-    write_tables(results, methods, args.output)
+    model = _model_label(results)
+    write_tables(results, methods, args.output, model)
     plot_forecast_crps(plt, results, methods, args.output)
     plot_gains(plt, results, methods, args.output)
     plot_by_lead(plt, results, methods, args.output)
     if all("period" in result["gp"] for result in results.values()):
         plot_sweep(plt, results, methods, args.output)
-    plot_scale_transfer(plt, results, args.output)
+    plot_scale_transfer(plt, results, args.output, model)
     plot_examples(plt, results, args.output)
     print(f"Report written to {args.output}")
 
 
-def write_tables(results, methods, output):
+def _model_label(results):
+    """Display name of the one model behind a folder of task results."""
+    models = {result.get("model", "pristi") for result in results.values()}
+    if len(models) > 1:
+        raise ValueError("Report each model's results into a separate folder")
+    return MODEL_LABELS[models.pop()]
+
+
+def _learned(row):
+    """The model's score in a diagnostic row (older PriSTI results: "pristi")."""
+    return row["model"] if "model" in row else row["pristi"]
+
+
+def write_tables(results, methods, output, model="PriSTI"):
     lines = [
-        "# Densified vs sparse PriSTI forecasting",
+        f"# Densified vs sparse {model} forecasting",
         "",
         f"Coarse spacing dt, x{FINE} ground truth; {HISTORY} history and {HORIZON} "
         f"future coarse points; {DRAWS} draws per window "
@@ -732,7 +774,7 @@ def write_tables(results, methods, output):
         "## Imputer scale transfer: one-step CRPS relative to the exact GP",
         "",
         "Spacing of the refined grid relative to dt; the imputer was trained only "
-        "at the listed strides of dt. PriSTI / interpolation ratios.",
+        f"at the listed strides of dt. {model} / interpolation ratios.",
         "",
         "| Task | Strides | "
         + " | ".join(_spacing(level) for level in LEVELS_TESTED)
@@ -742,7 +784,7 @@ def write_tables(results, methods, output):
     for result in results.values():
         rows = result["scale_transfer"]
         cells = [
-            f"{rows[str(level)]['pristi'] / rows[str(level)]['gp']:.2f} / "
+            f"{_learned(rows[str(level)]) / rows[str(level)]['gp']:.2f} / "
             f"{rows[str(level)]['interpolation'] / rows[str(level)]['gp']:.2f}"
             for level in LEVELS_TESTED
         ]
@@ -754,7 +796,7 @@ def write_tables(results, methods, output):
         "coarse history",
         "",
         f"{HISTORIES} densified draws per window, scored with the fair ensemble "
-        "CRPS, which is unbiased for any number of draws. PriSTI / interpolation "
+        f"CRPS, which is unbiased for any number of draws. {model} / interpolation "
         "ratios; fine-data rows use the per-level imputers trained on fine paths.",
         "",
         "| Task | Imputer | x2 | x4 | x8 |",
@@ -769,7 +811,7 @@ def write_tables(results, methods, output):
                 continue
             rows = result[key]
             cells = [
-                f"{rows[k]['pristi'] / rows[k]['gp']:.2f} / "
+                f"{_learned(rows[k]) / rows[k]['gp']:.2f} / "
                 f"{rows[k]['interpolation'] / rows[k]['gp']:.2f}"
                 for k in ("x2", "x4", "x8")
             ]
@@ -899,18 +941,36 @@ def plot_by_lead(plt, results, methods, output):
 
 def plot_sweep(plt, results, methods, output):
     """CRPS ratio and gain over sparse against the period-to-spacing ratio."""
-    ordered = sorted(results.values(), key=lambda r: r["gp"]["period"] / r["dt"])
-    ratios = np.array([r["gp"]["period"] / r["dt"] for r in ordered])
-    densified = [m for m in methods if "_x" in m]
+    ordered = sorted(results.values(), key=_period_ratio)
     figure, axes = plt.subplots(1, 2, figsize=(12, 4.4))
-    for ax in axes:
+    _sweep_axes(axes[0], axes[1], ordered, [m for m in methods if "_x" in m])
+    axes[0].set_ylabel("Forecast CRPS / exact GP CRPS")
+    axes[0].set_title("Forecast CRPS (lower is better; 1 = best possible)", loc="left")
+    axes[1].set_ylabel("CRPS gain over sparse / GP CRPS")
+    axes[1].set_title(
+        "Gain over the sparse forecaster (above 0 = better; 95% interval)", loc="left"
+    )
+    handles, labels = axes[0].get_legend_handles_labels()
+    figure.legend(handles, labels, loc="lower center", ncols=5, frameon=False)
+    figure.tight_layout(rect=(0, 0.1, 1, 1))
+    figure.savefig(output / "sweep.png", dpi=150, facecolor=SURFACE)
+    plt.close(figure)
+
+
+def _period_ratio(result):
+    return result["gp"]["period"] / result["dt"]
+
+
+def _sweep_axes(crps_ax, gain_ax, ordered, densified):
+    """Draw one model's CRPS ratio and gain over sparse against P/dt."""
+    ratios = np.array([_period_ratio(r) for r in ordered])
+    for ax in (crps_ax, gain_ax):
         ax.axvspan(ratios.min() / 1.1, 2, color=GRID, alpha=0.6, linewidth=0)
         ax.set_xscale("log")
         ax.set_xticks(ratios, [f"{r:g}" for r in ratios])
         ax.minorticks_off()
         ax.set_xlim(ratios.min() / 1.1, ratios.max() * 1.1)
         ax.set_xlabel("Period / coarse spacing (shaded: aliased)")
-    ax = axes[0]
     ceiling, off_scale = 2.8, []
     for method in ("sparse", *densified):
         values = np.array(
@@ -920,15 +980,12 @@ def plot_sweep(plt, results, methods, output):
             ]
         )
         style = {"color": COLOURS[method], "linewidth": 2, "label": NAMES[method]}
-        ax.plot(ratios, np.minimum(values, ceiling), **style)
-        off_scale += _clip_markers(ax, ratios, values, ceiling, method)
-    ax.axhline(1, color=COLOURS["gp"], linewidth=2, label=NAMES["gp"])
-    ax.set_ylim(0.9, ceiling * 1.04)
-    _off_scale_note(ax, off_scale, ratios)
-    ax.set_ylabel("Forecast CRPS / exact GP CRPS")
-    ax.set_title("Forecast CRPS (lower is better; 1 = best possible)", loc="left")
-    ax = axes[1]
-    ax.axhline(0, color=AXIS, linewidth=1)
+        crps_ax.plot(ratios, np.minimum(values, ceiling), **style)
+        off_scale += _clip_markers(crps_ax, ratios, values, ceiling, method)
+    crps_ax.axhline(1, color=COLOURS["gp"], linewidth=2, label=NAMES["gp"])
+    crps_ax.set_ylim(0.9, ceiling * 1.04)
+    _off_scale_note(crps_ax, off_scale, ratios)
+    gain_ax.axhline(0, color=AXIS, linewidth=1)
     floor, off_scale = -1.0, []
     for index, method in enumerate(densified):
         offset = 1.025 ** (index - (len(densified) - 1) / 2)
@@ -937,25 +994,18 @@ def plot_sweep(plt, results, methods, output):
         interval = np.array(
             [r["forecast"][method]["gain_over_sparse_95"] for r in ordered]
         )
-        ax.vlines(
+        gain_ax.vlines(
             ratios * offset,
             np.maximum(interval[:, 0] / scale, floor),
             np.maximum(interval[:, 1] / scale, floor),
             color=COLOURS[method],
             linewidth=2,
         )
-        off_scale += _clip_markers(ax, ratios * offset, gain / scale, floor, method)
-    ax.set_ylim(floor * 1.06, None)
-    _off_scale_note(ax, off_scale, ratios)
-    ax.set_ylabel("CRPS gain over sparse / GP CRPS")
-    ax.set_title(
-        "Gain over the sparse forecaster (above 0 = better; 95% interval)", loc="left"
-    )
-    handles, labels = axes[0].get_legend_handles_labels()
-    figure.legend(handles, labels, loc="lower center", ncols=5, frameon=False)
-    figure.tight_layout(rect=(0, 0.1, 1, 1))
-    figure.savefig(output / "sweep.png", dpi=150, facecolor=SURFACE)
-    plt.close(figure)
+        off_scale += _clip_markers(
+            gain_ax, ratios * offset, gain / scale, floor, method
+        )
+    gain_ax.set_ylim(floor * 1.06, None)
+    _off_scale_note(gain_ax, off_scale, ratios)
 
 
 def _clip_markers(ax, x, values, limit, method):
@@ -998,7 +1048,7 @@ def _off_scale_note(ax, clipped, ratios):
     )
 
 
-def plot_scale_transfer(plt, results, output):
+def plot_scale_transfer(plt, results, output, model="PriSTI"):
     figure, axes = plt.subplots(
         1, len(results), figsize=(3.4 * len(results), 3.4), squeeze=False
     )
@@ -1006,9 +1056,10 @@ def plot_scale_transfer(plt, results, output):
     for ax, result in zip(axes[0], results.values(), strict=True):
         rows = result["scale_transfer"]
         ax.axvspan(0.5, levels.max() + 0.5, color=GRID, alpha=0.5, linewidth=0)
-        for key in ("pristi", "interpolation"):
+        for key in ("model", "interpolation"):
             ratios = [
-                rows[str(level)][key] / rows[str(level)]["gp"] for level in levels
+                (_learned(row) if key == "model" else row[key]) / row["gp"]
+                for row in (rows[str(level)] for level in levels)
             ]
             ax.plot(
                 levels,
@@ -1019,7 +1070,7 @@ def plot_scale_transfer(plt, results, output):
                 ms=5,
                 mec=SURFACE,
                 mew=1,
-                label="PriSTI imputer" if key == "pristi" else "Linear interpolation",
+                label=f"{model} imputer" if key == "model" else "Linear interpolation",
             )
         ax.axhline(1, color=COLOURS["gp"], linewidth=2, label="Exact GP")
         ax.set_xticks(levels, [_spacing(level) for level in levels], fontsize=7)
@@ -1095,6 +1146,268 @@ def plot_examples(plt, results, output):
     figure.legend(handles, labels, loc="lower center", ncols=4, frameon=False)
     figure.tight_layout(rect=(0, 0.06, 1, 1))
     figure.savefig(output / "forecast_examples.png", dpi=150, facecolor=SURFACE)
+    plt.close(figure)
+
+
+COMPARED = ("learned_x2", "interp_x8", "fine_x2", "fine_x8", "oracle_x2")
+
+
+def compare(args):
+    """Cross-model tables, finding checks and plot for the quasi-periodic sweep."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    from matplotlib import pyplot as plt
+
+    _style(plt)
+    sweeps = {}
+    for model in args.models:
+        found = [
+            json.loads(path.read_text())
+            for task in TASKS
+            if task.startswith("qp_")
+            and (path := args.output / model / task / "results.json").exists()
+        ]
+        if found:
+            sweeps[model] = sorted(found, key=_period_ratio)
+    if not sweeps:
+        raise FileNotFoundError(f"No quasi-periodic results under {args.output}")
+    write_comparison(sweeps, args.output)
+    plot_comparison(plt, sweeps, args.output)
+    print(f"Comparison written to {args.output}")
+
+
+def _crps_ratio(result, method):
+    forecast = result["forecast"]
+    return forecast[method]["crps"] / forecast["gp"]["crps"]
+
+
+def _significance(result, method):
+    """+1 if significantly better than sparse, -1 if significantly worse, else 0."""
+    low, high = result["forecast"][method]["gain_over_sparse_95"]
+    return 1 if low > 0 else -1 if high < 0 else 0
+
+
+def _verdict(passed, total):
+    if total == 0:
+        return "n/a"
+    if passed == total:
+        return "yes"
+    return "no" if passed == 0 else f"partly ({passed}/{total})"
+
+
+def finding_checks(sweep):
+    """(finding, verdict, evidence) for each quasi-periodic finding from PriSTI."""
+    at = {_period_ratio(result): result for result in sweep}
+    barely = [at[p] for p in (2.5, 3, 4) if p in at]
+    resolved = [at[p] for p in sorted(at) if p >= 6]
+    sampled = [at[p] for p in sorted(at) if p >= 2.5]
+    tag = {1: "", 0: " (ns)", -1: " (worse)"}
+    rows = []
+
+    def cut(result, method):
+        sparse = _crps_ratio(result, "sparse")
+        return (sparse - _crps_ratio(result, method)) / (sparse - 1)
+
+    passed = sum(_significance(r, "fine_x2") == 1 for r in barely)
+    evidence = ", ".join(
+        f"{cut(r, 'fine_x2'):.0%}{tag[_significance(r, 'fine_x2')]}" for r in barely
+    )
+    rows.append(
+        (
+            "Fine-data x2 significantly beats sparse at P/dt 2.5, 3 and 4 "
+            "(share of sparse's excess CRPS removed)",
+            _verdict(passed, len(barely)),
+            evidence,
+        )
+    )
+    margins = [_crps_ratio(r, "interp_x8") - _crps_ratio(r, "fine_x8") for r in barely]
+    rows.append(
+        (
+            "Fine-data x8 beats interpolated x8 at P/dt 2.5-4 (CRPS margin)",
+            _verdict(sum(m > 0 for m in margins), len(margins)),
+            ", ".join(f"{m:+.2f}" for m in margins),
+        )
+    )
+    gaps = [_crps_ratio(r, "fine_x2") - _crps_ratio(r, "oracle_x2") for r in sampled]
+    rows.append(
+        (
+            "Fine-data x2 is within 0.05 of the oracle for P/dt >= 2.5 (largest gap)",
+            _verdict(sum(g <= 0.05 for g in gaps), len(gaps)),
+            f"{max(gaps):.3f}" if gaps else "",
+        )
+    )
+    cases = [(r, m) for m in ("learned_x2", "learned_x8") for r in barely[1:]]
+    rows.append(
+        (
+            "Coarse-data x2 and x8 are significantly worse than sparse at P/dt 3 "
+            "and 4 (CRPS / sparse CRPS)",
+            _verdict(sum(_significance(r, m) == -1 for r, m in cases), len(cases)),
+            ", ".join(
+                f"{_crps_ratio(r, m) / _crps_ratio(r, 'sparse'):.1f}x" for r, m in cases
+            ),
+        )
+    )
+    densified = [m for m in QUASI_METHODS if "_x" in m]
+    winners = [
+        f"{NAMES[m]} at {_period_ratio(r):g}"
+        for r in resolved
+        for m in densified
+        if _significance(r, m) == 1
+    ]
+    rows.append(
+        (
+            "No densifier significantly beats sparse at P/dt >= 6 (exceptions)",
+            "yes" if resolved and not winners else "no" if winners else "n/a",
+            ", ".join(winners) or "none",
+        )
+    )
+    cases = [(r, m) for r in resolved for m in densified if m.endswith("_x8")]
+    rows.append(
+        (
+            "Every x8 densifier is significantly worse than sparse at P/dt >= 6",
+            _verdict(sum(_significance(r, m) == -1 for r, m in cases), len(cases)),
+            f"{sum(_significance(r, m) == -1 for r, m in cases)} of {len(cases)}",
+        )
+    )
+    wins = sum(_crps_ratio(r, "fine_x2") < _crps_ratio(r, "fine_x8") for r in sampled)
+    rows.append(
+        (
+            "Fine-data x2 beats fine-data x8 for P/dt >= 2.5",
+            _verdict(wins, len(sampled)),
+            f"{wins} of {len(sampled)}",
+        )
+    )
+    if 1.6 in at:
+        aliased = at[1.6]
+        best = min(("fine_x2", "fine_x8"), key=lambda m: _crps_ratio(aliased, m))
+        helps = _significance(aliased, best) == 1
+        gap = _crps_ratio(aliased, "interp_x8") - _crps_ratio(aliased, best)
+        verdict = _verdict(helps + (gap <= 0.05), 2)
+        evidence = (
+            f"best fine {_crps_ratio(aliased, best):.3f}"
+            f"{tag[_significance(aliased, best)]}, "
+            f"interpolated {_crps_ratio(aliased, 'interp_x8'):.3f}"
+        )
+    else:
+        verdict, evidence = "n/a", ""
+    rows.append(
+        (
+            "At P/dt 1.6 fine data help, but interpolation is within 0.05 of the "
+            "best fine-data forecaster",
+            verdict,
+            evidence,
+        )
+    )
+    return rows
+
+
+def write_comparison(sweeps, output):
+    labels = [MODEL_LABELS[model] for model in sweeps]
+    checks = {model: finding_checks(sweep) for model, sweep in sweeps.items()}
+    findings = [row[0] for row in next(iter(checks.values()))]
+    header = ["| " + " | ".join(labels) + " |", "|---" * len(labels) + "|"]
+    lines = [
+        "# Quasi-periodic sweep across models",
+        "",
+        f"Every model gets identical data, windows, training schedule and {DRAWS} "
+        f"draws per test window ({HISTORIES} densified histories x {FUTURES} "
+        "futures); only the network changes, each at about 45k parameters. CRPS "
+        "is relative to the exact GP forecast (1 = best possible).",
+        "",
+        "## Do the PriSTI findings hold?",
+        "",
+        "Verdicts use each model's own sparse forecaster and 95% bootstrap "
+        "intervals over test paths; (ns) marks a difference that is not "
+        "significant.",
+        "",
+        "| Finding " + header[0],
+        "|---" + header[1],
+    ]
+    for index, finding in enumerate(findings):
+        cells = []
+        for model in sweeps:
+            _, verdict, evidence = checks[model][index]
+            cells.append(f"{verdict}: {evidence}" if evidence else verdict)
+        lines.append(f"| {finding} | " + " | ".join(cells) + " |")
+    ratios = sorted({_period_ratio(r) for sweep in sweeps.values() for r in sweep})
+    lines += [
+        "",
+        "## Forecast CRPS relative to the exact GP, by method",
+        "",
+        "`+` / `-`: significantly better / worse than the same model's sparse "
+        "forecaster.",
+    ]
+    for method in (m for m in QUASI_METHODS if m != "persistence"):
+        lines += [
+            "",
+            f"### {NAMES[method]}",
+            "",
+            "| P/dt " + header[0],
+            "|---" + header[1],
+        ]
+        for ratio in ratios:
+            cells = []
+            for sweep in sweeps.values():
+                result = next((r for r in sweep if _period_ratio(r) == ratio), None)
+                if result is None:
+                    cells.append("n/a")
+                    continue
+                mark = {1: " +", 0: "", -1: " -"}
+                sign = 0 if method == "sparse" else _significance(result, method)
+                cells.append(f"{_crps_ratio(result, method):.3f}{mark[sign]}")
+            lines.append(f"| {ratio:g} | " + " | ".join(cells) + " |")
+    lines += [
+        "",
+        "## Densified x8 history CRPS relative to the exact GP given the coarse "
+        "history",
+        "",
+        "Fine-data imputers / coarse-trained imputer.",
+        "",
+        "| P/dt " + header[0],
+        "|---" + header[1],
+    ]
+    for ratio in ratios:
+        cells = []
+        for sweep in sweeps.values():
+            result = next((r for r in sweep if _period_ratio(r) == ratio), None)
+            if result is None or "densified_history_fine" not in result:
+                cells.append("n/a")
+                continue
+            fine = result["densified_history_fine"]["x8"]
+            coarse = result["densified_history"]["x8"]
+            cells.append(
+                f"{_learned(fine) / fine['gp']:.2f} / "
+                f"{_learned(coarse) / coarse['gp']:.2f}"
+            )
+        lines.append(f"| {ratio:g} | " + " | ".join(cells) + " |")
+    (output / "comparison.md").write_text("\n".join(lines) + "\n")
+
+
+def plot_comparison(plt, sweeps, output):
+    """Each model's sweep in one column: CRPS ratio above, gain over sparse below."""
+    figure, axes = plt.subplots(
+        2, len(sweeps), figsize=(4.3 * len(sweeps), 8), sharey="row", squeeze=False
+    )
+    for column, (model, sweep) in enumerate(sweeps.items()):
+        _sweep_axes(axes[0, column], axes[1, column], sweep, COMPARED)
+        axes[0, column].set_title(f"{MODEL_LABELS[model]}: forecast CRPS", loc="left")
+        axes[1, column].set_title(
+            f"{MODEL_LABELS[model]}: gain over sparse", loc="left"
+        )
+    axes[0, 0].set_ylabel("Forecast CRPS / exact GP CRPS (1 = best)")
+    axes[1, 0].set_ylabel("CRPS gain over sparse / GP CRPS (above 0 = better)")
+    handles, labels = axes[0, 0].get_legend_handles_labels()
+    figure.legend(handles, labels, loc="lower center", ncols=7, frameon=False)
+    figure.suptitle(
+        "Quasi-periodic sweep by model (95% intervals over test paths)",
+        x=0.01,
+        ha="left",
+        color=INK,
+        fontsize=11,
+    )
+    figure.tight_layout(rect=(0, 0.05, 1, 1))
+    figure.savefig(output / "comparison.png", dpi=150, facecolor=SURFACE)
     plt.close(figure)
 
 

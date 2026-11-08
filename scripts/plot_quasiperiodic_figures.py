@@ -1,6 +1,6 @@
 """Illustrate the quasi-periodic sweep: tasks, setups and example predictions.
 
-Reads the outputs of run_pristi_densiffusion.py for the qp_* tasks and writes
+Reads the outputs of run_densiffusion.py for the qp_* tasks and writes
 three figures next to them:
 
     uv run --extra research --with matplotlib python \
@@ -14,7 +14,7 @@ from functools import partial
 from pathlib import Path
 
 import numpy as np
-from run_pristi_densiffusion import (
+from run_densiffusion import (
     AXIS,
     COLOURS,
     DRAWS,

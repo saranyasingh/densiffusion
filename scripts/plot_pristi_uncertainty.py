@@ -6,7 +6,7 @@ overlay the exact GP posterior's 90% interval given the same observations.
 Panels show the first test windows (not selected).
 
 - Imputation: the saved evaluation draws of evaluate_pristi_imputation.py.
-- Forecasting: the saved checkpoints of run_pristi_densiffusion.py, resampled
+- Forecasting: the saved checkpoints of run_densiffusion.py, resampled
   for the shown windows with one future per densified history, which samples
   the same predictive distribution as the benchmark's histories x futures.
 
@@ -21,7 +21,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from run_pristi_densiffusion import (
+from run_densiffusion import (
     COLOURS,
     HISTORY,
     HORIZON,
@@ -39,14 +39,14 @@ from run_pristi_densiffusion import (
     kernel_params,
 )
 
-from densiffusion.architectures.pristi_densiffusion import (
+from densiffusion.baselines import GPPosteriorSampler
+from densiffusion.densify_forecast import (
     densify,
     forecast,
     interpolate,
     sampling_config,
     small_pristi,
 )
-from densiffusion.baselines import GPPosteriorSampler
 from densiffusion.gp.posterior import gp_posterior
 
 Z90 = 1.6449

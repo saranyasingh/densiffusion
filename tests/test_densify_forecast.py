@@ -3,8 +3,9 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from densiffusion.architectures.pristi_densiffusion import (  # noqa: E402
+from densiffusion.densify_forecast import (  # noqa: E402
     CHUNK,
+    SMALL_MODELS,
     densify,
     forecast,
     forecast_layout,
@@ -12,6 +13,7 @@ from densiffusion.architectures.pristi_densiffusion import (  # noqa: E402
     interpolate,
     normalise,
     refine,
+    small_model,
     small_pristi,
     train_forecaster,
     train_imputer,
@@ -133,3 +135,38 @@ def test_training_entry_points_run_and_check_shapes():
             factor=1,
             seed=0,
         )
+
+
+@pytest.mark.parametrize("name", list(SMALL_MODELS))
+def test_every_small_model_trains_refines_and_forecasts(name):
+    torch.manual_seed(0)
+    imputer = small_model(name)
+    assert 40_000 < sum(p.numel() for p in imputer.parameters()) < 50_000
+    paths = np.random.default_rng(5).normal(size=(4, 17)).cumsum(axis=1)
+    windows = imputation_windows(paths)
+    train_imputer(imputer, windows, windows, CONFIG, seed=0)
+    fine = refine(imputer, CONFIG, paths[:, :9], n_samples=2, seed=1)
+    assert fine.shape == (4, 2, 17)
+    assert np.isfinite(fine).all()
+    np.testing.assert_array_equal(fine[:, :, ::2], np.repeat(paths[:, None, :9], 2, 1))
+    forecaster = small_model(name)
+    train_forecaster(
+        forecaster,
+        paths[:, :9],
+        paths[:, :9],
+        CONFIG,
+        history=3,
+        horizon=2,
+        factor=2,
+        seed=0,
+    )
+    samples = forecast(
+        forecaster, CONFIG, paths[:, :5], horizon=2, factor=2, n_samples=3, seed=2
+    )
+    assert samples.shape == (4, 3, 2)
+    assert np.isfinite(samples).all()
+
+
+def test_small_model_rejects_unknown_names():
+    with pytest.raises(ValueError, match="Unknown model"):
+        small_model("unet")

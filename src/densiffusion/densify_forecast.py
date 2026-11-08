@@ -1,17 +1,19 @@
-"""Densify-diffuse-downsample experiments with PriSTI imputers and forecasters.
+"""Densify-diffuse-downsample experiments with any of the repository's denoisers.
 
-PriSTI-specific for now; the shared `Forecaster` interfaces remain stubs.
-Arrays here are (windows, time) on a regular grid; the channel axis is added
-only when calling the shared trainer and sampler.
+Every network is an `ImputationModel` trained with `noise_mse` and sampled with
+`DDPMSampler`, so PriSTI, CSDI, SSSD and TimeAutoDiff are interchangeable.
+`small_model` builds each at about 45k parameters. Arrays here are
+(windows, time) on a regular grid; the channel axis is added only when calling
+the shared trainer and sampler.
 
-Imputer: PriSTI trained on windows of 2 * CHUNK - 1 points with alternate
+Imputer: a model trained on windows of 2 * CHUNK - 1 points with alternate
 points hidden (2*s -> s refinement). Windows can come from several strides of
 the observed data, and each window is normalised by the mean and RMS increment
 of its observed points, so a model trained at coarse spacings can be applied
 at finer ones. `densify` doubles the resolution repeatedly, refining
 non-overlapping chunks of CHUNK observed points independently.
 
-Forecaster: PriSTI trained with the last points of each window hidden. A
+Forecaster: a model trained with the last points of each window hidden. A
 window holds `history` coarse points and `horizon` coarse future points,
 optionally refined by `factor`; it is normalised by its coarse history points
 only, so sparse and densified forecasters share one normalisation. `forecast`
@@ -22,7 +24,13 @@ import dataclasses
 
 import numpy as np
 
+from densiffusion.architectures.csdi import CSDIDenoiser
 from densiffusion.architectures.pristi import PriSTIDenoiser, PriSTIEncoder
+from densiffusion.architectures.sssd import SSSDDenoiser
+from densiffusion.architectures.timeautodiff import (
+    TimeAutoDiffDenoiser,
+    TimeAutoDiffEncoder,
+)
 from densiffusion.models import ImputationModel
 from densiffusion.objectives import noise_mse
 from densiffusion.pipeline import impute
@@ -31,6 +39,17 @@ from densiffusion.training import TrainingConfig, train_densifier
 
 CHUNK = 5
 SMALL = {"width": 32, "heads": 4, "feedforward": 32, "time_dim": 32, "channel_dim": 8}
+SMALL_CSDI = {
+    "hidden_channels": 32,
+    "residual_layers": 2,
+    "attention_heads": 4,
+    "diffusion_embedding_dim": 32,
+    "time_embedding_dim": 32,
+    "feature_embedding_dim": 8,
+    "feedforward_dim": 32,
+}
+SMALL_SSSD = {"width": 24, "layers": 2, "state_size": 32, "step_dim": 32}
+SMALL_TIMEAUTODIFF = {"hidden": 24, "layers": 2, "embedding": 32, "terms": 4}
 
 
 def small_pristi(*, layers: int = 2, step_dim: int = 32, **sizes) -> ImputationModel:
@@ -40,6 +59,50 @@ def small_pristi(*, layers: int = 2, step_dim: int = 32, **sizes) -> ImputationM
         PriSTIDenoiser(layers=layers, step_dim=step_dim, **sizes),
         encoder=PriSTIEncoder(**sizes),
     )
+
+
+def small_csdi(**sizes) -> ImputationModel:
+    """A reduced univariate CSDI: 45k parameters, two residual layers of width 32."""
+    return ImputationModel(CSDIDenoiser(1, **{**SMALL_CSDI, **sizes}))
+
+
+def small_sssd(**sizes) -> ImputationModel:
+    """A reduced univariate SSSD: 46k parameters, two S4 blocks of width 24."""
+    return ImputationModel(SSSDDenoiser(1, **{**SMALL_SSSD, **sizes}))
+
+
+def small_timeautodiff(*, diffusion_steps: int = 50, **sizes) -> ImputationModel:
+    """A reduced TimeAutoDiff: 48k parameters, two recurrent layers of width 24.
+
+    diffusion_steps scales the step encoding and should match the schedule.
+    """
+    sizes = {**SMALL_TIMEAUTODIFF, **sizes}
+    embedding, terms = sizes.pop("embedding"), sizes.pop("terms")
+    return ImputationModel(
+        TimeAutoDiffDenoiser(diffusion_steps=diffusion_steps, **sizes),
+        encoder=TimeAutoDiffEncoder(embedding=embedding, terms=terms, **sizes),
+    )
+
+
+SMALL_MODELS = {
+    "pristi": small_pristi,
+    "csdi": small_csdi,
+    "sssd": small_sssd,
+    "timeautodiff": small_timeautodiff,
+}
+MODEL_LABELS = {
+    "pristi": "PriSTI",
+    "csdi": "CSDI",
+    "sssd": "SSSD",
+    "timeautodiff": "TimeAutoDiff",
+}
+
+
+def small_model(name: str, **sizes) -> ImputationModel:
+    """One of the reduced models in SMALL_MODELS, with optional size overrides."""
+    if name not in SMALL_MODELS:
+        raise ValueError(f"Unknown model {name!r}; choose from {list(SMALL_MODELS)}")
+    return SMALL_MODELS[name](**sizes)
 
 
 def window_scale(values: np.ndarray, reference: np.ndarray):
