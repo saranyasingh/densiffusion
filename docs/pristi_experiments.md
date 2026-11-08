@@ -29,7 +29,7 @@ training plan of `scripts/compare_csdi_training.py`:
 
 ```sh
 uv run --extra research --with matplotlib python \
-    scripts/evaluate_pristi_imputation.py --output outputs/pristi
+    scripts/evaluate_pristi_imputation.py --output outputs/pristi_csdi_protocol
 ```
 
 Training takes about 5 minutes per task on CPU. `--rescore` reloads the saved
@@ -108,10 +108,10 @@ repeated for CSDI, SSSD and TimeAutoDiff in `docs/quasiperiodic_models.md`.
 ```sh
 for task in brownian fbm_h0.7 fbm_h0.3 matern52; do
     uv run --extra research python scripts/run_densiffusion.py run \
-        --task $task --output outputs/densiffusion --threads 2 &
+        --task $task --output outputs/densiffusion_pristi --threads 2 &
 done; wait
 uv run --extra research --with matplotlib python \
-    scripts/run_densiffusion.py report --output outputs/densiffusion
+    scripts/run_densiffusion.py report --output outputs/densiffusion_pristi
 ```
 
 Four tasks in parallel take about 21 minutes on an M4 CPU at the original 16
@@ -231,8 +231,21 @@ Shared by both settings:
   densifier could do. Comparing it with `fine_xK` shows what is lost by
   learning the densifier; comparing it with sparse shows whether perfect
   densification helps at all.
-- **Interpolated x8, the exact GP forecast and repeating the last value**, as
-  in section 2.
+- **Interpolated x2 and x8, the exact GP forecast and repeating the last
+  value**, as in section 2. Interpolated x2 is the matched-factor baseline for
+  the x2 methods; it uses coarse data only.
+
+Two controls, added after the first sweep with `run --extend`, test where the
+fine-data gain comes from:
+
+- **Fine-data x2, interpolated history (`fineinterp_x2`):** the fine-data x2
+  forecaster given straight-line test histories. Comparing it with
+  `fine_x2` shows what the learned densifier contributes.
+- **Sparse, all phase shifts (`sparse_shifted`):** a sparse forecaster
+  trained on the fine paths seen at the coarse spacing from all 8 offsets.
+  It has the fine data's information but never densifies. With 8 times the
+  windows it trains for 18 epochs, the same number of updates as sparse,
+  validating every epoch.
 
 In the coarse-only setting the imputer trains at stride 1 only. Thinning the
 coarse data, as section 2 did to teach several scales, would alias the wave.
@@ -249,8 +262,9 @@ coarse data, as section 2 did to teach several scales, would alias the wave.
   CRPS.
 - **Equal imputer data:** each fine-data imputer is trained on a random
   subset of windows, the same number per path as the coarse imputer gets.
-- **Shared forecaster:** `fine_xK` and `oracle_xK` share one forecaster
-  trained on the true fine paths; only their test histories differ.
+- **Shared forecaster:** `fine_xK`, `oracle_xK` and `fineinterp_x2` share one
+  forecaster trained on the true fine paths; only their test histories
+  differ.
 
 ```sh
 for task in qp_1.6 qp_2.5 qp_3 qp_4 qp_6 qp_8 qp_16; do
@@ -270,35 +284,54 @@ sparse forecaster, against P/dt. `scripts/plot_quasiperiodic_figures.py
 
 Seven tasks in parallel, one thread each, take about 55 minutes on an M4 CPU
 at 16 draws. The results below were rescored at 100 draws with `--rescore`,
-about 110 minutes per task.
+about 110 minutes per task, and the three later methods were added with
+`--extend` (about 15 minutes per task). The pre-extension results are kept in
+each task's `before_extend/`.
 
 ### Results
 
 Forecast CRPS relative to the exact GP forecast (1.00 is the best possible).
 "Coarse-data" is the coarse-only setting:
 
-| P/dt | Sparse | Coarse-data x2 | Coarse-data x8 | Interpolated x8 | Fine-data x2 | Fine-data x8 | Oracle x2 | Oracle x8 |
-|---|---|---|---|---|---|---|---|---|
-| 1.6 | 1.691 | 1.454 | 2.021 | 1.302 | 1.351 | 1.279 | 1.286 | **1.228** |
-| 2.5 | 1.797 | 1.550 | 2.700 | 1.439 | 1.214 | 1.325 | **1.168** | 1.286 |
-| 3 | 1.460 | 2.278 | 2.404 | 1.486 | 1.280 | 1.343 | **1.268** | 1.312 |
-| 4 | 1.329 | 3.051 | 4.494 | 1.415 | 1.264 | 1.362 | **1.253** | 1.337 |
-| 6 | **1.403** | 1.466 | 1.607 | 1.774 | 1.459 | 1.894 | 1.448 | 1.870 |
-| 8 | **1.602** | 1.687 | 1.917 | 2.069 | 1.704 | 2.029 | 1.692 | 2.045 |
-| 16 | **1.576** | 1.803 | 1.895 | 1.903 | 1.820 | 1.939 | 1.812 | 1.950 |
+| P/dt | Sparse | Coarse-data x2 | Coarse-data x8 | Interpolated x2 | Interpolated x8 | Fine-data x2 | Fine-data x8 | Oracle x2 | Oracle x8 |
+|---|---|---|---|---|---|---|---|---|---|
+| 1.6 | 1.691 | 1.454 | 2.021 | **1.201** | 1.302 | 1.351 | 1.279 | 1.286 | 1.228 |
+| 2.5 | 1.797 | 1.550 | 2.700 | 1.288 | 1.439 | 1.214 | 1.325 | **1.168** | 1.286 |
+| 3 | 1.460 | 2.278 | 2.404 | 1.313 | 1.486 | 1.280 | 1.343 | **1.268** | 1.312 |
+| 4 | 1.329 | 3.051 | 4.494 | 1.272 | 1.415 | 1.264 | 1.362 | **1.253** | 1.337 |
+| 6 | **1.403** | 1.466 | 1.607 | 1.467 | 1.774 | 1.459 | 1.894 | 1.448 | 1.870 |
+| 8 | **1.602** | 1.687 | 1.917 | 1.724 | 2.069 | 1.704 | 2.029 | 1.692 | 2.045 |
+| 16 | **1.576** | 1.803 | 1.895 | 1.775 | 1.903 | 1.820 | 1.939 | 1.812 | 1.950 |
+
+The two controls:
+
+| P/dt | Fine-data x2, interpolated history | Sparse, all phase shifts |
+|---|---|---|
+| 1.6 | 3.146 | 1.536 |
+| 2.5 | 2.029 | 2.027 |
+| 3 | 1.809 | 1.575 |
+| 4 | 1.331 | 1.348 |
+| 6 | 1.444 | 1.390 |
+| 8 | 1.705 | 1.589 |
+| 16 | 1.812 | 1.741 |
 
 Which methods beat the sparse forecaster (95% bootstrap intervals over test
 paths; full intervals are in the report's `results.md`):
 
 | P/dt | Significantly better than sparse | Significantly worse |
 |---|---|---|
-| 1.6 | coarse-data x2, interpolated, fine-data x2 and x8, oracle x2 and x8 | coarse-data x8 |
-| 2.5 | coarse-data x2, interpolated, fine-data x2 and x8, oracle x2 and x8 | coarse-data x8 |
-| 3 | fine-data x2 and x8, oracle x2 and x8 | coarse-data x2 and x8 |
-| 4 | fine-data x2, oracle x2 | coarse-data x2 and x8, interpolated |
-| 6 | none | coarse-data x2, fine-data x2, all x8 methods |
+| 1.6 | coarse-data x2, interpolated x2 and x8, fine-data x2 and x8, oracle x2 and x8, sparse all phases | coarse-data x8, fine-data x2 with interpolated history |
+| 2.5 | coarse-data x2, interpolated x2 and x8, fine-data x2 and x8, oracle x2 and x8 | coarse-data x8, fine-data x2 with interpolated history, sparse all phases |
+| 3 | interpolated x2, fine-data x2 and x8, oracle x2 and x8 | coarse-data x2 and x8, fine-data x2 with interpolated history, sparse all phases |
+| 4 | interpolated x2, fine-data x2, oracle x2 | coarse-data x2 and x8, interpolated x8 |
+| 6 | none | coarse-data x2, interpolated x2, fine-data x2, all x8 methods |
 | 8 | none | all densified methods |
-| 16 | none | all densified methods |
+| 16 | none | all densified methods and sparse all phases |
+
+Fine-data x2 against interpolated x2, as a gain in units of the exact GP's
+CRPS with a 95% interval: +0.07 [+0.01, +0.14] at P/dt = 2.5, +0.03
+[-0.02, +0.09] at 3 and +0.01 [-0.02, +0.04] at 4. Against sparse with all
+phase shifts: +0.81, +0.30 and +0.08, all significant.
 
 Densified history CRPS relative to the exact GP given the coarse history, at
 x8: fine-data imputers 1.4-2.3x; coarse-trained imputer 2.2x at P/dt = 16,
@@ -307,37 +340,46 @@ x8: fine-data imputers 1.4-2.3x; coarse-trained imputer 2.2x at P/dt = 16,
 
 ### Findings
 
-- **With fine training data, densification helps where predicted.** For P/dt
-  from 2.5 to 4, fine-data x2 cuts the sparse forecaster's excess CRPS over the
-  exact GP by 20-73%: 73% at P/dt = 2.5 (1.797 to 1.214), 39% at 3 and 20% at
-  4, where only x2 is significantly better. At the same factor, fine-data x8
-  beats interpolated x8 by 0.05-0.14 of the GP's CRPS, so the gain is not
-  just from presenting a smoother input.
+- **For P/dt <= 4, a twice-as-fine grid helps however it is filled.**
+  Interpolated x2, which uses coarse data only, is significantly better than
+  sparse at P/dt = 1.6-4 and removes 71%, 64%, 32% and 17% of its excess CRPS
+  over the exact GP. Fine-data x2 removes 49%, 73%, 39% and 20%.
+- **Learned fine-data densification adds a significant extra only at
+  P/dt = 2.5**, where it beats interpolated x2 by 0.07 of the GP's CRPS. At
+  3 and 4 the two are within noise, and at 1.6 interpolation is better.
+  Densification adds no information, so the x2 gain must be a learning
+  effect: the forecaster trains better on a finer grid, with extra midpoint
+  targets, than on the coarse one.
+- **Fine data alone do not explain the gain.** The sparse forecaster trained
+  on all phase shifts is significantly worse than fine-data x2 at
+  P/dt = 2.5-4, and worse than sparse at 2.5 and 3.
+- **The fine-data forecaster needs learned histories.** Given straight-line
+  histories it is far worse (2.03 against 1.21 at P/dt = 2.5), because it
+  was trained on true fine shapes.
 - **The learned densifier is not the bottleneck.** Fine-data forecasts are
   within 0.05 of the oracle's at x2 for P/dt >= 2.5 (0.07 at 1.6), although
-  the fine-data histories score 1.4-2.4x the exact GP.
-- **Below the Nyquist limit (P/dt = 1.6), fine training data still helps**,
-  because it shows the true frequency. But interpolation does about as well
-  there, so most of that gain is not from densification.
+  the fine-data histories score 1.4-2.3x the exact GP at x8.
 - **Once the wave is resolved (P/dt >= 6), densifying does not help.** x2 is
   slightly but significantly worse for every densifier except the oracle at
   P/dt = 6, and x8 is clearly worse for every densifier, including the oracle.
-- **Coarse-only densification fails exactly where it would matter.** At
-  P/dt = 3-4 the coarse-trained imputer's histories are 43-288x worse than the
-  exact GP and the forecasts' CRPS is 1.6-3.4x the sparse forecaster's. The imputer is
-  trained at 2dt -> dt, where the inputs are aliased, and then applied at
-  finer, differently shaped scales. Its small gains at P/dt = 1.6 and 2.5
-  (x2) are matched or beaten by interpolation.
-- **x2 beats x8** for every densifier except at P/dt = 1.6. As in section 2, the x8 forecaster's
-  97-point windows cost more than the finer resolution gains.
+- **Coarse-only learned densification fails exactly where it would matter.**
+  At P/dt = 3-4 the coarse-trained imputer's histories are 43-288x worse than
+  the exact GP and the forecasts' CRPS is 1.6-3.4x the sparse forecaster's.
+  The imputer is trained at 2dt -> dt, where the inputs are aliased, and then
+  applied at finer, differently shaped scales.
+- **x2 beats x8** for every densifier except at P/dt = 1.6. As in section 2,
+  the x8 forecaster's 97-point windows cost more than the finer resolution
+  gains.
 
 ### Caveats
 
-- The fine-data forecaster also trains on true fine futures, which the sparse
-  one never sees. The gain could come from those richer training targets
-  rather than from densified test histories. A fine-data forecaster tested on
-  interpolated histories would separate the two; it has not been run.
-- Every neural forecaster is far from the exact GP (1.2x at best, sparse
-  1.4-1.8x), so all are undertrained or too small. One seed, 128 test windows.
+- The phase-shifted sparse forecaster has 8 times the data but the same
+  number of updates as sparse, so only 18 epochs; it may be undertrained.
+- Every neural forecaster is far from the exact GP (1.17x at best, sparse
+  1.33-1.80x), so all are undertrained or too small. A larger or
+  longer-trained sparse forecaster might match interpolated x2 without
+  densifying. One seed, 128 test windows.
 - Per-window normalisation removes the absolute level, which the exact GP
   forecast uses for this stationary process.
+- `docs/quasiperiodic_models.md` repeats this sweep with CSDI, SSSD and
+  TimeAutoDiff.

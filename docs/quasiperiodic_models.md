@@ -58,7 +58,7 @@ for model in csdi timeautodiff; do
 done
 for task in qp_1.6 qp_2.5 qp_3 qp_4 qp_6 qp_8 qp_16; do
     uv run --extra research python scripts/run_densiffusion.py run \
-        --model sssd --device mps --task $task \
+        --model sssd --device mps --train-device cpu --task $task \
         --output outputs/quasiperiodic/sssd --threads 1 &
 done; wait
 uv run --extra research --with matplotlib python \
@@ -67,12 +67,19 @@ uv run --extra research --with matplotlib python \
 
 PriSTI's results come from `outputs/densiffusion_quasiperiodic` (linked as
 `outputs/quasiperiodic/pristi`), extended with the new methods. With
-`--model pristi` the pipeline reproduces those samples exactly. SSSD runs on
-the Apple GPU (`--device mps`), where it is about 7 times faster than on the
-CPU. `compare` writes `comparison.md`, with the finding checks, the controls
-and per-method tables across models, and `comparison.png`, with each model's
+`--model pristi` the pipeline reproduces those samples exactly. SSSD samples
+on the Apple GPU (`--device mps`), where it is about 7 times faster than on
+the CPU, but trains on the CPU (`--train-device cpu`): training on the GPU
+gave non-finite gradients at epoch 103 of the sparse forecaster for five of
+seven tasks, while the same training on the CPU finished. P/dt = 8 and 16
+were trained on the GPU before this was found.
+
+`compare` writes `comparison.md`, with the finding checks, the controls and
+per-method tables across models, and `comparison.png`, with each model's
 sweep.
 
 ## Results
 
-Pending: the sweep is running.
+Pending: the CSDI, SSSD and TimeAutoDiff runs are in progress. PriSTI's
+results, including the matched baseline and controls, are in section 3 of
+[pristi_experiments.md](pristi_experiments.md).

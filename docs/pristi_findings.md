@@ -27,10 +27,12 @@ Three experiments, all with the temporal-only PriSTI:
 - PriSTI is a near-optimal gap-filler (within 0.2-4% of the exact GP on four
   of five tasks), but its uncertainty intervals are too narrow.
 - Densifying never helps forecast self-similar or smooth processes.
-- Densifying does help forecast a barely resolved wave, but only when
-  fine-resolution training data exist. It then removes up to 73% of the
-  sparse forecaster's excess error. A densifier learned from coarse data alone
-  fails in exactly the cases where it would matter.
+- For a barely resolved wave, forecasting on a twice-as-fine grid removes up
+  to 73% of the sparse forecaster's excess error. But most of that gain comes
+  from the finer grid itself: filling it with straight lines, using coarse
+  data only, does nearly as well. A densifier learned from fine training data
+  adds a significant extra only at P/dt = 2.5, and one learned from coarse
+  data alone fails where it would matter.
 
 ## 1. Gap-filling
 
@@ -77,62 +79,81 @@ Methods compared:
 
 - **Sparse:** trained and tested on coarse data.
 - **Coarse-data xK:** densifier learned from coarse data only.
+- **Interpolated xK:** gaps filled by straight lines; trained on interpolated
+  coarse data, so it also uses coarse data only.
 - **Fine-data xK:** densifiers and forecaster trained on fine-resolution
   paths; test histories are still coarse and are densified before
   forecasting.
 - **Oracle xK:** the fine-data forecaster with the exact GP as the
   densifier, the best any densifier could do.
-- **Interpolated x8:** linear interpolation instead of a learned densifier.
 
-Forecast CRPS relative to the exact GP (lower is better; 1.00 is perfect):
+Two controls test where the fine-data gain comes from:
 
-| P/dt | Sparse | Coarse-data x2 | Fine-data x2 | Oracle x2 | Interpolated x8 |
+- **Fine-data x2, interpolated history:** the fine-data forecaster given
+  straight-line histories instead of learned ones.
+- **Sparse, all phase shifts:** a sparse forecaster trained on the fine paths
+  seen at the coarse spacing from all 8 offsets, for the same number of
+  updates as sparse. It has the fine data's information but never densifies.
+
+Forecast CRPS relative to the exact GP (lower is better; 1.00 is perfect;
+bold is the best non-oracle method):
+
+| P/dt | Sparse | Coarse-data x2 | Interpolated x2 | Fine-data x2 | Oracle x2 |
 |---|---|---|---|---|---|
-| 1.6 | 1.691 | 1.454 | 1.351 | 1.286 | 1.302 |
-| 2.5 | 1.797 | 1.550 | **1.214** | 1.168 | 1.439 |
-| 3 | 1.460 | 2.278 | **1.280** | 1.268 | 1.486 |
-| 4 | 1.329 | 3.051 | **1.264** | 1.253 | 1.415 |
-| 6 | 1.403 | 1.466 | 1.459 | 1.448 | 1.774 |
-| 8 | 1.602 | 1.687 | 1.704 | 1.692 | 2.069 |
-| 16 | 1.576 | 1.803 | 1.820 | 1.812 | 1.903 |
+| 1.6 | 1.691 | 1.454 | **1.201** | 1.351 | 1.286 |
+| 2.5 | 1.797 | 1.550 | 1.288 | **1.214** | 1.168 |
+| 3 | 1.460 | 2.278 | 1.313 | **1.280** | 1.268 |
+| 4 | 1.329 | 3.051 | 1.272 | **1.264** | 1.253 |
+| 6 | **1.403** | 1.466 | 1.467 | 1.459 | 1.448 |
+| 8 | **1.602** | 1.687 | 1.724 | 1.704 | 1.692 |
+| 16 | **1.576** | 1.803 | 1.775 | 1.820 | 1.812 |
 
-- **With fine training data, densifying helps exactly where predicted.** At
-  P/dt = 2.5, 3 and 4, fine-data x2 removes 73%, 39% and 20% of the sparse
-  forecaster's excess CRPS. It also beats interpolation, so the gain is not
-  just from a smoother input.
+- **A twice-as-fine grid helps for P/dt <= 4, however it is filled.**
+  Interpolated x2 is significantly better than sparse at P/dt = 1.6-4,
+  removing 71%, 64%, 32% and 17% of sparse's excess CRPS. Fine-data x2
+  removes 49%, 73%, 39% and 20%.
+- **Learned fine-data densification adds a significant extra only at
+  P/dt = 2.5** (0.07 of the exact GP's CRPS better than interpolated x2). At
+  3 and 4 the two are within noise, and at 1.6 interpolation is better.
+- **Simply having fine data does not explain the gain.** The sparse forecaster
+  trained on all phase shifts is significantly worse than fine-data x2 at
+  P/dt = 2.5-4, and worse than sparse at 2.5 and 3.
+- **The fine-data forecaster depends on learned histories.** Given
+  straight-line histories it is far worse (2.03 instead of 1.21 at
+  P/dt = 2.5), because it was trained on true fine shapes.
 - **The learned densifier is not the bottleneck.** Fine-data forecasts are
   within 0.05 of the oracle's for P/dt >= 2.5.
-- **Coarse-only densification fails where it would matter.** At P/dt = 3-4
-  its forecasts score 1.6-3.4x the sparse forecaster's CRPS. Its training data
-  are themselves aliased, so it never sees the wave's true shape.
+- **Coarse-only learned densification fails.** At P/dt = 3-4 its forecasts
+  score 1.6-3.4x the sparse forecaster's CRPS. Its training data are
+  themselves aliased, so it never sees the wave's true shape.
 - **Once the wave is resolved (P/dt >= 6), densifying hurts**: slightly at
   x2, clearly at x8, even with the oracle densifier.
 - **x2 beats x8 almost everywhere.** The longer x8 windows cost more than the
   finer resolution gains.
-- **Below the sampling limit (P/dt = 1.6)** fine training data help, but
-  interpolation does about as well, so that gain is not from densification.
 
 ## What this means
 
-Densification adds no information at test time. It helped only when the
-densifier carried knowledge the coarse data lack, here fine-resolution
-training data showing the wave's true shape. The promising use case is a
-high-frequency archive for training, a coarse live feed at test time, and a
-signal near its sampling limit.
+Densification adds no information at test time, and the experiments now
+agree. For a barely resolved wave, a forecaster working on a finer grid
+learns better than one on the coarse grid, even when the extra points are
+straight lines. That is a learning effect: every neural forecaster here is
+far from the exact GP (sparse 1.33-1.80x), so how the input is presented
+matters. Fine training data and a learned densifier add a further,
+significant gain only near P/dt = 2.5, where the wave is most ambiguous.
 
 ## Open questions and caveats
 
-- **Confound:** the fine-data forecaster also trains on true fine futures,
-  which the sparse forecaster never sees. Its gain could come from those
-  richer training targets rather than from densified test histories. Two
-  controls would separate them: the fine-data forecaster tested on
-  interpolated histories, and a sparse forecaster trained on the eight
-  phase-shifted coarse copies of each fine training path. Neither has been
-  run.
-- Every neural forecaster is far from the exact GP (1.17x at best, sparse
-  1.33-1.80x in Experiment 3), so all are undertrained or too small.
-- One seed, 128 test windows and a small (44k-parameter) PriSTI throughout.
-  Other architectures have not been tested.
+- **Why does a finer grid help?** Plausible reasons are the extra midpoint
+  targets during training and PriSTI's attention working better on smoother
+  inputs. Larger or longer-trained forecasters might close the gap without
+  densifying.
+- The phase-shifted sparse forecaster trains for only 18 epochs (the same
+  number of updates as sparse) and may be undertrained.
+- Every neural forecaster is far from the exact GP (1.17x at best), so all
+  are undertrained or too small.
+- One seed, 128 test windows and a small (44k-parameter) PriSTI.
+  [quasiperiodic_models.md](quasiperiodic_models.md) repeats Experiment 3
+  with CSDI, SSSD and TimeAutoDiff.
 
 ## Figures
 

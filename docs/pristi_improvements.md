@@ -15,12 +15,12 @@ Open issues in `src/densiffusion/architectures/pristi.py` (temporal-only PriSTI)
 2. **Sharing time and diffusion-step encodings**
    - `_time_embedding` (U_tem) and `_StepEmbedding` (with the float16 fix) are
      private to `pristi.py`.
-   - DiffMAE and TimeDiT-lite need the same pieces; separate copies can drift
-     and add uncontrolled differences between architectures.
-   - Step embeddings differ by paper (CSDI/PriSTI vs. DiT), so decide whether
-     all models share one or keep their own.
-   - Move both into `architectures/common.py` when a second architecture is
-     written.
+   - CSDI, SSSD and TimeAutoDiff are now in the repository, each with its own
+     time and step encodings, so the four-model comparison
+     (`docs/quasiperiodic_models.md`) also compares these encodings.
+   - Step embeddings differ by paper, so sharing one would change the
+     reference designs; decide whether a common module in
+     `architectures/common.py` is worth that.
 3. **Sampling resolution (`dt`) is ignored**
    - Positions are window indices, so identical arrays at different spacings
      give identical predictions.
@@ -33,7 +33,9 @@ Open issues in `src/densiffusion/architectures/pristi.py` (temporal-only PriSTI)
      condition on `dt` and train at several resolutions.
    - `docs/pristi_experiments.md` tests the first option with training at three
      strides: it transfers three halvings finer for Brownian motion and fBm,
-     but not for Matérn 5/2, which is not self-similar.
+     but not for Matérn 5/2, which is not self-similar, nor for a
+     quasi-periodic process whose coarse training data are aliased.
+   - `densify_forecast.py` applies this normalisation for every model.
 4. **Noise schedule** (resolved)
    - `TrainingConfig(schedule="quadratic")` now matches the paper's schedule
      (1e-4 to 0.2, 50-100 steps).
