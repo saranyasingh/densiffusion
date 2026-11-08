@@ -4,8 +4,9 @@ Defaults follow the CSDI comparison protocol in scripts/compare_csdi_training.py
 independent 33-point paths at spacing dt, split into two 17-point windows each;
 512 training, 64 validation and 128 test paths from fixed data seeds; 200
 epochs at batch size 64; a quadratic 50-step schedule to 0.5 with weight decay,
-learning-rate decay and all-step validation every ten epochs; 32 draws. The
-`exponential` task reproduces that protocol's data and test seeds exactly.
+learning-rate decay and all-step validation every ten epochs. The protocol
+uses 32 draws; the default here is 100, matching the forecasting experiments.
+The `exponential` task reproduces that protocol's data and test seeds exactly.
 Hidden points alternate (2*dt -> dt). PriSTI is compared with the exact GP
 posterior (the best possible imputer) and linear interpolation.
 
@@ -15,6 +16,8 @@ Run from the repository root:
         scripts/evaluate_pristi_imputation.py --output outputs/pristi
 
 Writes metrics, plots, samples and checkpoints to the output directory.
+`--rescore` reloads the checkpoints in an existing output directory and
+resamples without retraining.
 """
 
 import argparse
@@ -85,7 +88,7 @@ def main():
     parser.add_argument("--train-paths", type=int, default=512)
     parser.add_argument("--validation-paths", type=int, default=64)
     parser.add_argument("--test-paths", type=int, default=128)
-    parser.add_argument("--draws", type=int, default=32)
+    parser.add_argument("--draws", type=int, default=100)
     parser.add_argument("--epochs", type=int, default=200)
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--learning-rate", type=float, default=1e-3)
@@ -100,13 +103,17 @@ def main():
     parser.add_argument("--threads", type=int, default=None)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--rescore", action="store_true", help="Reuse checkpoints")
     args = parser.parse_args()
     if args.device == "mps" and not torch.backends.mps.is_available():
         raise ValueError("MPS is unavailable; use --device cpu")
     if args.threads is not None:
         torch.set_num_threads(args.threads)
     config = training_config(args)
-    args.output.mkdir(parents=True, exist_ok=False)
+    previous = {}
+    if args.rescore:
+        previous = json.loads((args.output / "results.json").read_text())
+    args.output.mkdir(parents=True, exist_ok=args.rescore)
     (args.output / "config.json").write_text(
         json.dumps({**vars(args), "output": str(args.output)}, indent=2)
     )
@@ -114,7 +121,7 @@ def main():
 
     results = {}
     for name in args.tasks:
-        results[name] = run(name, config, args)
+        results[name] = run(name, config, args, previous.get(name))
         (args.output / "results.json").write_text(json.dumps(results, indent=2))
     write_table(results, args)
     plot_examples(results, args)
@@ -161,38 +168,46 @@ def partition(name, count, dt, gp, args):
     )
 
 
-def run(name, config, args):
+def run(name, config, args, previous=None):
+    """Train (or with --rescore reload) one task's model, then sample and score."""
     label, dt, gp = TASKS[name]
     folder = args.output / name
-    folder.mkdir()
+    folder.mkdir(exist_ok=args.rescore)
     train, _ = partition("train", args.train_paths, dt, gp, args)
     validation, _ = partition("validation", args.validation_paths, dt, gp, args)
     test, test_times = partition("test", args.test_paths, dt, gp, args)
     test, mask = prepare_targets(test)
     hidden = mask[0, :, 0]
 
-    print(f"[{name}] training on {args.device}: {len(train)} windows", flush=True)
-    epochs = _EpochLog()
-    logger = logging.getLogger("densiffusion.training")
-    logger.setLevel(logging.INFO)
-    logger.addHandler(epochs)
     torch.manual_seed(args.seed)
     model = ImputationModel(PriSTIDenoiser(), encoder=PriSTIEncoder())
-    start = time.perf_counter()
-    try:
-        train_densifier(
-            model,
-            train,
-            validation,
-            config=config,
-            objective=noise_mse,
-            dt=dt,
-            seed=args.seed,
-            checkpoint=folder / "model.pt",
-        )
-    finally:
-        logger.removeHandler(epochs)
-    training_seconds = time.perf_counter() - start
+    if args.rescore:
+        print(f"[{name}] loading {folder / 'model.pt'}", flush=True)
+        state = torch.load(folder / "model.pt", map_location="cpu", weights_only=True)
+        model.load_state_dict(state["model_state_dict"])
+        model.eval()
+        records, training_seconds = previous["epochs"], previous["training_seconds"]
+    else:
+        print(f"[{name}] training on {args.device}: {len(train)} windows", flush=True)
+        epochs = _EpochLog()
+        logger = logging.getLogger("densiffusion.training")
+        logger.setLevel(logging.INFO)
+        logger.addHandler(epochs)
+        start = time.perf_counter()
+        try:
+            train_densifier(
+                model,
+                train,
+                validation,
+                config=config,
+                objective=noise_mse,
+                dt=dt,
+                seed=args.seed,
+                checkpoint=folder / "model.pt",
+            )
+        finally:
+            logger.removeHandler(epochs)
+        records, training_seconds = epochs.records, time.perf_counter() - start
 
     print(f"[{name}] sampling PriSTI and the exact GP posterior", flush=True)
     start = time.perf_counter()
@@ -221,7 +236,7 @@ def run(name, config, args):
         "gp_posterior": score(exact_gp, test, hidden, windows_per_path),
         "interpolation": score(interpolation[:, None], test, hidden, windows_per_path),
         "exact": exact_posterior(test, test_times, hidden, posterior),
-        "epochs": epochs.records,
+        "epochs": records,
         "training_seconds": training_seconds,
         "sampling_seconds": sampling_seconds,
     }

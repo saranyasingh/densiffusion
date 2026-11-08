@@ -98,7 +98,7 @@ COARSE_POINTS = 33
 HISTORY, HORIZON = 9, 4
 WINDOW_STARTS = (0, 20)
 DATA_SEEDS = {"train": 22001, "validation": 22002, "test": 22003}
-HISTORIES, FUTURES = 4, 4
+HISTORIES, FUTURES = 10, 10
 DRAWS = HISTORIES * FUTURES
 METHODS = (
     "persistence",
@@ -457,6 +457,8 @@ def run_task(args):
     results["forecast"] = score_forecasts(samples, future, args.test_paths)
     if args.rescore:
         results["epochs"] = previous["epochs"]
+        if "fine_imputer_epochs" in previous:
+            results["fine_imputer_epochs"] = previous["fine_imputer_epochs"]
         results["timings"] = previous["timings"]
         results["rescore_timings"] = timings
     else:

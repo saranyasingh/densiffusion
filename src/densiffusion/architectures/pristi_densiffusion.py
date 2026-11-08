@@ -195,10 +195,12 @@ def forecast(
     factor: int = 1,
     n_samples: int,
     seed: int,
+    downsample: bool = True,
 ):
     """Sample futures for (windows, history) series; returns coarse future values.
 
-    Output is (windows, n_samples, horizon) at the coarse future times.
+    Output is (windows, n_samples, horizon) at the coarse future times, or with
+    downsample=False (windows, n_samples, horizon * factor) at every future point.
     """
     windows, length = histories.shape
     history = (length - 1) // factor + 1
@@ -216,6 +218,8 @@ def forecast(
         seed=seed,
     )[..., 0]
     samples = samples * scale[:, None, None] + location[:, None, None]
+    if not downsample:
+        return samples[:, :, length:]
     return samples[:, :, length - 1 + factor :: factor]
 
 

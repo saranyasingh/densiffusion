@@ -5,7 +5,14 @@ Two experiments with the temporal-only PriSTI in
 CSDI comparison protocol, and the densify-diffuse-downsample forecasting
 benchmark from the proposal. All data are synthetic GP paths, so every method
 is compared with the exact GP posterior, the best achievable result. Each
-experiment uses one training seed.
+experiment uses one training seed and 100 draws per test window.
+
+`scripts/plot_pristi_uncertainty.py` draws example predictions for each
+experiment: each model's 90% interval at the filled-in points and over the
+forecast, with the exact GP posterior's 90% interval overlaid. It uses one
+canonical task per experiment (Brownian motion for sections 1 and 2,
+P/dt = 2.5 for section 3) and writes `uncertainty_examples*.png` into each
+output folder.
 
 ## 1. Imputation under the CSDI protocol
 
@@ -17,40 +24,46 @@ training plan of `scripts/compare_csdi_training.py`:
 - Default-size PriSTI (364k parameters), 200 epochs at batch size 64,
   quadratic schedule with 50 steps to 0.5, weight decay 1e-6, learning-rate
   decay at 75% and 90%, all-step validation every ten epochs.
-- 32 draws per window, scored with `metrics.crps` like the CSDI comparison.
+- 100 draws per window (the CSDI protocol uses 32), scored with
+  `metrics.crps` like the CSDI comparison.
 
 ```sh
 uv run --extra research --with matplotlib python \
     scripts/evaluate_pristi_imputation.py --output outputs/pristi
 ```
 
-Each task takes about 6 minutes on CPU. On the exponential-GP task the exact GP
-and interpolation scores reproduce the published CSDI comparison (0.1861 and
+Training takes about 5 minutes per task on CPU. `--rescore` reloads the saved
+checkpoints and only resamples; at 32 draws it reproduces the original samples
+exactly. At 32 draws the exact GP and interpolation scores on the
+exponential-GP task reproduce the published CSDI comparison (0.1861 and
 0.2543), so its test set is identical.
 
 | Task | PriSTI | Exact GP | Interpolation | Gap closed | Spread ratio |
 |---|---|---|---|---|---|
-| Exponential GP (CSDI task) | 0.1887 | 0.1861 | 0.2543 | 96% | 0.88 |
-| Brownian motion | 0.0423 | 0.0420 | 0.0567 | 98% | 0.78 |
-| fBm, H = 0.7 | 0.0141 | 0.0137 | 0.0190 | 93% | 0.71 |
-| fBm, H = 0.3 | 0.1161 | 0.1143 | 0.1582 | 96% | 0.86 |
-| Matérn 5/2 | 0.0088 | 0.0055 | 0.0177 | 73% | 1.23 |
+| Exponential GP (CSDI task) | 0.1855 | 0.1837 | 0.2543 | 97% | 0.88 |
+| Brownian motion | 0.0414 | 0.0413 | 0.0567 | 99% | 0.78 |
+| fBm, H = 0.7 | 0.0139 | 0.0134 | 0.0190 | 91% | 0.70 |
+| fBm, H = 0.3 | 0.1138 | 0.1122 | 0.1582 | 97% | 0.87 |
+| Matérn 5/2 | 0.0086 | 0.0053 | 0.0177 | 73% | 1.23 |
 
 Hidden-point CRPS, lower is better. Gap closed is the share of the gap between
 interpolation and the exact GP that PriSTI closes. Spread ratio is PriSTI's RMS
 predictive standard deviation divided by the exact posterior's.
 
-- PriSTI is within 1-3% of the exact GP on four tasks and matches CSDI on its
-  own task (0.1887 vs. 0.1884 reported in `docs/csdi.md`).
+- PriSTI is within 0.2-4% of the exact GP on four tasks. At the protocol's 32
+  draws it matched CSDI on CSDI's own task (0.1887 vs. 0.1884 reported in
+  `docs/csdi.md`); CSDI has not been scored at 100 draws.
 - Its intervals are too narrow on all tasks except Matérn (spread ratio
-  0.71-0.88), so coverage falls below the exact GP's.
+  0.70-0.88), so 90% intervals cover 72-82% of hidden values, against 87-88%
+  for the exact GP.
 - Matérn 5/2 is the weak case: intervals are too wide, the median error is
   1.6x the exact posterior mean's, and neighbouring imputed points correlate at
   +0.12 instead of -0.60.
 - The best validation loss came at the final epoch on four tasks, so longer
   training would probably help.
-- `metrics.crps` is a plug-in estimator that inflates a 32-draw ensemble's
-  score by about 3% relative to a deterministic forecast, so the
+- `metrics.crps` is a plug-in estimator that inflates an ensemble's score
+  relative to a deterministic forecast, by about 3% at 32 draws and 1% at
+  100. That is why every sampled score fell from the 32-draw run, and why the
   interpolation column is slightly flattered.
 
 ## 2. Densified vs sparse forecasting
@@ -84,8 +97,8 @@ the shared `Forecaster` interfaces remain stubs.
 - **Training:** imputer 60 epochs, forecasters 150 epochs, batch size 64,
   quadratic schedule with 50 steps to 0.5, weight decay 1e-6, learning-rate
   decay at 75% and 90%, all-step validation every ten epochs.
-- **Evaluation:** 128 test windows. Densified forecasters pool 4 densified
-  histories x 4 futures; other methods draw 16 futures. Forecasts are
+- **Evaluation:** 128 test windows. Densified forecasters pool 10 densified
+  histories x 10 futures; other methods draw 100 futures. Forecasts are
   downsampled to the coarse future times and scored with the fair ensemble
   CRPS, which is unbiased for any number of draws. Baselines are the exact GP
   forecast given the coarse history and repeating the last observation. Gains
@@ -100,9 +113,12 @@ uv run --extra research --with matplotlib python \
     scripts/run_pristi_densiffusion.py report --output outputs/densiffusion
 ```
 
-Four tasks in parallel take about 21 minutes on an M4 CPU. `run --rescore`
-reloads the saved checkpoints and recomputes samples and metrics without
-retraining; it reproduces the original samples exactly.
+Four tasks in parallel take about 21 minutes on an M4 CPU at the original 16
+draws (4 x 4). `run --rescore` reloads the saved checkpoints and recomputes
+samples and metrics without retraining; at the same draw counts it reproduces
+the original samples exactly. The results below were rescored at 100 draws,
+which took about 75 minutes per task with one thread each. At 16 draws,
+sampling noise moved scores by up to 5%.
 
 ### Results
 
@@ -110,44 +126,45 @@ Forecast CRPS relative to the exact GP forecast (1.00 is the best possible):
 
 | Task | Sparse | Densified x2 | x4 | x8 | Interpolated x8 | Repeat last value |
 |---|---|---|---|---|---|---|
-| Brownian motion | **1.011** | 1.027 | 1.061 | 1.072 | 1.027 | 1.399 |
-| fBm, H = 0.7 | 1.038 | 1.036 | **1.008** | 1.048 | 1.121 | 1.490 |
-| fBm, H = 0.3 | 1.024 | 1.030 | 1.063 | **1.002** | 1.021 | 1.430 |
-| Matérn 5/2 | **1.207** | 1.229 | 1.311 | 1.351 | 1.452 | 1.922 |
+| Brownian motion | 1.016 | **1.006** | 1.010 | 1.037 | 1.038 | 1.389 |
+| fBm, H = 0.7 | **1.045** | 1.068 | 1.067 | 1.098 | 1.130 | 1.512 |
+| fBm, H = 0.3 | **1.024** | 1.032 | 1.027 | 1.031 | 1.029 | 1.437 |
+| Matérn 5/2 | **1.256** | 1.303 | 1.332 | 1.409 | 1.476 | 1.953 |
 
 CRPS gain over the sparse forecaster with 95% intervals (positive is better):
 
 | Task | Densified x2 | x4 | x8 | Interpolated x8 |
 |---|---|---|---|---|
-| Brownian motion | -0.003 [-0.013, +0.007] | -0.008 [-0.019, +0.002] | **-0.010 [-0.019, -0.001]** | -0.003 [-0.011, +0.005] |
-| fBm, H = 0.7 | +0.000 [-0.004, +0.005] | +0.003 [-0.003, +0.010] | -0.001 [-0.011, +0.008] | **-0.009 [-0.017, -0.000]** |
-| fBm, H = 0.3 | -0.002 [-0.016, +0.012] | -0.010 [-0.025, +0.004] | +0.006 [-0.006, +0.018] | +0.001 [-0.013, +0.014] |
-| Matérn 5/2 | -0.006 [-0.026, +0.014] | **-0.027 [-0.050, -0.003]** | **-0.037 [-0.064, -0.011]** | **-0.063 [-0.098, -0.028]** |
+| Brownian motion | +0.002 [-0.003, +0.006] | +0.001 [-0.003, +0.005] | -0.003 [-0.008, +0.001] | -0.004 [-0.009, +0.001] |
+| fBm, H = 0.7 | -0.003 [-0.006, +0.001] | -0.002 [-0.006, +0.002] | -0.006 [-0.012, +0.001] | **-0.009 [-0.019, -0.000]** |
+| fBm, H = 0.3 | -0.002 [-0.010, +0.005] | -0.001 [-0.007, +0.006] | -0.002 [-0.009, +0.004] | -0.001 [-0.008, +0.005] |
+| Matérn 5/2 | **-0.012 [-0.023, -0.002]** | **-0.019 [-0.033, -0.006]** | **-0.039 [-0.059, -0.020]** | **-0.055 [-0.078, -0.034]** |
 
 Imputer one-step CRPS relative to the exact GP, refining true data at each
 spacing (PriSTI / linear interpolation). It was trained only at 4dt, 2dt and dt:
 
 | Task | 4dt | 2dt | dt | dt/2 | dt/4 | dt/8 |
 |---|---|---|---|---|---|---|
-| Brownian motion | 1.02 / 1.41 | 1.00 / 1.38 | 1.05 / 1.42 | 1.05 / 1.39 | 1.06 / 1.42 | 1.05 / 1.44 |
-| fBm, H = 0.7 | 1.08 / 1.44 | 1.05 / 1.43 | 1.03 / 1.44 | 1.04 / 1.39 | 1.03 / 1.39 | 1.09 / 1.44 |
-| fBm, H = 0.3 | 1.04 / 1.42 | 1.03 / 1.40 | 1.08 / 1.44 | 1.03 / 1.41 | 1.07 / 1.38 | 1.02 / 1.43 |
-| Matérn 5/2 | 1.12 / 1.45 | 1.09 / 1.49 | 1.29 / 2.13 | 1.75 / 2.54 | 4.57 / 3.98 | 9.75 / 4.96 |
+| Brownian motion | 1.05 / 1.40 | 1.03 / 1.40 | 1.04 / 1.41 | 1.03 / 1.33 | 1.03 / 1.41 | 1.02 / 1.43 |
+| fBm, H = 0.7 | 1.04 / 1.43 | 1.04 / 1.42 | 1.05 / 1.46 | 1.05 / 1.41 | 1.03 / 1.41 | 1.05 / 1.42 |
+| fBm, H = 0.3 | 1.05 / 1.43 | 1.04 / 1.43 | 1.07 / 1.42 | 1.03 / 1.40 | 1.04 / 1.40 | 1.03 / 1.42 |
+| Matérn 5/2 | 1.11 / 1.42 | 1.08 / 1.47 | 1.29 / 2.12 | 1.81 / 2.57 | 4.38 / 4.05 | 9.39 / 4.91 |
 
-Densified x8 histories score 1.03-1.05x the exact GP posterior for Brownian
-motion and fBm (interpolation 1.40-1.46x), but 2.53x for Matérn 5/2. The
-coverage of the 16 draws' range is 82-89% for all forecasters, against 88% for
+Densified x8 histories score 1.05-1.06x the exact GP posterior for Brownian
+motion and fBm (interpolation 1.42-1.44x), but 2.36x for Matérn 5/2. The 100
+draws' range covers 95-100% of outcomes for every forecaster, against 98% for
 a calibrated forecaster.
 
 ### Findings
 
 - No densified forecaster is significantly better than the sparse one on any
-  task. The small advantages on fBm (x4 for H = 0.7, x8 for H = 0.3) are within
-  their intervals.
-- Densification significantly hurts Brownian motion at x8 and Matérn 5/2 at x4
-  and x8.
-- Learned densification beats interpolation at x8 for both fBm tasks and
-  Matérn 5/2, but not for Brownian motion.
+  task. The small fBm advantages seen at 16 draws (x4 for H = 0.7, x8 for
+  H = 0.3) vanished at 100 draws, so they were sampling noise. Brownian x2 is
+  marginally ahead (1.006 vs. 1.016), well within its interval.
+- Densification significantly hurts Matérn 5/2 at every factor, and
+  interpolation hurts fBm with H = 0.7 (borderline).
+- Learned densification beats interpolation at x8 for fBm with H = 0.7 and
+  Matérn 5/2, and ties on the other two tasks.
 - Multi-scale training with per-window normalisation lets the imputer refine
   three halvings finer than it was trained on, near-optimally, for the
   self-similar processes. It fails for Matérn 5/2, which becomes smoother at
@@ -165,7 +182,8 @@ a calibrated forecaster.
   forecast uses. For the stationary Matérn process this alone may leave about a
   7% gap to the "best possible" line.
 - The fair ensemble CRPS used here differs from the plug-in `metrics.crps`; it
-  keeps 16-draw, 4-draw and deterministic forecasts comparable.
+  keeps 100-draw, 10-draw and deterministic forecasts comparable.
+- The 16-draw results are kept in each output folder's `draws16/`.
 - An independent code review found no leakage or indexing errors. It led to
   the fair CRPS, the range-coverage measure and a fixed draw-count bug before
   these results were produced.
@@ -226,7 +244,8 @@ coarse data, as section 2 did to teach several scales, would alias the wave.
 - **Sweep:** P/dt in {1.6, 2.5, 3, 4, 6, 8, 16}.
 - **Everything else as in section 2:** the same path counts, windows (9
   history and 4 future coarse points), small PriSTI, training schedule,
-  epochs, 16 draws per test window and fair CRPS.
+  epochs, 100 draws per test window (10 histories x 10 futures) and fair
+  CRPS.
 - **Equal imputer data:** each fine-data imputer is trained on a random
   subset of windows, the same number per path as the coarse imputer gets.
 - **Shared forecaster:** `fine_xK` and `oracle_xK` share one forecaster
@@ -248,7 +267,9 @@ sparse forecaster, against P/dt. `scripts/plot_quasiperiodic_figures.py
 (`figure_tasks.png`), the four pipelines on one test window
 (`figure_setups.png`) and example forecasts (`figure_predictions.png`).
 
-Seven tasks in parallel, one thread each, take about 55 minutes on an M4 CPU.
+Seven tasks in parallel, one thread each, take about 55 minutes on an M4 CPU
+at 16 draws. The results below were rescored at 100 draws with `--rescore`,
+about 110 minutes per task.
 
 ### Results
 
@@ -257,13 +278,13 @@ Forecast CRPS relative to the exact GP forecast (1.00 is the best possible).
 
 | P/dt | Sparse | Coarse-data x2 | Coarse-data x8 | Interpolated x8 | Fine-data x2 | Fine-data x8 | Oracle x2 | Oracle x8 |
 |---|---|---|---|---|---|---|---|---|
-| 1.6 | 1.688 | 1.479 | 2.017 | 1.291 | 1.330 | 1.284 | 1.312 | **1.221** |
-| 2.5 | 1.778 | 1.584 | 2.694 | 1.483 | 1.256 | 1.404 | **1.230** | 1.324 |
-| 3 | 1.442 | 2.284 | 2.388 | 1.464 | 1.254 | 1.352 | **1.221** | 1.294 |
-| 4 | 1.370 | 3.258 | 4.381 | 1.423 | 1.258 | 1.359 | **1.207** | 1.276 |
-| 6 | **1.440** | 1.486 | 1.660 | 1.815 | 1.446 | 1.869 | 1.458 | 1.855 |
-| 8 | **1.585** | 1.672 | 1.988 | 2.118 | 1.655 | 2.028 | 1.670 | 2.052 |
-| 16 | 1.585 | 1.720 | 1.908 | 1.879 | 1.768 | 1.957 | 1.785 | 1.938 |
+| 1.6 | 1.691 | 1.454 | 2.021 | 1.302 | 1.351 | 1.279 | 1.286 | **1.228** |
+| 2.5 | 1.797 | 1.550 | 2.700 | 1.439 | 1.214 | 1.325 | **1.168** | 1.286 |
+| 3 | 1.460 | 2.278 | 2.404 | 1.486 | 1.280 | 1.343 | **1.268** | 1.312 |
+| 4 | 1.329 | 3.051 | 4.494 | 1.415 | 1.264 | 1.362 | **1.253** | 1.337 |
+| 6 | **1.403** | 1.466 | 1.607 | 1.774 | 1.459 | 1.894 | 1.448 | 1.870 |
+| 8 | **1.602** | 1.687 | 1.917 | 2.069 | 1.704 | 2.029 | 1.692 | 2.045 |
+| 16 | **1.576** | 1.803 | 1.895 | 1.903 | 1.820 | 1.939 | 1.812 | 1.950 |
 
 Which methods beat the sparse forecaster (95% bootstrap intervals over test
 paths; full intervals are in the report's `results.md`):
@@ -273,35 +294,36 @@ paths; full intervals are in the report's `results.md`):
 | 1.6 | coarse-data x2, interpolated, fine-data x2 and x8, oracle x2 and x8 | coarse-data x8 |
 | 2.5 | coarse-data x2, interpolated, fine-data x2 and x8, oracle x2 and x8 | coarse-data x8 |
 | 3 | fine-data x2 and x8, oracle x2 and x8 | coarse-data x2 and x8 |
-| 4 | fine-data x2, oracle x2 and x8 | coarse-data x2 and x8 |
-| 6 | none | all x8 methods |
-| 8 | none | all x8 methods |
-| 16 | none | fine-data x2, oracle x2, all x8 methods |
+| 4 | fine-data x2, oracle x2 | coarse-data x2 and x8, interpolated |
+| 6 | none | coarse-data x2, fine-data x2, all x8 methods |
+| 8 | none | all densified methods |
+| 16 | none | all densified methods |
 
 Densified history CRPS relative to the exact GP given the coarse history, at
-x8: fine-data imputers 1.4-2.4x; coarse-trained imputer 2.1x at P/dt = 16,
-7-24x at 1.6, 2.5, 6 and 8, and 46-237x at 3 and 4. Linear interpolation is
+x8: fine-data imputers 1.4-2.3x; coarse-trained imputer 2.2x at P/dt = 16,
+7-24x at 1.6, 2.5, 6 and 8, and 43-288x at 3 and 4. Linear interpolation is
 3.2-23x.
 
 ### Findings
 
 - **With fine training data, densification helps where predicted.** For P/dt
   from 2.5 to 4, fine-data x2 cuts the sparse forecaster's excess CRPS over the
-  exact GP by 30-67% (for example 1.778 to 1.256 at P/dt = 2.5). At the same
-  factor, fine-data x8 beats interpolated x8 by 0.06-0.11 of the GP's CRPS,
-  so the gain is not just from presenting a smoother input.
+  exact GP by 20-73%: 73% at P/dt = 2.5 (1.797 to 1.214), 39% at 3 and 20% at
+  4, where only x2 is significantly better. At the same factor, fine-data x8
+  beats interpolated x8 by 0.05-0.14 of the GP's CRPS, so the gain is not
+  just from presenting a smoother input.
 - **The learned densifier is not the bottleneck.** Fine-data forecasts are
-  within 0.05 of the oracle's at x2, although the fine-data histories score
-  1.4-2.4x the exact GP.
+  within 0.05 of the oracle's at x2 for P/dt >= 2.5 (0.07 at 1.6), although
+  the fine-data histories score 1.4-2.4x the exact GP.
 - **Below the Nyquist limit (P/dt = 1.6), fine training data still helps**,
   because it shows the true frequency. But interpolation does about as well
   there, so most of that gain is not from densification.
 - **Once the wave is resolved (P/dt >= 6), densifying does not help.** x2 is
-  neutral or slightly worse, and x8 is significantly worse for every
-  densifier, including the oracle.
+  slightly but significantly worse for every densifier except the oracle at
+  P/dt = 6, and x8 is clearly worse for every densifier, including the oracle.
 - **Coarse-only densification fails exactly where it would matter.** At
-  P/dt = 3-4 the coarse-trained imputer's histories are 46-237x worse than the
-  exact GP and the forecasts' CRPS is 1.6-3.2x the sparse forecaster's. The imputer is
+  P/dt = 3-4 the coarse-trained imputer's histories are 43-288x worse than the
+  exact GP and the forecasts' CRPS is 1.6-3.4x the sparse forecaster's. The imputer is
   trained at 2dt -> dt, where the inputs are aliased, and then applied at
   finer, differently shaped scales. Its small gains at P/dt = 1.6 and 2.5
   (x2) are matched or beaten by interpolation.

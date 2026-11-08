@@ -17,6 +17,7 @@ import numpy as np
 from run_pristi_densiffusion import (
     AXIS,
     COLOURS,
+    DRAWS,
     FINE,
     GRID,
     HISTORIES,
@@ -377,7 +378,7 @@ def plot_predictions(plt, output):
     ]
     figure.legend(handles=handles, loc="lower center", ncols=4, frameon=False)
     figure.suptitle(
-        f"Example forecasts: 90% intervals of 16 draws (test window {WINDOW}, "
+        f"Example forecasts: 90% intervals of {DRAWS} draws (test window {WINDOW}, "
         "not selected)",
         x=0.01,
         ha="left",
