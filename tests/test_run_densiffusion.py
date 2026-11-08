@@ -3,6 +3,7 @@
 import importlib.util
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 pytest.importorskip("torch")
@@ -75,3 +76,26 @@ def test_write_comparison_has_one_column_per_model(tmp_path):
     assert "| Finding | PriSTI | SSSD |" in text
     assert "| 2.5 | 1.500 | 1.500 |" in text
     assert "| 16 | 1.50 / 1.50 | 1.50 / 1.50 |" in text
+
+
+def test_phase_shifted_windows_cover_every_offset():
+    paths = np.arange(257.0)[None]
+    windows = benchmark.phase_shifted_windows(paths)
+    assert windows.shape == (16, 13)
+    np.testing.assert_array_equal(windows[0], np.arange(0, 97, 8))
+    np.testing.assert_array_equal(windows[3], np.arange(3, 100, 8))
+    np.testing.assert_array_equal(windows[8], np.arange(160, 257, 8))
+    # Shifted windows that would overrun the path move back one coarse step.
+    np.testing.assert_array_equal(windows[9], np.arange(153, 250, 8))
+
+
+def test_method_seed_depends_only_on_base_and_name():
+    first = benchmark.method_seed(42, "interp_x2")
+    assert first == benchmark.method_seed(42, "interp_x2")
+    assert first != benchmark.method_seed(42, "sparse_shifted")
+    assert first != benchmark.method_seed(43, "interp_x2")
+
+
+def test_controls_are_skipped_when_not_run():
+    rows = benchmark.control_checks(flat_sweep())
+    assert [verdict for _, verdict, _ in rows] == ["n/a"] * 3

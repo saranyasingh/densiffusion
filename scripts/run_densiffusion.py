@@ -45,6 +45,7 @@ cross-model table, the checks of each quasi-periodic finding and a plot:
 """
 
 import argparse
+import dataclasses
 import json
 import logging
 import time
@@ -131,7 +132,13 @@ QUASI_METHODS = (
     "fine_x8",
     "oracle_x2",
     "oracle_x8",
+    "interp_x2",
+    "fineinterp_x2",
+    "sparse_shifted",
 )
+# Added after the first sweep; each draws its own seed (method_seed), so the
+# earlier methods' samples are unchanged and --extend matches a fresh run.
+ADDED_METHODS = ("interp_x2", "fineinterp_x2", "sparse_shifted")
 LEVELS_TESTED = (-2, -1, 0, 1, 2, 3)
 
 
@@ -156,6 +163,29 @@ def task_methods(gp):
 def imputer_strides(gp):
     """Coarse strides for the imputer; thinning would alias a periodic process."""
     return (1,) if "period" in gp else (1, 2, 4)
+
+
+def method_seed(base, name):
+    """Sampling seed for one method that does not depend on run order."""
+    return int(np.random.default_rng([base, *name.encode()]).integers(2**62))
+
+
+def phase_shifted_windows(paths):
+    """Coarse forecaster windows at every offset of the fine grid.
+
+    The fine paths seen at the coarse spacing: forecast_windows' coarse windows,
+    plus the same windows shifted by 1 to FINE - 1 fine steps (one coarse step
+    earlier where they would overrun the path). FINE times as many windows.
+    """
+    span = (HISTORY + HORIZON - 1) * FINE
+    last = paths.shape[1] - 1 - span
+    windows = []
+    for start in WINDOW_STARTS:
+        for offset in range(FINE):
+            first = FINE * start + offset
+            first = first if first <= last else first - FINE
+            windows.append(paths[:, first : first + span + 1 : FINE])
+    return np.concatenate(windows)
 
 
 def level_windows(paths, level, rng):
@@ -192,7 +222,13 @@ def main():
         "--device", default="cpu", help="Torch device, e.g. mps for the Apple GPU"
     )
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--rescore", action="store_true", help="Reuse checkpoints")
+    reuse = parser.add_mutually_exclusive_group()
+    reuse.add_argument("--rescore", action="store_true", help="Reuse checkpoints")
+    reuse.add_argument(
+        "--extend",
+        action="store_true",
+        help="Add methods missing from a finished run, reusing its results",
+    )
     args = parser.parse_args()
     if args.mode == "run":
         torch.set_num_threads(args.threads)
@@ -251,9 +287,10 @@ def run_task(args):
     task = args.task
     label, dt, gp = TASKS[task]
     folder = args.output / task
-    folder.mkdir(parents=True, exist_ok=args.rescore)
+    reuse = args.rescore or args.extend
+    folder.mkdir(parents=True, exist_ok=reuse)
     previous = folder / "results.json"
-    previous = json.loads(previous.read_text()) if args.rescore else {}
+    previous = json.loads(previous.read_text()) if reuse else {}
     logger = logging.getLogger("densiffusion.training")
     timings = {}
     clock = time.perf_counter()
@@ -282,8 +319,9 @@ def run_task(args):
         return int(rng.integers(2**62))
 
     def fit(model, checkpoint, train):
-        """Train, or with --rescore load the saved best weights instead."""
-        if args.rescore:
+        """Train, or load the saved best weights with --rescore (or --extend,
+        if they exist)."""
+        if args.rescore or (args.extend and checkpoint.exists()):
             state = torch.load(checkpoint, map_location="cpu", weights_only=True)
             model.load_state_dict(state["model_state_dict"])
             model.to(args.device).eval()
@@ -296,36 +334,6 @@ def run_task(args):
             logger.removeHandler(log)
         return log.records
 
-    imputer_config = config(args.imputer_epochs, args.device)
-    sampler = sampling_config(imputer_config)
-    torch.manual_seed(args.seed)
-    imputer = small_model(args.model)
-    strides = imputer_strides(gp)
-    imputer_epochs = fit(
-        imputer,
-        folder / "imputer.pt",
-        lambda: train_imputer(
-            imputer,
-            imputation_windows(coarse["train"], strides),
-            imputation_windows(coarse["validation"], strides),
-            imputer_config,
-            seed=args.seed,
-            checkpoint=folder / "imputer.pt",
-        ),
-    )
-    lap("imputer training")
-
-    methods = task_methods(gp)
-    results = {"task": task, "label": label, "dt": dt, "gp": gp}
-    results["model"] = args.model
-    results["device"] = args.device
-    results["methods"] = methods
-    results["imputer_strides"] = strides
-    results["scale_transfer"] = scale_transfer(
-        imputer, sampler, fine["test"], gp_sampler, seed
-    )
-    lap("scale-transfer diagnostics")
-
     windows = {
         part: forecast_windows(paths, times) for part, (paths, times) in fine.items()
     }
@@ -335,80 +343,144 @@ def run_task(args):
     test_history = test_windows[:, :HISTORY]
     future = test_windows[:, HISTORY:]
 
-    dense_train = densify(
-        imputer, sampler, train_windows, levels=LEVELS, n_samples=1, seed=seed()
-    )
-    dense_validation = densify(
-        imputer, sampler, validation_windows, levels=LEVELS, n_samples=1, seed=seed()
-    )
-    dense_test = densify(
-        imputer, sampler, test_history, levels=LEVELS, n_samples=HISTORIES, seed=seed()
-    )
-    lap("densification")
-    exact_test = [
-        exact_history(gp_sampler, test_truth, test_times, 2**level, HISTORIES, seed())
-        for level in range(1, LEVELS + 1)
-    ]
-    results["densified_history"] = history_quality(
-        dense_test, exact_test, test_history, test_truth
-    )
-    methods_fine = any(m.startswith("fine_") for m in methods)
-    if methods_fine:
-        fine_imputers = []
-        for level in range(1, LEVELS + 1):
-            pick = np.random.default_rng(args.seed + level)
-            checkpoint = folder / f"imputer_fine_level{level}.pt"
-            torch.manual_seed(args.seed)
-            model = small_model(args.model)
-            epochs_fine = fit(
-                model,
-                checkpoint,
-                partial(
-                    train_imputer,
-                    model,
-                    level_windows(fine["train"][0], level, pick),
-                    level_windows(fine["validation"][0], level, pick),
-                    imputer_config,
-                    seed=args.seed,
-                    checkpoint=checkpoint,
-                ),
-            )
-            results.setdefault("fine_imputer_epochs", []).append(epochs_fine)
-            fine_imputers.append(model)
-        lap("fine-data imputer training")
-        dense_test_fine = densify(
-            fine_imputers,
+    methods = task_methods(gp)
+    if args.extend:
+        results = {"model": args.model, **previous, "methods": methods}
+        with np.load(folder / "samples.npz") as saved:
+            stored = {key: saved[key] for key in saved.files}
+        epochs = dict(previous["epochs"])
+        methods_fine = "densified_fine" in stored
+    else:
+        imputer_config = config(args.imputer_epochs, args.device)
+        sampler = sampling_config(imputer_config)
+        torch.manual_seed(args.seed)
+        imputer = small_model(args.model)
+        strides = imputer_strides(gp)
+        imputer_epochs = fit(
+            imputer,
+            folder / "imputer.pt",
+            lambda: train_imputer(
+                imputer,
+                imputation_windows(coarse["train"], strides),
+                imputation_windows(coarse["validation"], strides),
+                imputer_config,
+                seed=args.seed,
+                checkpoint=folder / "imputer.pt",
+            ),
+        )
+        lap("imputer training")
+
+        results = {"task": task, "label": label, "dt": dt, "gp": gp}
+        results["model"] = args.model
+        results["device"] = args.device
+        results["methods"] = methods
+        results["imputer_strides"] = strides
+        results["scale_transfer"] = scale_transfer(
+            imputer, sampler, fine["test"], gp_sampler, seed
+        )
+        lap("scale-transfer diagnostics")
+
+        dense_train = densify(
+            imputer, sampler, train_windows, levels=LEVELS, n_samples=1, seed=seed()
+        )
+        dense_validation = densify(
+            imputer,
+            sampler,
+            validation_windows,
+            levels=LEVELS,
+            n_samples=1,
+            seed=seed(),
+        )
+        dense_test = densify(
+            imputer,
             sampler,
             test_history,
             levels=LEVELS,
             n_samples=HISTORIES,
             seed=seed(),
         )
-        results["densified_history_fine"] = history_quality(
-            dense_test_fine, exact_test, test_history, test_truth
+        lap("densification")
+        exact_test = [
+            exact_history(
+                gp_sampler, test_truth, test_times, 2**level, HISTORIES, seed()
+            )
+            for level in range(1, LEVELS + 1)
+        ]
+        results["densified_history"] = history_quality(
+            dense_test, exact_test, test_history, test_truth
         )
-        lap("fine-data densification")
+        methods_fine = any(m.startswith("fine_") for m in methods)
+        if methods_fine:
+            fine_imputers = []
+            for level in range(1, LEVELS + 1):
+                pick = np.random.default_rng(args.seed + level)
+                checkpoint = folder / f"imputer_fine_level{level}.pt"
+                torch.manual_seed(args.seed)
+                model = small_model(args.model)
+                epochs_fine = fit(
+                    model,
+                    checkpoint,
+                    partial(
+                        train_imputer,
+                        model,
+                        level_windows(fine["train"][0], level, pick),
+                        level_windows(fine["validation"][0], level, pick),
+                        imputer_config,
+                        seed=args.seed,
+                        checkpoint=checkpoint,
+                    ),
+                )
+                results.setdefault("fine_imputer_epochs", []).append(epochs_fine)
+                fine_imputers.append(model)
+            lap("fine-data imputer training")
+            dense_test_fine = densify(
+                fine_imputers,
+                sampler,
+                test_history,
+                levels=LEVELS,
+                n_samples=HISTORIES,
+                seed=seed(),
+            )
+            results["densified_history_fine"] = history_quality(
+                dense_test_fine, exact_test, test_history, test_truth
+            )
+            lap("fine-data densification")
+        epochs = {"imputer": imputer_epochs}
 
-    hidden, _ = forecast_layout(HISTORY, HORIZON)
-    gp_forecast = impute(
-        test_windows[..., None],
-        gp_sampler,
-        factor=1,
-        mask=hidden,
-        times=test_times,
-        n_samples=DRAWS,
-        dt=dt,
-        seed=seed(),
-    )[:, :, HISTORY:, 0]
-    persistence = np.repeat(test_history[:, -1:, None], HORIZON, axis=2)
-    samples = {"gp": gp_forecast, "persistence": persistence}
+    if args.extend:
+        keys = ("gp", "persistence", *methods)
+        samples = {key: stored[key] for key in keys if key in stored}
+    else:
+        hidden, _ = forecast_layout(HISTORY, HORIZON)
+        gp_forecast = impute(
+            test_windows[..., None],
+            gp_sampler,
+            factor=1,
+            mask=hidden,
+            times=test_times,
+            n_samples=DRAWS,
+            dt=dt,
+            seed=seed(),
+        )[:, :, HISTORY:, 0]
+        persistence = np.repeat(test_history[:, -1:, None], HORIZON, axis=2)
+        samples = {"gp": gp_forecast, "persistence": persistence}
 
     def variant(name):
         """(checkpoint name, factor, train, validation, test histories,
-        histories per window). Fine and oracle variants share a forecaster
-        trained on the true fine paths; only their test histories differ."""
+        histories per window). Fine, oracle and fineinterp variants share a
+        forecaster trained on the true fine paths; only their test histories
+        differ. sparse_shifted trains on the fine paths at every coarse phase."""
         if name == "sparse":
             return name, 1, train_windows, validation_windows, test_history, 1
+        if name == "sparse_shifted":
+            return (
+                name,
+                1,
+                phase_shifted_windows(fine["train"][0]),
+                phase_shifted_windows(fine["validation"][0]),
+                test_history,
+                1,
+            )
         kind, factor = name.split("_x")
         factor = int(factor)
         level = factor.bit_length() - 1
@@ -421,6 +493,15 @@ def run_task(args):
                 dense_validation[level - 1][:, 0],
                 dense.reshape(-1, dense.shape[-1]),
                 HISTORIES,
+            )
+        if kind == "fineinterp":
+            return (
+                f"truefine_x{factor}",
+                factor,
+                train_truth[:, :: FINE // factor],
+                validation_truth[:, :: FINE // factor],
+                interpolate(test_history, factor),
+                1,
             )
         if kind in ("fine", "oracle"):
             dense = (dense_test_fine if kind == "fine" else exact_test)[level - 1]
@@ -443,16 +524,21 @@ def run_task(args):
 
     forecaster_config = config(args.forecaster_epochs, args.device)
     forecaster_sampler = sampling_config(forecaster_config)
-    epochs = {"imputer": imputer_epochs}
+    # FINE times the windows: train for the same number of updates as sparse.
+    shifted_config = dataclasses.replace(
+        forecaster_config,
+        epochs=max(1, args.forecaster_epochs // FINE),
+        validation_interval=1,
+    )
     forecasters = {}
     for name in methods:
-        if name == "persistence":
+        if name == "persistence" or name in samples:
             continue
         key, factor, train, validation, histories, per_window = variant(name)
         if key not in forecasters:
             torch.manual_seed(args.seed)
             forecasters[key] = small_model(args.model)
-            epochs[key] = fit(
+            record = fit(
                 forecasters[key],
                 folder / f"{key}.pt",
                 partial(
@@ -460,7 +546,7 @@ def run_task(args):
                     forecasters[key],
                     train,
                     validation,
-                    forecaster_config,
+                    shifted_config if key == "sparse_shifted" else forecaster_config,
                     history=HISTORY,
                     horizon=HORIZON,
                     factor=factor,
@@ -468,6 +554,8 @@ def run_task(args):
                     checkpoint=folder / f"{key}.pt",
                 ),
             )
+            if not (args.extend and key in epochs):
+                epochs[key] = record
         model = forecasters[key]
         draws = DRAWS // per_window
         predicted = forecast(
@@ -477,7 +565,7 @@ def run_task(args):
             horizon=HORIZON,
             factor=factor,
             n_samples=draws,
-            seed=seed(),
+            seed=method_seed(args.seed, name) if name in ADDED_METHODS else seed(),
         )
         samples[name] = predicted.reshape(len(test_windows), DRAWS, HORIZON)
         lap(f"forecaster {name}")
@@ -489,17 +577,27 @@ def run_task(args):
             results["fine_imputer_epochs"] = previous["fine_imputer_epochs"]
         results["timings"] = previous["timings"]
         results["rescore_timings"] = timings
+    elif args.extend:
+        results["epochs"] = epochs
+        results["extend_timings"] = timings
     else:
         results["epochs"] = epochs
         results["timings"] = timings
+    if args.extend:
+        densified = {
+            k: stored[k] for k in ("densified", "densified_fine") if k in stored
+        }
+    else:
+        densified = {"densified": dense_test[-1]}
+        if methods_fine:
+            densified["densified_fine"] = dense_test_fine[-1]
     (folder / "results.json").write_text(json.dumps(results, indent=2))
     np.savez_compressed(
         folder / "samples.npz",
         truth=test_truth,
         windows=test_windows,
         times=test_times,
-        densified=dense_test[-1],
-        **({"densified_fine": dense_test_fine[-1]} if methods_fine else {}),
+        **densified,
         **samples,
     )
     print(f"[{task}] done", flush=True)
@@ -654,6 +752,9 @@ COLOURS = {
     "fine_x8": "#e87ba4",
     "oracle_x2": "#9085e9",
     "oracle_x8": "#6250d6",
+    "interp_x2": "#8fd9b6",
+    "fineinterp_x2": "#a3245a",
+    "sparse_shifted": "#8a5d00",
     "model": "#2a78d6",
     "interpolation": "#1baf7a",
 }
@@ -669,8 +770,18 @@ NAMES = {
     "fine_x8": "Fine-data x8",
     "oracle_x2": "Oracle x2",
     "oracle_x8": "Oracle x8",
+    "interp_x2": "Interpolated x2",
+    "fineinterp_x2": "Fine-data x2, interpolated history",
+    "sparse_shifted": "Sparse, all phase shifts",
 }
-MARKERS = {"learned": "o", "fine": "^", "oracle": "s", "interp": "D"}
+MARKERS = {
+    "learned": "o",
+    "fine": "^",
+    "oracle": "s",
+    "interp": "D",
+    "fineinterp": "v",
+    "sparse_shifted": "P",
+}
 
 
 def report(args):
@@ -836,7 +947,7 @@ def _spacing(level):
 def plot_forecast_crps(plt, results, methods, output):
     labels = [result["label"] for result in results.values()]
     x = np.arange(len(labels))
-    width = 0.13
+    width = 0.9 / len(methods)
     figure, ax = plt.subplots(figsize=(11, 4.6))
     for index, method in enumerate(methods):
         ratios = [
@@ -872,7 +983,7 @@ def plot_gains(plt, results, methods, output):
     figure, ax = plt.subplots(figsize=(9, 3.8))
     ax.axhline(0, color=AXIS, linewidth=1)
     for index, method in enumerate(methods):
-        offset = (index - (len(methods) - 1) / 2) * 0.16
+        offset = (index - (len(methods) - 1) / 2) * 0.8 / len(methods)
         for row, result in enumerate(results.values()):
             entry = result["forecast"][method]
             scale = result["forecast"]["gp"]["crps"]
@@ -943,7 +1054,8 @@ def plot_sweep(plt, results, methods, output):
     """CRPS ratio and gain over sparse against the period-to-spacing ratio."""
     ordered = sorted(results.values(), key=_period_ratio)
     figure, axes = plt.subplots(1, 2, figsize=(12, 4.4))
-    _sweep_axes(axes[0], axes[1], ordered, [m for m in methods if "_x" in m])
+    shown = [m for m in methods if m not in ("persistence", "sparse")]
+    _sweep_axes(axes[0], axes[1], ordered, shown)
     axes[0].set_ylabel("Forecast CRPS / exact GP CRPS")
     axes[0].set_title("Forecast CRPS (lower is better; 1 = best possible)", loc="left")
     axes[1].set_ylabel("CRPS gain over sparse / GP CRPS")
@@ -1149,7 +1261,14 @@ def plot_examples(plt, results, output):
     plt.close(figure)
 
 
-COMPARED = ("learned_x2", "interp_x8", "fine_x2", "fine_x8", "oracle_x2")
+COMPARED = (
+    "learned_x2",
+    "interp_x2",
+    "fine_x2",
+    "fineinterp_x2",
+    "sparse_shifted",
+    "oracle_x2",
+)
 
 
 def compare(args):
@@ -1163,7 +1282,7 @@ def compare(args):
     sweeps = {}
     for model in args.models:
         found = [
-            json.loads(path.read_text())
+            {**json.loads(path.read_text()), "folder": str(path.parent)}
             for task in TASKS
             if task.startswith("qp_")
             and (path := args.output / model / task / "results.json").exists()
@@ -1253,7 +1372,7 @@ def finding_checks(sweep):
         f"{NAMES[m]} at {_period_ratio(r):g}"
         for r in resolved
         for m in densified
-        if _significance(r, m) == 1
+        if m in r["forecast"] and _significance(r, m) == 1
     ]
     rows.append(
         (
@@ -1302,6 +1421,64 @@ def finding_checks(sweep):
     return rows
 
 
+CONTROLS = (
+    (
+        "interp_x2",
+        "Fine-data x2 beats interpolated x2 (same factor, coarse training data)",
+    ),
+    (
+        "fineinterp_x2",
+        "Fine-data x2 beats the same forecaster given interpolated histories "
+        "(the densified test history matters)",
+    ),
+    (
+        "sparse_shifted",
+        "Fine-data x2 beats a sparse forecaster trained on the fine paths at "
+        "every coarse phase (densifying beats using fine data directly)",
+    ),
+)
+
+
+def paired_gain(samples, baseline, method):
+    """Mean per-window CRPS reduction of method over baseline, with a 95%
+    bootstrap interval over test paths (as in score_forecasts)."""
+    future = samples["windows"][:, HISTORY:]
+    n_paths = len(future) // len(WINDOW_STARTS)
+    gain = ensemble_crps(samples[baseline], future).mean(axis=1)
+    gain = gain - ensemble_crps(samples[method], future).mean(axis=1)
+    paths = np.arange(len(gain)) % n_paths
+    by_path = np.bincount(paths, gain) / np.bincount(paths)
+    resampled = np.random.default_rng(0).integers(n_paths, size=(4000, n_paths))
+    low, high = np.quantile(by_path[resampled].mean(axis=1), [0.025, 0.975])
+    return float(gain.mean()), float(low), float(high)
+
+
+def control_checks(sweep, ratios=(2.5, 3, 4)):
+    """(control, verdict, evidence) comparing fine-data x2 with each control.
+
+    Evidence is fine-data x2's CRPS gain over the control in units of the
+    exact GP's CRPS, with its 95% interval, at each P/dt in ratios.
+    """
+    at = {_period_ratio(result): result for result in sweep}
+    tasks = [at[p] for p in ratios if p in at]
+    rows = []
+    for control, finding in CONTROLS:
+        usable = [r for r in tasks if control in r["forecast"] and "folder" in r]
+        if not usable:
+            rows.append((finding, "n/a", "not run"))
+            continue
+        cells, passed = [], 0
+        for result in usable:
+            with np.load(Path(result["folder"]) / "samples.npz") as samples:
+                gain = paired_gain(samples, control, "fine_x2")
+            scale = result["forecast"]["gp"]["crps"]
+            mean, low, high = (value / scale for value in gain)
+            passed += low > 0
+            cells.append(f"{mean:+.2f} [{low:+.2f}, {high:+.2f}]")
+        rows.append((finding, _verdict(passed, len(usable)), "; ".join(cells)))
+    return rows
+
+
 def write_comparison(sweeps, output):
     labels = [MODEL_LABELS[model] for model in sweeps]
     checks = {model: finding_checks(sweep) for model, sweep in sweeps.items()}
@@ -1330,6 +1507,25 @@ def write_comparison(sweeps, output):
             _, verdict, evidence = checks[model][index]
             cells.append(f"{verdict}: {evidence}" if evidence else verdict)
         lines.append(f"| {finding} | " + " | ".join(cells) + " |")
+    controls = {model: control_checks(sweep) for model, sweep in sweeps.items()}
+    lines += [
+        "",
+        "## Where does the fine-data gain come from?",
+        "",
+        "Fine-data x2 against three controls at P/dt = 2.5, 3 and 4: its CRPS "
+        "gain over each control in units of the exact GP's CRPS (positive = "
+        "fine-data x2 is better), with 95% bootstrap intervals over test paths. "
+        "Yes means significantly better at every P/dt.",
+        "",
+        "| Control " + header[0],
+        "|---" + header[1],
+    ]
+    for index, (_, finding) in enumerate(CONTROLS):
+        cells = []
+        for model in sweeps:
+            _, verdict, evidence = controls[model][index]
+            cells.append(f"{verdict}: {evidence}")
+        lines.append(f"| {finding} | " + " | ".join(cells) + " |")
     ratios = sorted({_period_ratio(r) for sweep in sweeps.values() for r in sweep})
     lines += [
         "",
@@ -1351,6 +1547,9 @@ def write_comparison(sweeps, output):
             for sweep in sweeps.values():
                 result = next((r for r in sweep if _period_ratio(r) == ratio), None)
                 if result is None:
+                    cells.append("n/a")
+                    continue
+                if method not in result["forecast"]:
                     cells.append("n/a")
                     continue
                 mark = {1: " +", 0: "", -1: " -"}
@@ -1390,7 +1589,8 @@ def plot_comparison(plt, sweeps, output):
         2, len(sweeps), figsize=(4.3 * len(sweeps), 8), sharey="row", squeeze=False
     )
     for column, (model, sweep) in enumerate(sweeps.items()):
-        _sweep_axes(axes[0, column], axes[1, column], sweep, COMPARED)
+        shown = [m for m in COMPARED if all(m in r["forecast"] for r in sweep)]
+        _sweep_axes(axes[0, column], axes[1, column], sweep, shown)
         axes[0, column].set_title(f"{MODEL_LABELS[model]}: forecast CRPS", loc="left")
         axes[1, column].set_title(
             f"{MODEL_LABELS[model]}: gain over sparse", loc="left"
