@@ -78,8 +78,58 @@ were trained on the GPU before this was found.
 per-method tables across models, and `comparison.png`, with each model's
 sweep.
 
-## Results
+## Results (one seed; SSSD only at P/dt = 8 and 16 so far)
 
-Pending: the CSDI, SSSD and TimeAutoDiff runs are in progress. PriSTI's
-results, including the matched baseline and controls, are in section 3 of
-[pristi_experiments.md](pristi_experiments.md).
+Forecast CRPS of the x2 methods relative to each model's own sparse forecaster
+(below 1 is better; `+` / `-` significantly better / worse than sparse):
+
+| P/dt | Model | Sparse / exact GP | Coarse-data x2 | Interpolated x2 | Fine-data x2 | Oracle x2 |
+|---|---|---|---|---|---|---|
+| 1.6 | PriSTI | 1.69 | 0.86 + | **0.71 +** | 0.80 + | 0.76 + |
+| 1.6 | CSDI | 2.55 | 1.19 - | **0.60 +** | 1.17 - | 1.15 - |
+| 1.6 | TimeAutoDiff | 2.33 | 0.91 + | 0.68 + | 0.62 + | **0.53 +** |
+| 2.5 | PriSTI | 1.80 | 0.86 + | 0.72 + | 0.68 + | **0.65 +** |
+| 2.5 | CSDI | 2.70 | 1.13 - | **0.76 +** | 0.89 + | 0.77 + |
+| 2.5 | TimeAutoDiff | 2.31 | 1.24 - | 0.83 + | 0.61 + | **0.56 +** |
+| 3 | PriSTI | 1.46 | 1.56 - | 0.90 + | 0.88 + | **0.87 +** |
+| 3 | CSDI | 3.08 | 1.05 - | 0.53 + | 0.58 + | **0.50 +** |
+| 3 | TimeAutoDiff | 1.49 | 1.02 | 1.06 - | 1.00 | **0.99** |
+| 4 | PriSTI | 1.33 | 2.30 - | 0.96 + | 0.95 + | **0.94 +** |
+| 4 | CSDI | 3.39 | 1.19 - | 0.54 + | 0.68 + | **0.47 +** |
+| 4 | TimeAutoDiff | 1.25 | 1.87 - | 1.12 - | **1.05 -** | 1.06 - |
+
+`outputs/quasiperiodic/comparison.md` has every method, the finding checks
+and the controls; `comparison.png` shows each model's full sweep.
+
+### What holds across models
+
+- **A 2x grid helps in the most aliased cases.** At P/dt = 1.6 and 2.5,
+  interpolated x2 beats sparse for PriSTI, CSDI and TimeAutoDiff.
+- **Coarse-only learned densification fails.** It is significantly worse than
+  sparse at P/dt = 3 and 4 for every model.
+- **Densifying does not help once the wave is resolved.** Every x8 densifier
+  is significantly worse than sparse at P/dt >= 6 for every model, including
+  SSSD. A few x2 methods beat sparse at P/dt = 8 for CSDI and TimeAutoDiff,
+  scattered results among many comparisons.
+
+### What does not hold
+
+- **Learned fine-data densification against straight lines depends on the
+  architecture.** At P/dt = 2.5-4, fine-data x2 is significantly better than
+  interpolated x2 for TimeAutoDiff (by 0.51 of the GP's CRPS at 2.5),
+  marginally better for PriSTI at 2.5 only, and significantly worse for CSDI
+  at all three.
+- **The 2x gain at P/dt = 3-4 depends on the model.** It is large for CSDI,
+  whose sparse forecaster is far from the exact GP (3.1-3.4x), modest for
+  PriSTI, and absent for TimeAutoDiff, whose sparse forecaster is closest
+  (1.25-1.49x). This fits a learning effect that shrinks as the sparse
+  forecaster improves.
+- **The joint model** (one network filling in and forecasting) is worse than
+  the separate imputer and forecaster at P/dt = 2.5-4 for every model.
+
+### Caveats
+
+- One seed per model; the models differ greatly in how close their sparse
+  forecasters get to the exact GP, so equal parameter counts do not mean
+  equal quality.
+- SSSD's other five tasks are still running.
