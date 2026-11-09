@@ -87,11 +87,11 @@ absolute error 24-148 W/m^2.
 - **The synthetic pattern carries over.** Forecasting on a 2x grid filled by
   straight lines, with coarse data only, is significantly better than sparse
   for P/dt = 1.64, 2.57 and 3.6, by 11-20%. From P/dt = 6 upwards no x2
-  method differs significantly from sparse.
+  method is significantly better than sparse.
 - **Learned fine-data densification does not help.** Fine-data x2 is never
   significantly better than sparse, and is worse than interpolated x2 at
-  P/dt = 1.64, 2.57 and 3.6, although its densified histories are 2-3 times
-  more accurate than interpolation.
+  P/dt = 1.64, 2.57 and 3.6, although its densified x8 histories are 1.8-3
+  times more accurate than interpolation there.
 - **The true fine history does help.** The same forecaster given the
   measured fine history (oracle) beats sparse by 8-23% for P/dt <= 3.6. Given
   learned or straight-line histories it gains little, so here the learned
