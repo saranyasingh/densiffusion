@@ -432,7 +432,9 @@ def report(args):
     if not results:
         raise FileNotFoundError(f"No task results in {args.output}")
     write_tables(results, args.output)
-    plot_sweep(plt, results, args.output)
+    every = [m for m in METHODS if m not in ("persistence", "sparse")]
+    plot_sweep(plt, results, args.output / "sweep.png", every)
+    plot_sweep(plt, results, args.output / "sweep_focus.png", FOCUS)
     print(f"Report written to {args.output}")
 
 
@@ -492,10 +494,12 @@ def write_tables(results, output):
     (output / "results.md").write_text("\n".join(lines) + "\n")
 
 
-def plot_sweep(plt, results, output):
+FOCUS = ("learned_x2", "interp_x2", "fine_x2", "oracle_x2")
+
+
+def plot_sweep(plt, results, path, shown):
     """CRPS relative to sparse and gain over sparse against P/dt."""
     ratios = np.array([result["ratio"] for result in results])
-    shown = [m for m in METHODS if m not in ("persistence", "sparse")]
     figure, axes = plt.subplots(1, 2, figsize=(12, 4.6))
     for ax in axes:
         ax.axvspan(ratios.min() / 1.1, 2, color="#e1e0d9", alpha=0.6, linewidth=0)
@@ -520,7 +524,7 @@ def plot_sweep(plt, results, output):
     axes[0].set_ylabel("Forecast CRPS / sparse CRPS")
     axes[0].set_title("Forecast CRPS relative to sparse (lower is better)", loc="left")
     for index, method in enumerate(shown):
-        offset = 1.02 ** (index - (len(shown) - 1) / 2)
+        offset = (1 + 0.1 / len(shown)) ** (index - (len(shown) - 1) / 2)
         scale = np.array([r["forecast"]["sparse"]["crps"] for r in results])
         gain = np.array([r["forecast"][method]["gain_over_sparse"] for r in results])
         interval = np.array(
@@ -548,8 +552,8 @@ def plot_sweep(plt, results, output):
     axes[1].set_title("Gain over sparse (above 0 = better; 95% interval)", loc="left")
     handles, labels = axes[0].get_legend_handles_labels()
     figure.legend(handles, labels, loc="lower center", ncols=5, frameon=False)
-    figure.tight_layout(rect=(0, 0.14, 1, 1))
-    figure.savefig(output / "sweep.png", dpi=150, facecolor=SURFACE)
+    figure.tight_layout(rect=(0, 0.14 if len(shown) > 5 else 0.08, 1, 1))
+    figure.savefig(path, dpi=150, facecolor=SURFACE)
     plt.close(figure)
 
 

@@ -59,6 +59,53 @@ uv run --extra research --with matplotlib python scripts/run_jena.py report \
   timestamps. A forecaster given the time of day, or a physical clear-sky
   model, would be a fairer real-world baseline and has not been run.
 
-## Results
+## Results (PriSTI, one seed)
 
-Pending: the PriSTI sweep is running.
+Forecast CRPS relative to the sparse forecaster (below 1 is better; `+` / `-`
+significantly better / worse than sparse, 95% bootstrap intervals over test
+paths):
+
+| P/dt | dt | Sparse CRPS (W/m^2) | Coarse-data x2 | Interpolated x2 | Fine-data x2 | Fine-data x2, interp. history | Oracle x2 (true history) | Sparse, all phases | Repeat last value |
+|---|---|---|---|---|---|---|---|---|---|
+| 1.64 | 14.7 h | 63.8 | 1.215 - | **0.796 +** | 1.049 | 1.343 - | 0.849 + | 1.072 - | 3.25 |
+| 2.57 | 9.3 h | 56.7 | 1.354 - | 0.849 + | 0.973 | 0.957 | **0.768 +** | 1.070 - | 3.51 |
+| 3 | 8 h | 40.0 | 1.371 - | 0.970 | 0.955 | 0.933 + | **0.917 +** | 1.017 | 4.66 |
+| 3.6 | 6.7 h | 52.3 | 1.210 - | 0.890 + | 1.051 | 0.925 + | **0.875 +** | 0.992 | 3.22 |
+| 6 | 4 h | 44.2 | 1.157 - | 0.997 | 1.049 | 1.046 | **0.956** | 0.969 | 4.81 |
+| 9 | 2.7 h | 42.4 | 1.112 - | 1.025 | 1.049 | 1.044 | 1.020 | **0.969** | 4.32 |
+| 18 | 1.3 h | 61.4 | 1.030 | 1.035 | 1.027 | 1.012 | **0.988** | 1.023 | 2.00 |
+
+x8 versions are worse than x2 almost everywhere (full table in
+`outputs/jena/pristi/results.md`). Densified history CRPS at x8: fine-data
+imputers 18-50 W/m^2, coarse-trained 20-235 W/m^2, linear interpolation's
+absolute error 24-148 W/m^2.
+
+`sweep_focus.png` shows the x2 methods; `sweep.png` shows every method.
+
+### Findings
+
+- **The synthetic pattern carries over.** Forecasting on a 2x grid filled by
+  straight lines, with coarse data only, is significantly better than sparse
+  for P/dt = 1.64, 2.57 and 3.6, by 11-20%. From P/dt = 6 upwards no x2
+  method differs significantly from sparse.
+- **Learned fine-data densification does not help.** Fine-data x2 is never
+  significantly better than sparse, and is worse than interpolated x2 at
+  P/dt = 1.64, 2.57 and 3.6, although its densified histories are 2-3 times
+  more accurate than interpolation.
+- **The true fine history does help.** The same forecaster given the
+  measured fine history (oracle) beats sparse by 8-23% for P/dt <= 3.6. Given
+  learned or straight-line histories it gains little, so here the learned
+  densifier is the bottleneck, unlike in the synthetic sweep.
+- **Coarse-only learned densification hurts everywhere** (11-37% worse than
+  sparse up to P/dt = 9).
+- **Fine data alone do not help:** the sparse forecaster trained on all phase
+  shifts is no better than sparse.
+- Sparse is a sensible baseline: repeating the last value is 2-5 times worse.
+
+### Caveats
+
+- One seed and one model; CSDI, SSSD and TimeAutoDiff have not been run.
+- The models see no timestamps; a time-of-day or clear-sky baseline might
+  beat all of them.
+- At integer P/dt the coarse points fall at fixed times of day, so P/dt = 3
+  and 6 may behave differently from the non-integer ratios.
