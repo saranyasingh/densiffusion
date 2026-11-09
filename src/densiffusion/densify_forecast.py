@@ -218,11 +218,19 @@ def interpolate(series: np.ndarray, factor: int) -> np.ndarray:
     return np.stack([np.interp(fine, coarse, row) for row in series])
 
 
-def forecast_layout(history: int, horizon: int, factor: int = 1):
-    """Hidden future and coarse-history reference masks for a refined window."""
+def forecast_layout(history: int, horizon: int, factor: int = 1, joint=False):
+    """Hidden future and coarse-history reference masks for a refined window.
+
+    With joint=True the history points between coarse observations are hidden
+    too, so one model fills in the history and forecasts the future together.
+    """
     length = (history + horizon - 1) * factor + 1
     hidden = np.zeros(length, dtype=bool)
     hidden[(history - 1) * factor + 1 :] = True
+    if joint:
+        hidden[: (history - 1) * factor + 1] = (
+            np.arange((history - 1) * factor + 1) % factor != 0
+        )
     reference = np.zeros(length, dtype=bool)
     reference[: (history - 1) * factor + 1 : factor] = True
     return hidden, reference
@@ -239,9 +247,14 @@ def train_forecaster(
     factor: int = 1,
     seed: int,
     checkpoint=None,
+    joint: bool = False,
 ):
-    """Train future prediction on (windows, time) windows at factor resolution."""
-    hidden, reference = forecast_layout(history, horizon, factor)
+    """Train future prediction on (windows, time) windows at factor resolution.
+
+    With joint=True the loss also covers the hidden history points (see
+    forecast_layout); train on true fine windows.
+    """
+    hidden, reference = forecast_layout(history, horizon, factor, joint)
     if train.shape[1] != hidden.size:
         raise ValueError("Windows do not match history, horizon and factor")
     return train_densifier(
@@ -268,17 +281,28 @@ def forecast(
     n_samples: int,
     seed: int,
     downsample: bool = True,
+    joint: bool = False,
 ):
     """Sample futures for (windows, history) series; returns coarse future values.
 
-    Output is (windows, n_samples, horizon) at the coarse future times, or with
+    Histories are at factor resolution, or coarse with joint=True, where the
+    model fills in the history and samples the future together. Output is
+    (windows, n_samples, horizon) at the coarse future times, or with
     downsample=False (windows, n_samples, horizon * factor) at every future point.
     """
-    windows, length = histories.shape
-    history = (length - 1) // factor + 1
-    hidden, reference = forecast_layout(history, horizon, factor)
+    windows = len(histories)
+    if joint:
+        history = histories.shape[1]
+        length = (history - 1) * factor + 1
+    else:
+        length = histories.shape[1]
+        history = (length - 1) // factor + 1
+    hidden, reference = forecast_layout(history, horizon, factor, joint)
     values = np.zeros((windows, hidden.size))
-    values[:, :length] = histories
+    if joint:
+        values[:, :length:factor] = histories
+    else:
+        values[:, :length] = histories
     location, scale = window_scale(values, reference)
     samples = impute(
         ((values - location[:, None]) / scale[:, None])[..., None],

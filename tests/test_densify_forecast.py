@@ -180,3 +180,37 @@ def test_scale_floor_bounds_small_scales(monkeypatch):
     assert window_scale(values, reference)[1][0] == pytest.approx(0.1)
     monkeypatch.setattr(densify_forecast, "SCALE_FLOOR", 20.0)
     np.testing.assert_allclose(window_scale(values, reference)[1], [20.0, 50.0])
+
+
+def test_joint_layout_hides_history_between_coarse_points():
+    hidden, reference = forecast_layout(3, 2, factor=2, joint=True)
+    np.testing.assert_array_equal(np.flatnonzero(hidden), [1, 3, 5, 6, 7, 8])
+    np.testing.assert_array_equal(np.flatnonzero(reference), [0, 2, 4])
+
+
+def test_joint_forecast_takes_coarse_histories():
+    model = tiny_model()
+    windows = np.random.default_rng(6).normal(size=(4, 9)).cumsum(axis=1)
+    train_forecaster(
+        model,
+        windows,
+        windows,
+        CONFIG,
+        history=3,
+        horizon=2,
+        factor=2,
+        seed=0,
+        joint=True,
+    )
+    samples = forecast(
+        model,
+        CONFIG,
+        windows[:, :5:2],
+        horizon=2,
+        factor=2,
+        n_samples=3,
+        seed=1,
+        joint=True,
+    )
+    assert samples.shape == (4, 3, 2)
+    assert np.isfinite(samples).all()

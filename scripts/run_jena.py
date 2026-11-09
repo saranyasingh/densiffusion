@@ -105,8 +105,8 @@ METHODS = (
 )
 LABELS = {
     **NAMES,
-    "oracle_x2": "Oracle x2 (true history)",
-    "oracle_x8": "Oracle x8 (true history)",
+    "oracle_x2": "Perfect filler (true history) x2",
+    "oracle_x8": "Perfect filler (true history) x8",
 }
 
 

@@ -62,7 +62,7 @@ PIPELINES = (
         "Forecaster trained on true fine windows.",
     ),
     (
-        "Oracle",
+        "Perfect filler",
         "oracle_x8",
         "exact",
         "Exact GP posterior (knows the kernel), no training.\n"
@@ -74,11 +74,11 @@ SHORT = {
     "sparse": "Sparse",
     "learned_x2": "Coarse-data x2",
     "fine_x2": "Fine-data x2",
-    "oracle_x2": "Oracle x2",
+    "oracle_x2": "Perfect filler x2",
     "gp": "Exact GP",
     "learned_x8": "Coarse-data x8",
     "fine_x8": "Fine-data x8",
-    "oracle_x8": "Oracle x8",
+    "oracle_x8": "Perfect filler x8",
 }
 
 
@@ -285,7 +285,7 @@ def plot_setups(plt, output):
 
 def _learns_from(ax, name, path, colour):
     """An example training window for each densifier."""
-    if name in ("Sparse", "Oracle"):
+    if name in ("Sparse", "Perfect filler"):
         message = (
             "Nothing: no densifier"
             if name == "Sparse"

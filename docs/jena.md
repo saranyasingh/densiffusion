@@ -32,7 +32,7 @@ night and peaks sharply by day, and clouds add irregular dips.
   interpolated x2 and x8, fine-data x2 and x8, fine-data x2 with interpolated
   history, and repeating the last value, all defined as in the synthetic
   sweep.
-- **Oracle:** there is no exact GP, so the oracle gives the fine-data
+- **Perfect filler:** there is no exact GP, so the perfect filler gives the fine-data
   forecaster the true fine history (one history, 100 futures).
 - **Scores:** CRPS relative to the sparse forecaster, with 95% bootstrap
   intervals over test paths for the gain over sparse.
@@ -50,7 +50,7 @@ uv run --extra research --with matplotlib python scripts/run_jena.py report \
 ## Differences from the synthetic sweep
 
 - **No best-possible reference:** without an exact GP, there is no "1.00 =
-  perfect" line, and the oracle uses the true history instead of posterior
+  perfect" line, and the perfect filler uses the true history instead of posterior
   draws.
 - **Phase is locked to the clock:** at integer P/dt (3, 6, 9, 18) the coarse
   points fall at the same times of day every day. The synthetic wave's phase
@@ -65,7 +65,7 @@ Forecast CRPS relative to the sparse forecaster (below 1 is better; `+` / `-`
 significantly better / worse than sparse, 95% bootstrap intervals over test
 paths):
 
-| P/dt | dt | Sparse CRPS (W/m^2) | Coarse-data x2 | Interpolated x2 | Fine-data x2 | Fine-data x2, interp. history | Oracle x2 (true history) | Sparse, all phases | Repeat last value |
+| P/dt | dt | Sparse CRPS (W/m^2) | Coarse-data x2 | Interpolated x2 | Fine-data x2 | Fine-data x2, interp. history | Perfect filler x2 (true history) | Sparse, all phases | Repeat last value |
 |---|---|---|---|---|---|---|---|---|---|
 | 1.64 | 14.7 h | 63.8 | 1.215 - | **0.796 +** | 1.049 | 1.343 - | 0.849 + | 1.072 - | 3.25 |
 | 2.57 | 9.3 h | 56.7 | 1.354 - | 0.849 + | 0.973 | 0.957 | **0.768 +** | 1.070 - | 3.51 |
@@ -93,7 +93,7 @@ absolute error 24-148 W/m^2.
   P/dt = 1.64, 2.57 and 3.6, although its densified x8 histories are 1.8-3
   times more accurate than interpolation there.
 - **The true fine history does help.** The same forecaster given the
-  measured fine history (oracle) beats sparse by 8-23% for P/dt <= 3.6. Given
+  measured fine history (perfect filler) beats sparse by 8-23% for P/dt <= 3.6. Given
   learned or straight-line histories it gains little, so here the learned
   densifier is the bottleneck, unlike in the synthetic sweep.
 - **Coarse-only learned densification hurts everywhere** (11-37% worse than

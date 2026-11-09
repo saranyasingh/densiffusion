@@ -27,8 +27,10 @@ spacing and compare two data settings (see docs/pristi_experiments.md):
   dt/2 -> dt/4, dt/4 -> dt/8), and a forecaster trained on the true fine
   paths. Test histories are still coarse and are densified by those imputers.
 
-"Oracle" forecasters share the fine-data forecaster but densify test histories
-with the exact GP posterior: the best any densifier could do. Report each group
+"Oracle" (perfect filler) forecasters share the fine-data forecaster but
+densify test histories with the exact GP posterior: the best any densifier
+could do. A learned network still forecasts, so this differs from the exact GP
+forecast. Report each group
 of tasks and each model into its own output folder. Run one task per process,
 then combine:
 
@@ -135,10 +137,11 @@ QUASI_METHODS = (
     "interp_x2",
     "fineinterp_x2",
     "sparse_shifted",
+    "joint_x2",
 )
 # Added after the first sweep; each draws its own seed (method_seed), so the
 # earlier methods' samples are unchanged and --extend matches a fresh run.
-ADDED_METHODS = ("interp_x2", "fineinterp_x2", "sparse_shifted")
+ADDED_METHODS = ("interp_x2", "fineinterp_x2", "sparse_shifted", "joint_x2")
 LEVELS_TESTED = (-2, -1, 0, 1, 2, 3)
 
 
@@ -502,6 +505,15 @@ def run_task(args):
                 dense.reshape(-1, dense.shape[-1]),
                 HISTORIES,
             )
+        if kind == "joint":
+            return (
+                name,
+                factor,
+                train_truth[:, :: FINE // factor],
+                validation_truth[:, :: FINE // factor],
+                test_history,
+                1,
+            )
         if kind == "fineinterp":
             return (
                 f"truefine_x{factor}",
@@ -560,6 +572,7 @@ def run_task(args):
                     factor=factor,
                     seed=args.seed,
                     checkpoint=folder / f"{key}.pt",
+                    joint=key.startswith("joint"),
                 ),
             )
             if not (args.extend and key in epochs):
@@ -574,6 +587,7 @@ def run_task(args):
             factor=factor,
             n_samples=draws,
             seed=method_seed(args.seed, name) if name in ADDED_METHODS else seed(),
+            joint=key.startswith("joint"),
         )
         samples[name] = predicted.reshape(len(test_windows), DRAWS, HORIZON)
         lap(f"forecaster {name}")
@@ -763,6 +777,7 @@ COLOURS = {
     "interp_x2": "#8fd9b6",
     "fineinterp_x2": "#a3245a",
     "sparse_shifted": "#8a5d00",
+    "joint_x2": "#0d7a8a",
     "model": "#2a78d6",
     "interpolation": "#1baf7a",
 }
@@ -776,11 +791,12 @@ NAMES = {
     "interp_x8": "Interpolated x8",
     "fine_x2": "Fine-data x2",
     "fine_x8": "Fine-data x8",
-    "oracle_x2": "Oracle x2",
-    "oracle_x8": "Oracle x8",
+    "oracle_x2": "Perfect filler (exact GP) x2",
+    "oracle_x8": "Perfect filler (exact GP) x8",
     "interp_x2": "Interpolated x2",
     "fineinterp_x2": "Fine-data x2, interpolated history",
     "sparse_shifted": "Sparse, all phase shifts",
+    "joint_x2": "Fine-data joint x2",
 }
 MARKERS = {
     "learned": "o",
@@ -789,6 +805,7 @@ MARKERS = {
     "interp": "D",
     "fineinterp": "v",
     "sparse_shifted": "P",
+    "joint": "X",
 }
 
 
@@ -1359,7 +1376,8 @@ def finding_checks(sweep):
     gaps = [_crps_ratio(r, "fine_x2") - _crps_ratio(r, "oracle_x2") for r in sampled]
     rows.append(
         (
-            "Fine-data x2 is within 0.05 of the oracle for P/dt >= 2.5 (largest gap)",
+            "Fine-data x2 is within 0.05 of the perfect filler for P/dt >= 2.5 "
+            "(largest gap)",
             _verdict(sum(g <= 0.05 for g in gaps), len(gaps)),
             f"{max(gaps):.3f}" if gaps else "",
         )
@@ -1443,6 +1461,11 @@ CONTROLS = (
         "sparse_shifted",
         "Fine-data x2 beats a sparse forecaster trained on the fine paths at "
         "every coarse phase (densifying beats using fine data directly)",
+    ),
+    (
+        "joint_x2",
+        "Fine-data x2 (separate imputer and forecaster) beats one model that "
+        "fills in the history and forecasts together",
     ),
 )
 

@@ -98,4 +98,4 @@ def test_method_seed_depends_only_on_base_and_name():
 
 def test_controls_are_skipped_when_not_run():
     rows = benchmark.control_checks(flat_sweep())
-    assert [verdict for _, verdict, _ in rows] == ["n/a"] * 3
+    assert [verdict for _, verdict, _ in rows] == ["n/a"] * len(benchmark.CONTROLS)
