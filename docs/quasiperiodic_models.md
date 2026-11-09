@@ -106,7 +106,7 @@ and the controls; `comparison.png` shows each model's full sweep.
 - **A 2x grid helps in the most aliased cases.** At P/dt = 1.6 and 2.5,
   interpolated x2 beats sparse for PriSTI, CSDI and TimeAutoDiff.
 - **Coarse-only learned densification fails.** It is significantly worse than
-  sparse at P/dt = 3 and 4 for every model.
+  sparse at P/dt = 4 for every model, and at P/dt = 3 for PriSTI and CSDI.
 - **Densifying does not help once the wave is resolved.** Every x8 densifier
   is significantly worse than sparse at P/dt >= 6 for every model, including
   SSSD. A few x2 methods beat sparse at P/dt = 8 for CSDI and TimeAutoDiff,
@@ -125,7 +125,8 @@ and the controls; `comparison.png` shows each model's full sweep.
   (1.25-1.49x). This fits a learning effect that shrinks as the sparse
   forecaster improves.
 - **The joint model** (one network filling in and forecasting) is worse than
-  the separate imputer and forecaster at P/dt = 2.5-4 for every model.
+  the separate imputer and forecaster at P/dt = 2.5-4 for every model
+  (not significantly for PriSTI at P/dt = 4).
 
 ### Caveats
 
