@@ -226,8 +226,10 @@ Shared by both settings:
 
 - **Sparse forecaster:** trained and tested on coarse windows. It is always
   coarse-only, so it is the baseline for both questions.
-- **Oracle (`oracle_x2`, `oracle_x8`):** the fine-data forecaster, but with
-  test histories densified by the exact GP posterior. This is the best any
+- **Perfect filler (`oracle_x2`, `oracle_x8`):** the fine-data forecaster, but with
+  test histories densified by the exact GP posterior. The exact GP only fills
+  in the history; a learned network still forecasts, so this is not the exact
+  GP forecast (the 1.00 reference). This is the best any
   densifier could do. Comparing it with `fine_xK` shows what is lost by
   learning the densifier; comparing it with sparse shows whether perfect
   densification helps at all.
@@ -293,7 +295,7 @@ each task's `before_extend/`.
 Forecast CRPS relative to the exact GP forecast (1.00 is the best possible).
 "Coarse-data" is the coarse-only setting:
 
-| P/dt | Sparse | Coarse-data x2 | Coarse-data x8 | Interpolated x2 | Interpolated x8 | Fine-data x2 | Fine-data x8 | Oracle x2 | Oracle x8 |
+| P/dt | Sparse | Coarse-data x2 | Coarse-data x8 | Interpolated x2 | Interpolated x8 | Fine-data x2 | Fine-data x8 | Perfect filler x2 | Perfect filler x8 |
 |---|---|---|---|---|---|---|---|---|---|
 | 1.6 | 1.691 | 1.454 | 2.021 | **1.201** | 1.302 | 1.351 | 1.279 | 1.286 | 1.228 |
 | 2.5 | 1.797 | 1.550 | 2.700 | 1.288 | 1.439 | 1.214 | 1.325 | **1.168** | 1.286 |
@@ -320,10 +322,10 @@ paths; full intervals are in the report's `results.md`):
 
 | P/dt | Significantly better than sparse | Significantly worse |
 |---|---|---|
-| 1.6 | coarse-data x2, interpolated x2 and x8, fine-data x2 and x8, oracle x2 and x8, sparse all phases | coarse-data x8, fine-data x2 with interpolated history |
-| 2.5 | coarse-data x2, interpolated x2 and x8, fine-data x2 and x8, oracle x2 and x8 | coarse-data x8, fine-data x2 with interpolated history, sparse all phases |
-| 3 | interpolated x2, fine-data x2 and x8, oracle x2 and x8 | coarse-data x2 and x8, fine-data x2 with interpolated history, sparse all phases |
-| 4 | interpolated x2, fine-data x2, oracle x2 | coarse-data x2 and x8, interpolated x8 |
+| 1.6 | coarse-data x2, interpolated x2 and x8, fine-data x2 and x8, perfect filler x2 and x8, sparse all phases | coarse-data x8, fine-data x2 with interpolated history |
+| 2.5 | coarse-data x2, interpolated x2 and x8, fine-data x2 and x8, perfect filler x2 and x8 | coarse-data x8, fine-data x2 with interpolated history, sparse all phases |
+| 3 | interpolated x2, fine-data x2 and x8, perfect filler x2 and x8 | coarse-data x2 and x8, fine-data x2 with interpolated history, sparse all phases |
+| 4 | interpolated x2, fine-data x2, perfect filler x2 | coarse-data x2 and x8, interpolated x8 |
 | 6 | none | coarse-data x2, interpolated x2, fine-data x2, all x8 methods |
 | 8 | none | all densified methods |
 | 16 | none | all densified methods and sparse all phases |
@@ -357,11 +359,11 @@ x8: fine-data imputers 1.4-2.3x; coarse-trained imputer 2.2x at P/dt = 16,
   histories it is far worse (2.03 against 1.21 at P/dt = 2.5), because it
   was trained on true fine shapes.
 - **The learned densifier is not the bottleneck.** Fine-data forecasts are
-  within 0.05 of the oracle's at x2 for P/dt >= 2.5 (0.07 at 1.6), although
+  within 0.05 of the perfect filler's at x2 for P/dt >= 2.5 (0.07 at 1.6), although
   the fine-data histories score 1.4-2.3x the exact GP at x8.
 - **Once the wave is resolved (P/dt >= 6), densifying does not help.** x2 is
-  slightly but significantly worse for every densifier except the oracle at
-  P/dt = 6, and x8 is clearly worse for every densifier, including the oracle.
+  slightly but significantly worse for every densifier except the perfect filler at
+  P/dt = 6, and x8 is clearly worse for every densifier, including the perfect filler.
 - **Coarse-only learned densification fails exactly where it would matter.**
   At P/dt = 3-4 the coarse-trained imputer's histories are 43-288x worse than
   the exact GP and the forecasts' CRPS is 1.6-3.4x the sparse forecaster's.

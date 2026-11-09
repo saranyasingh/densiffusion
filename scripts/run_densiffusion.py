@@ -27,8 +27,10 @@ spacing and compare two data settings (see docs/pristi_experiments.md):
   dt/2 -> dt/4, dt/4 -> dt/8), and a forecaster trained on the true fine
   paths. Test histories are still coarse and are densified by those imputers.
 
-"Oracle" forecasters share the fine-data forecaster but densify test histories
-with the exact GP posterior: the best any densifier could do. Report each group
+"Oracle" (perfect filler) forecasters share the fine-data forecaster but
+densify test histories with the exact GP posterior: the best any densifier
+could do. A learned network still forecasts, so this differs from the exact GP
+forecast. Report each group
 of tasks and each model into its own output folder. Run one task per process,
 then combine:
 
@@ -789,8 +791,8 @@ NAMES = {
     "interp_x8": "Interpolated x8",
     "fine_x2": "Fine-data x2",
     "fine_x8": "Fine-data x8",
-    "oracle_x2": "Oracle x2",
-    "oracle_x8": "Oracle x8",
+    "oracle_x2": "Perfect filler (exact GP) x2",
+    "oracle_x8": "Perfect filler (exact GP) x8",
     "interp_x2": "Interpolated x2",
     "fineinterp_x2": "Fine-data x2, interpolated history",
     "sparse_shifted": "Sparse, all phase shifts",
@@ -1374,7 +1376,8 @@ def finding_checks(sweep):
     gaps = [_crps_ratio(r, "fine_x2") - _crps_ratio(r, "oracle_x2") for r in sampled]
     rows.append(
         (
-            "Fine-data x2 is within 0.05 of the oracle for P/dt >= 2.5 (largest gap)",
+            "Fine-data x2 is within 0.05 of the perfect filler for P/dt >= 2.5 "
+            "(largest gap)",
             _verdict(sum(g <= 0.05 for g in gaps), len(gaps)),
             f"{max(gaps):.3f}" if gaps else "",
         )

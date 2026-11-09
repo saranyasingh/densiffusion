@@ -84,8 +84,9 @@ Methods compared:
 - **Fine-data xK:** densifiers and forecaster trained on fine-resolution
   paths; test histories are still coarse and are densified before
   forecasting.
-- **Oracle xK:** the fine-data forecaster with the exact GP as the
-  densifier, the best any densifier could do.
+- **Perfect filler xK:** the fine-data forecaster with the exact GP as the
+  densifier, the best any densifier could do. A learned network still
+  forecasts, so this is not the exact GP forecast (the 1.00 reference).
 
 Two controls test where the fine-data gain comes from:
 
@@ -96,9 +97,9 @@ Two controls test where the fine-data gain comes from:
   updates as sparse. It has the fine data's information but never densifies.
 
 Forecast CRPS relative to the exact GP (lower is better; 1.00 is perfect;
-bold is the best non-oracle method):
+bold is the best method other than the perfect filler):
 
-| P/dt | Sparse | Coarse-data x2 | Interpolated x2 | Fine-data x2 | Oracle x2 |
+| P/dt | Sparse | Coarse-data x2 | Interpolated x2 | Fine-data x2 | Perfect filler x2 |
 |---|---|---|---|---|---|
 | 1.6 | 1.691 | 1.454 | **1.201** | 1.351 | 1.286 |
 | 2.5 | 1.797 | 1.550 | 1.288 | **1.214** | 1.168 |
@@ -122,12 +123,12 @@ bold is the best non-oracle method):
   straight-line histories it is far worse (2.03 instead of 1.21 at
   P/dt = 2.5), because it was trained on true fine shapes.
 - **The learned densifier is not the bottleneck.** Fine-data forecasts are
-  within 0.05 of the oracle's for P/dt >= 2.5.
+  within 0.05 of the perfect filler's for P/dt >= 2.5.
 - **Coarse-only learned densification fails.** At P/dt = 3-4 its forecasts
   score 1.6-3.4x the sparse forecaster's CRPS. Its training data are
   themselves aliased, so it never sees the wave's true shape.
 - **Once the wave is resolved (P/dt >= 6), densifying hurts**: slightly at
-  x2, clearly at x8, even with the oracle densifier.
+  x2, clearly at x8, even with a perfect filler.
 - **x2 beats x8 almost everywhere.** The longer x8 windows cost more than the
   finer resolution gains.
 

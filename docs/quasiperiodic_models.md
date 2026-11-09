@@ -83,7 +83,7 @@ sweep.
 Forecast CRPS of the x2 methods relative to each model's own sparse forecaster
 (below 1 is better; `+` / `-` significantly better / worse than sparse):
 
-| P/dt | Model | Sparse / exact GP | Coarse-data x2 | Interpolated x2 | Fine-data x2 | Oracle x2 |
+| P/dt | Model | Sparse / exact GP | Coarse-data x2 | Interpolated x2 | Fine-data x2 | Perfect filler x2 |
 |---|---|---|---|---|---|---|
 | 1.6 | PriSTI | 1.69 | 0.86 + | **0.71 +** | 0.80 + | 0.76 + |
 | 1.6 | CSDI | 2.55 | 1.19 - | **0.60 +** | 1.17 - | 1.15 - |
@@ -132,7 +132,7 @@ forecaster.
   P/dt <= 4), modest for PriSTI (1.3-1.8x), absent at P/dt = 3-4 for
   TimeAutoDiff, and absent everywhere for SSSD, whose sparse forecaster is
   closest (1.16-1.18x). For SSSD no densified forecaster beats sparse; even
-  the oracle gains only 5% at P/dt = 1.6 and 2.5. SSSD's sparse forecaster
+  the perfect filler gains only 5% at P/dt = 1.6 and 2.5. SSSD's sparse forecaster
   (1.18x at P/dt = 2.5) also beats every other model's best densified
   forecast (PriSTI fine-data x2: 1.21x). Densification compensates for a weak
   coarse forecaster; a good one makes it unnecessary.
