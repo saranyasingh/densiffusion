@@ -1,0 +1,24 @@
+Loading outputs/brownian_forecast_observed/imputer.pt
+epoch=1 train_loss=0.336504 validation_loss=0.288569 lr=0.0005
+epoch=2 train_loss=0.27964 validation_loss=0.275061 lr=0.0005
+epoch=3 train_loss=0.262953 validation_loss=0.259227 lr=0.0005
+epoch=4 train_loss=0.263895 validation_loss=0.255378 lr=0.0005
+epoch=5 train_loss=0.260208 validation_loss=0.261162 lr=0.0005
+epoch=6 train_loss=0.259256 validation_loss=0.253584 lr=0.0005
+epoch=7 train_loss=0.260302 validation_loss=0.252067 lr=0.0005
+epoch=8 train_loss=0.256671 validation_loss=0.256195 lr=0.0005
+epoch=9 train_loss=0.258409 validation_loss=0.252495 lr=0.0005
+epoch=10 train_loss=0.251441 validation_loss=0.268 lr=0.0005
+epoch=11 train_loss=0.255889 validation_loss=0.251129 lr=0.0005
+epoch=12 train_loss=0.257649 validation_loss=0.253037 lr=0.0005
+epoch=13 train_loss=0.251953 validation_loss=0.252164 lr=0.0005
+epoch=14 train_loss=0.255348 validation_loss=0.250005 lr=0.0005
+epoch=15 train_loss=0.25067 validation_loss=0.254006 lr=0.0005
+epoch=16 train_loss=0.254566 validation_loss=0.249585 lr=0.0005
+epoch=17 train_loss=0.254602 validation_loss=0.257968 lr=0.0005
+epoch=18 train_loss=0.257555 validation_loss=0.248409 lr=0.0005
+epoch=19 train_loss=0.254858 validation_loss=0.250685 lr=0.0005
+epoch=20 train_loss=0.253052 validation_loss=0.255475 lr=0.0005
+Backtesting 155 test series: history 223, horizon 16 (observed grid)
+{'timeautodiff_forecast_crps': 0.8111696579922345, 'last_value_crps': 0.9691979508412101, 'gp_forecast_crps': 0.6819950223091822}
+Forecasting 16 steps past the end of every series

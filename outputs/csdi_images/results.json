@@ -1,0 +1,63 @@
+{
+  "scores": {
+    "gp_posterior": {
+      "crps": 0.07397465336325408,
+      "rmse": 0.12857457927368923
+    },
+    "linear_interpolation": {
+      "crps": 0.128864709676152,
+      "rmse": 0.165080646473382
+    },
+    "csdi": {
+      "crps": 0.07786766904121244,
+      "rmse": 0.13516672188688372
+    }
+  },
+  "parameters": 157489,
+  "train_seconds": 2023.7372673330829,
+  "sample_seconds": 346.0412953328341,
+  "args": {
+    "output": "outputs/csdi_images",
+    "size": "33",
+    "kernel": "matern_3_2",
+    "lengthscale": "5.0",
+    "variance": "1.0",
+    "mask": "grid",
+    "probability": "0.75",
+    "train_images": "2000",
+    "validation_images": "200",
+    "test_images": "100",
+    "epochs": "100",
+    "batch_size": "32",
+    "learning_rate": "0.001",
+    "diffusion_steps": "50",
+    "beta_end": "0.5",
+    "hidden_channels": "32",
+    "residual_layers": "4",
+    "attention_heads": "4",
+    "n_samples": "20",
+    "sample_batch_size": "256",
+    "device": "mps",
+    "seed": "0",
+    "no_plot": "False"
+  },
+  "training": {
+    "epochs": 100,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "diffusion_steps": 50,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "mps",
+    "schedule": "quadratic",
+    "weight_decay": 0.0,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "sampled",
+    "validation_interval": 5
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "scores": {
+    "bilinear": {
+      "crps": 0.03471475829915299,
+      "psnr": 26.695949367219665,
+      "ssim": 0.8675923503140986
+    },
+    "bicubic": {
+      "crps": 0.03576546101227466,
+      "psnr": 26.577054343468543,
+      "ssim": 0.8648385704021293
+    },
+    "csdi_mean": {
+      "crps": 0.02383002053071634,
+      "psnr": 27.658452523157667,
+      "ssim": 0.8832253899048681
+    },
+    "csdi_sample": {
+      "psnr": 25.740007607908698,
+      "ssim": 0.8376991236831881
+    }
+  },
+  "parameters": 416625,
+  "train_seconds": 18466.459712069016,
+  "sample_seconds": 237.3480231660651,
+  "data": {
+    "dataset": "AFHQ-v2 (cats)",
+    "url": "https://www.dropbox.com/s/vkzjokiwof5h8w6/afhq_v2.zip?dl=1",
+    "size": 65,
+    "seed": 0
+  },
+  "args": {
+    "data": "data/afhq_cats65.npz",
+    "output": "outputs/cats_csdi_56212506",
+    "factor": "2",
+    "no_flip": "False",
+    "train_images": "None",
+    "test_images": "None",
+    "epochs": "200",
+    "batch_size": "32",
+    "learning_rate": "0.001",
+    "diffusion_steps": "50",
+    "beta_end": "0.5",
+    "hidden_channels": "64",
+    "residual_layers": "4",
+    "attention_heads": "8",
+    "n_samples": "10",
+    "sample_batch_size": "64",
+    "device": "cuda",
+    "seed": "0",
+    "no_plot": "False"
+  },
+  "training": {
+    "epochs": 200,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "diffusion_steps": 50,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "cuda",
+    "schedule": "quadratic",
+    "weight_decay": 0.0,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "sampled",
+    "validation_interval": 10
+  }
+}

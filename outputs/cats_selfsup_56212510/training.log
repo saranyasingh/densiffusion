@@ -1,0 +1,225 @@
+Training on 9930 low-res 33x33 images (100 validation) to fill 17x17 -> 33x33; testing 33x33 -> 65x65 on 200 images; cuda
+CSDI with 415089 parameters
+epoch=1 train_loss=0.241607 lr=0.001
+epoch=2 train_loss=0.172381 lr=0.001
+epoch=3 train_loss=0.171405 lr=0.001
+epoch=4 train_loss=0.155745 lr=0.001
+epoch=5 train_loss=0.152099 lr=0.001
+epoch=6 train_loss=0.135229 lr=0.001
+epoch=7 train_loss=0.125591 lr=0.001
+epoch=8 train_loss=0.11545 lr=0.001
+epoch=9 train_loss=0.113291 lr=0.001
+epoch=10 train_loss=0.106237 validation_loss=0.0850248 lr=0.001
+epoch=11 train_loss=0.107925 lr=0.001
+epoch=12 train_loss=0.104118 lr=0.001
+epoch=13 train_loss=0.104847 lr=0.001
+epoch=14 train_loss=0.102134 lr=0.001
+epoch=15 train_loss=0.103023 lr=0.001
+epoch=16 train_loss=0.0993646 lr=0.001
+epoch=17 train_loss=0.10051 lr=0.001
+epoch=18 train_loss=0.101581 lr=0.001
+epoch=19 train_loss=0.0999793 lr=0.001
+epoch=20 train_loss=0.0987358 validation_loss=0.0795491 lr=0.001
+epoch=21 train_loss=0.100492 lr=0.001
+epoch=22 train_loss=0.0956548 lr=0.001
+epoch=23 train_loss=0.0943153 lr=0.001
+epoch=24 train_loss=0.0948068 lr=0.001
+epoch=25 train_loss=0.0948968 lr=0.001
+epoch=26 train_loss=0.0964478 lr=0.001
+epoch=27 train_loss=0.0975779 lr=0.001
+epoch=28 train_loss=0.0939601 lr=0.001
+epoch=29 train_loss=0.0893168 lr=0.001
+epoch=30 train_loss=0.0934713 validation_loss=0.0770659 lr=0.001
+epoch=31 train_loss=0.091221 lr=0.001
+epoch=32 train_loss=0.0921949 lr=0.001
+epoch=33 train_loss=0.0949215 lr=0.001
+epoch=34 train_loss=0.0929818 lr=0.001
+epoch=35 train_loss=0.0902118 lr=0.001
+epoch=36 train_loss=0.0938863 lr=0.001
+epoch=37 train_loss=0.0910784 lr=0.001
+epoch=38 train_loss=0.0898305 lr=0.001
+epoch=39 train_loss=0.0934178 lr=0.001
+epoch=40 train_loss=0.0929756 validation_loss=0.0757838 lr=0.001
+epoch=41 train_loss=0.0901076 lr=0.001
+epoch=42 train_loss=0.0924041 lr=0.001
+epoch=43 train_loss=0.0939509 lr=0.001
+epoch=44 train_loss=0.0919363 lr=0.001
+epoch=45 train_loss=0.0919352 lr=0.001
+epoch=46 train_loss=0.088353 lr=0.001
+epoch=47 train_loss=0.0938189 lr=0.001
+epoch=48 train_loss=0.0889535 lr=0.001
+epoch=49 train_loss=0.087825 lr=0.001
+epoch=50 train_loss=0.0908014 validation_loss=0.0755189 lr=0.001
+epoch=51 train_loss=0.0903966 lr=0.001
+epoch=52 train_loss=0.0896538 lr=0.001
+epoch=53 train_loss=0.0905203 lr=0.001
+epoch=54 train_loss=0.089757 lr=0.001
+epoch=55 train_loss=0.0870759 lr=0.001
+epoch=56 train_loss=0.0927149 lr=0.001
+epoch=57 train_loss=0.0878431 lr=0.001
+epoch=58 train_loss=0.0850922 lr=0.001
+epoch=59 train_loss=0.0894553 lr=0.001
+epoch=60 train_loss=0.088364 validation_loss=0.0732067 lr=0.001
+epoch=61 train_loss=0.0859221 lr=0.001
+epoch=62 train_loss=0.088366 lr=0.001
+epoch=63 train_loss=0.0880173 lr=0.001
+epoch=64 train_loss=0.0912945 lr=0.001
+epoch=65 train_loss=0.0888384 lr=0.001
+epoch=66 train_loss=0.0882421 lr=0.001
+epoch=67 train_loss=0.0890766 lr=0.001
+epoch=68 train_loss=0.090921 lr=0.001
+epoch=69 train_loss=0.0858825 lr=0.001
+epoch=70 train_loss=0.0875224 validation_loss=0.0727384 lr=0.001
+epoch=71 train_loss=0.0885204 lr=0.001
+epoch=72 train_loss=0.0870356 lr=0.001
+epoch=73 train_loss=0.084546 lr=0.001
+epoch=74 train_loss=0.0887392 lr=0.001
+epoch=75 train_loss=0.0840253 lr=0.001
+epoch=76 train_loss=0.0879235 lr=0.001
+epoch=77 train_loss=0.0859105 lr=0.001
+epoch=78 train_loss=0.0848446 lr=0.001
+epoch=79 train_loss=0.0885722 lr=0.001
+epoch=80 train_loss=0.089706 validation_loss=0.0718742 lr=0.001
+epoch=81 train_loss=0.0873847 lr=0.001
+epoch=82 train_loss=0.0879108 lr=0.001
+epoch=83 train_loss=0.0875713 lr=0.001
+epoch=84 train_loss=0.0857341 lr=0.001
+epoch=85 train_loss=0.0884631 lr=0.001
+epoch=86 train_loss=0.0852333 lr=0.001
+epoch=87 train_loss=0.0866103 lr=0.001
+epoch=88 train_loss=0.0868621 lr=0.001
+epoch=89 train_loss=0.0864748 lr=0.001
+epoch=90 train_loss=0.08468 validation_loss=0.0723467 lr=0.001
+epoch=91 train_loss=0.0860272 lr=0.001
+epoch=92 train_loss=0.0876856 lr=0.001
+epoch=93 train_loss=0.0883118 lr=0.001
+epoch=94 train_loss=0.0855066 lr=0.001
+epoch=95 train_loss=0.0870393 lr=0.001
+epoch=96 train_loss=0.0843965 lr=0.001
+epoch=97 train_loss=0.0842434 lr=0.001
+epoch=98 train_loss=0.0875269 lr=0.001
+epoch=99 train_loss=0.0845891 lr=0.001
+epoch=100 train_loss=0.0850641 validation_loss=0.0707978 lr=0.001
+epoch=101 train_loss=0.0847194 lr=0.001
+epoch=102 train_loss=0.0852852 lr=0.001
+epoch=103 train_loss=0.0864753 lr=0.001
+epoch=104 train_loss=0.0811418 lr=0.001
+epoch=105 train_loss=0.0870453 lr=0.001
+epoch=106 train_loss=0.0877509 lr=0.001
+epoch=107 train_loss=0.0833131 lr=0.001
+epoch=108 train_loss=0.0880762 lr=0.001
+epoch=109 train_loss=0.0838992 lr=0.001
+epoch=110 train_loss=0.0885389 validation_loss=0.0707281 lr=0.001
+epoch=111 train_loss=0.0864031 lr=0.001
+epoch=112 train_loss=0.0866839 lr=0.001
+epoch=113 train_loss=0.0851071 lr=0.001
+epoch=114 train_loss=0.085101 lr=0.001
+epoch=115 train_loss=0.0825241 lr=0.001
+epoch=116 train_loss=0.0883909 lr=0.001
+epoch=117 train_loss=0.0866446 lr=0.001
+epoch=118 train_loss=0.0844175 lr=0.001
+epoch=119 train_loss=0.0854496 lr=0.001
+epoch=120 train_loss=0.0834822 validation_loss=0.0707732 lr=0.001
+epoch=121 train_loss=0.0829231 lr=0.001
+epoch=122 train_loss=0.0848138 lr=0.001
+epoch=123 train_loss=0.0854507 lr=0.001
+epoch=124 train_loss=0.0853653 lr=0.001
+epoch=125 train_loss=0.0860002 lr=0.001
+epoch=126 train_loss=0.085129 lr=0.001
+epoch=127 train_loss=0.0836827 lr=0.001
+epoch=128 train_loss=0.0850949 lr=0.001
+epoch=129 train_loss=0.0825177 lr=0.001
+epoch=130 train_loss=0.0840973 validation_loss=0.0700242 lr=0.001
+epoch=131 train_loss=0.0835353 lr=0.001
+epoch=132 train_loss=0.0860545 lr=0.001
+epoch=133 train_loss=0.084985 lr=0.001
+epoch=134 train_loss=0.0855148 lr=0.001
+epoch=135 train_loss=0.0808783 lr=0.001
+epoch=136 train_loss=0.0868321 lr=0.001
+epoch=137 train_loss=0.0824124 lr=0.001
+epoch=138 train_loss=0.0864484 lr=0.001
+epoch=139 train_loss=0.0831632 lr=0.001
+epoch=140 train_loss=0.0845366 validation_loss=0.070053 lr=0.001
+epoch=141 train_loss=0.08468 lr=0.001
+epoch=142 train_loss=0.0845026 lr=0.001
+epoch=143 train_loss=0.0836705 lr=0.001
+epoch=144 train_loss=0.0830183 lr=0.001
+epoch=145 train_loss=0.0842445 lr=0.001
+epoch=146 train_loss=0.084229 lr=0.001
+epoch=147 train_loss=0.0840168 lr=0.001
+epoch=148 train_loss=0.0865829 lr=0.001
+epoch=149 train_loss=0.0835198 lr=0.001
+epoch=150 train_loss=0.0834471 validation_loss=0.0697745 lr=0.001
+epoch=151 train_loss=0.0832522 lr=0.0001
+epoch=152 train_loss=0.0792719 lr=0.0001
+epoch=153 train_loss=0.0847501 lr=0.0001
+epoch=154 train_loss=0.0822859 lr=0.0001
+epoch=155 train_loss=0.0824786 lr=0.0001
+epoch=156 train_loss=0.0816703 lr=0.0001
+epoch=157 train_loss=0.0826274 lr=0.0001
+epoch=158 train_loss=0.0838804 lr=0.0001
+epoch=159 train_loss=0.0834795 lr=0.0001
+epoch=160 train_loss=0.0806839 validation_loss=0.0681945 lr=0.0001
+epoch=161 train_loss=0.083364 lr=0.0001
+epoch=162 train_loss=0.0816074 lr=0.0001
+epoch=163 train_loss=0.0808259 lr=0.0001
+epoch=164 train_loss=0.0809116 lr=0.0001
+epoch=165 train_loss=0.0803673 lr=0.0001
+epoch=166 train_loss=0.0841418 lr=0.0001
+epoch=167 train_loss=0.0846661 lr=0.0001
+epoch=168 train_loss=0.0822402 lr=0.0001
+epoch=169 train_loss=0.0791869 lr=0.0001
+epoch=170 train_loss=0.0826763 validation_loss=0.0679282 lr=0.0001
+epoch=171 train_loss=0.0791296 lr=0.0001
+epoch=172 train_loss=0.0778585 lr=0.0001
+epoch=173 train_loss=0.0811073 lr=0.0001
+epoch=174 train_loss=0.0815531 lr=0.0001
+epoch=175 train_loss=0.0818249 lr=0.0001
+epoch=176 train_loss=0.0794728 lr=0.0001
+epoch=177 train_loss=0.0832456 lr=0.0001
+epoch=178 train_loss=0.0820836 lr=0.0001
+epoch=179 train_loss=0.079658 lr=0.0001
+epoch=180 train_loss=0.0817963 validation_loss=0.067994 lr=0.0001
+epoch=181 train_loss=0.0836854 lr=1e-05
+epoch=182 train_loss=0.078236 lr=1e-05
+epoch=183 train_loss=0.0817302 lr=1e-05
+epoch=184 train_loss=0.0831683 lr=1e-05
+epoch=185 train_loss=0.0831135 lr=1e-05
+epoch=186 train_loss=0.081184 lr=1e-05
+epoch=187 train_loss=0.0808192 lr=1e-05
+epoch=188 train_loss=0.0814761 lr=1e-05
+epoch=189 train_loss=0.0812619 lr=1e-05
+epoch=190 train_loss=0.0810334 validation_loss=0.0678174 lr=1e-05
+epoch=191 train_loss=0.0820634 lr=1e-05
+epoch=192 train_loss=0.0796535 lr=1e-05
+epoch=193 train_loss=0.0850217 lr=1e-05
+epoch=194 train_loss=0.0831795 lr=1e-05
+epoch=195 train_loss=0.0829275 lr=1e-05
+epoch=196 train_loss=0.0842019 lr=1e-05
+epoch=197 train_loss=0.0805143 lr=1e-05
+epoch=198 train_loss=0.0777146 lr=1e-05
+epoch=199 train_loss=0.0842123 lr=1e-05
+epoch=200 train_loss=0.0788204 validation_loss=0.0677893 lr=1e-05
+Same-scale (training task) scores: {'csdi_crps': 0.0440917607145332, 'bicubic_crps': 0.06869805383503783}
+{
+  "bilinear": {
+    "crps": 0.03471475829915299,
+    "psnr": 26.695949367219665,
+    "ssim": 0.8675923503140986
+  },
+  "bicubic": {
+    "crps": 0.03576546101227466,
+    "psnr": 26.577054343468543,
+    "ssim": 0.8648385704021293
+  },
+  "csdi_mean": {
+    "crps": 0.026338453488960537,
+    "psnr": 26.746542468309695,
+    "ssim": 0.8603529809194638
+  },
+  "csdi_sample": {
+    "psnr": 24.27721024951036,
+    "ssim": 0.7926118573785796
+  }
+}
+generated new fontManager
