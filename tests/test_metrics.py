@@ -47,3 +47,18 @@ def test_crps_rejects_invalid_masks(mask):
 def test_crps_rejects_invalid_samples(samples):
     with pytest.raises(ValueError):
         crps(samples, np.zeros((1, 3, 1)))
+
+
+@pytest.mark.parametrize("n_samples", [2, 3, 8])
+def test_fair_crps_uses_unbiased_spread(n_samples):
+    rng = np.random.default_rng(7)
+    target = rng.normal(size=(2, 4, 3))
+    samples = rng.normal(size=(2, n_samples, 4, 3))
+    spread = np.abs(samples[:, :, None] - samples[:, None, :]).sum(axis=(1, 2))
+    expected = np.abs(samples - target[:, None]).mean(axis=1) - spread / (
+        2 * n_samples * (n_samples - 1)
+    )
+    assert crps(samples, target, fair=True) == pytest.approx(expected.mean())
+    assert crps(samples, target, fair=True) < crps(samples, target)
+    with pytest.raises(ValueError, match="fair"):
+        crps(samples[:, :1], target, fair=True)
