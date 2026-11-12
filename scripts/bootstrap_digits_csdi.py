@@ -8,7 +8,11 @@ Only low-resolution digits are used for training: each 29x29 digit from
 29x29 versions of training digits are never read (except by `--oracle`).
 
 Round 1 learns imputation from the blurry data. CSDI is trained to restore a
-15x15 digit from every other pixel of it (8x8 -> 15x15).
+15x15 digit from every other pixel of it (8x8 -> 15x15). MNIST digits are
+centred, so a model that only sees whole digits learns that borders are
+blank and erases strokes cut by tile edges in the next step; `--shift-copies`
+adds copies of the blurry digits translated by up to half their size, so
+strokes appear at every position, including cut off at the border.
 
 Round 1 then imputes the data. Assuming scale invariance, the same model
 doubles every blurry training and validation digit to 29x29, in overlapping
@@ -104,6 +108,25 @@ def plot_rows(path, rows, n_examples) -> None:
     figure.savefig(path, dpi=150)
 
 
+def shifted(images: np.ndarray, copies: int, rng) -> np.ndarray:
+    """Images plus copies translated by up to half their size, zero filled."""
+    n_images, size = images.shape[:2]
+    reach = size // 2
+    padded = np.pad(images, ((0, 0), (reach, reach), (reach, reach), (0, 0)))
+    output = [images]
+    for _ in range(copies):
+        rows, columns = rng.integers(0, 2 * reach + 1, size=(2, n_images))
+        output.append(
+            np.stack(
+                [
+                    image[row : row + size, column : column + size]
+                    for image, row, column in zip(padded, rows, columns, strict=True)
+                ]
+            )
+        )
+    return np.concatenate(output)
+
+
 def enlarge(images: np.ndarray, size: int) -> np.ndarray:
     """Nearest-neighbour display of low-resolution digits at full size."""
     return np.repeat(np.repeat(images, 2, 1), 2, 2)[:, :size, :size]
@@ -116,6 +139,12 @@ def main() -> None:
     parser.add_argument("--train-images", type=int, default=20000)
     parser.add_argument("--test-images", type=int, default=1000)
     parser.add_argument("--imputations", type=int, default=1)
+    parser.add_argument(
+        "--shift-copies",
+        type=int,
+        default=4,
+        help="Translated copies of each blurry digit for round 1",
+    )
     parser.add_argument(
         "--oracle", action="store_true", help="Also train on true 29x29 digits"
     )
@@ -180,7 +209,9 @@ def main() -> None:
 
     round1 = fit(
         "round1",
-        to_layout(low_train),
+        to_layout(
+            shifted(low_train, args.shift_copies, np.random.default_rng(args.seed))
+        ),
         to_layout(low_validation),
         grid_mask(low_size, 1, 2),
         args=args,
