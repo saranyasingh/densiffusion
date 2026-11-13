@@ -1,34 +1,39 @@
-"""Self-trained CSDI super-resolution of MNIST digits from blurry data only.
+"""Self-trained CSDI super-resolution from blurry images only.
 
-    uv run --extra research --with matplotlib python \
-        scripts/bootstrap_digits_csdi.py --output outputs/digits --device cuda
+    uv run --extra research --with matplotlib python scripts/bootstrap_csdi.py \
+        --data data/mnist29.npz --output outputs/digits --device cuda
+    uv run --extra research --with matplotlib python scripts/bootstrap_csdi.py \
+        --data data/div2k65.npz --shift-copies 0 --output outputs/div2k --device cuda
 
-Only low-resolution digits are used for training: each 29x29 digit from
-`prepare_digits.py` is reduced to every other row and column (15x15), and the
-29x29 versions of training digits are never read (except by `--oracle`).
+Reads the uint8 (images, size, size, colours) splits written by
+`prepare_digits.py` (MNIST, 29x29 grey) or `prepare_div2k.py` (DIV2K crops,
+65x65 RGB). Only low-resolution images are used for training: each image is
+reduced to every other row and column, and the full-size training images are
+never read (except by `--oracle`).
 
 Round 1 learns imputation from the blurry data. CSDI is trained to restore a
-15x15 digit from every other pixel of it (8x8 -> 15x15). MNIST digits are
-centred, so a model that only sees whole digits learns that borders are
-blank and erases strokes cut by tile edges in the next step; `--shift-copies`
-adds copies of the blurry digits translated by up to half their size, so
-strokes appear at every position, including cut off at the border.
+low-resolution image from every other pixel of it (8x8 -> 15x15 for MNIST,
+17x17 -> 33x33 for DIV2K). Centred objects such as MNIST digits teach it that
+borders are blank, so it erases strokes cut by tile edges in the next step;
+`--shift-copies` adds copies translated by up to half their size, so content
+appears at every position. Random crops (DIV2K) have no centre and need none.
 
 Round 1 then imputes the data. Assuming scale invariance, the same model
-doubles every blurry training and validation digit to 29x29, in overlapping
-15x15 tiles (see `impute_cats_selfsup_csdi.upscale`). The original
+doubles every blurry training and validation image, in overlapping tiles of
+its trained size (see `impute_cats_selfsup_csdi.upscale`). The original
 low-resolution pixels are kept exactly; only the pixels between them are
-imputed. `--imputations k` draws k versions of each digit.
+imputed. `--imputations k` draws k versions of each image.
 
-Round 2 trains on the imputed data. A new CSDI learns 15x15 -> 29x29 directly
-from the imputed digits, with the imputed pixels as targets, and is applied
-to whole test images without tiles to produce the clear digits.
+Round 2 trains on the imputed data. A new CSDI learns the doubling directly
+from the imputed images, with the imputed pixels as targets, and is applied
+to whole test images without tiles to produce the clear images.
 
-Test digits are scored against their true 29x29 versions with the metrics of
-`impute_cats_csdi.py`, next to bilinear and bicubic interpolation and the
-round 1 model applied to test digits directly. `--oracle` adds an upper bound
-trained on the true 29x29 training digits. Checkpoints and the imputed data
-are saved in --output and reused, so a rerun continues where it stopped.
+Test images are scored against their true full-size versions with the
+metrics of `impute_cats_csdi.py`, next to bilinear and bicubic interpolation
+and the round 1 model applied to test images directly. `--oracle` adds an
+upper bound trained on the true full-size training images. Checkpoints and the
+imputed data are saved in --output and reused, so a rerun continues where it
+stopped.
 """
 
 import argparse
@@ -76,7 +81,7 @@ def fit(name, train, validation, mask, *, args, config) -> ImputationModel:
         model.eval()
         return model
     size = train.shape[1]
-    logging.info("Training %s on %d %dx%d digits", name, len(train), size, size)
+    logging.info("Training %s on %d %dx%d images", name, len(train), size, size)
     train_densifier(
         model,
         train,
@@ -92,7 +97,7 @@ def fit(name, train, validation, mask, *, args, config) -> ImputationModel:
 
 
 def plot_rows(path, rows, n_examples) -> None:
-    """One row per method, one column per digit, all in [0, 1] gray."""
+    """One row per method, one column per image; (images, size, size, colours)."""
     from matplotlib.figure import Figure
 
     figure = Figure(figsize=(1.1 * n_examples + 1.6, 1.15 * len(rows)))
@@ -100,7 +105,11 @@ def plot_rows(path, rows, n_examples) -> None:
     for row, (label, images) in enumerate(rows):
         for column in range(n_examples):
             axis = axes[row, column]
-            axis.imshow(images[column], cmap="gray", vmin=0, vmax=1)
+            image = np.clip(images[column], 0, 1)
+            if image.shape[-1] == 1:
+                axis.imshow(image[..., 0], cmap="gray", vmin=0, vmax=1)
+            else:
+                axis.imshow(image, interpolation="nearest")
             axis.set_xticks([])
             axis.set_yticks([])
         axes[row, 0].set_ylabel(label, rotation=0, ha="right", va="center", fontsize=9)
@@ -128,7 +137,7 @@ def shifted(images: np.ndarray, copies: int, rng) -> np.ndarray:
 
 
 def enlarge(images: np.ndarray, size: int) -> np.ndarray:
-    """Nearest-neighbour display of low-resolution digits at full size."""
+    """Nearest-neighbour display of low-resolution images at full size."""
     return np.repeat(np.repeat(images, 2, 1), 2, 2)[:, :size, :size]
 
 
@@ -143,10 +152,10 @@ def main() -> None:
         "--shift-copies",
         type=int,
         default=4,
-        help="Translated copies of each blurry digit for round 1",
+        help="Translated copies of each blurry image for round 1",
     )
     parser.add_argument(
-        "--oracle", action="store_true", help="Also train on true 29x29 digits"
+        "--oracle", action="store_true", help="Also train on true full-size images"
     )
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--batch-size", type=int, default=64)
@@ -185,9 +194,9 @@ def main() -> None:
         validation = dataset["validation"]
         test = dataset["test"][: args.test_images]
         data_config = json.loads(str(dataset["config"]))
-    size = test.shape[1]
+    size, colours = test.shape[1], test.shape[-1]
     if size % 4 != 1:
-        parser.error("Digit size must be 4k + 1 so both scales keep their edges")
+        parser.error("Image size must be 4k + 1 so both scales keep their edges")
     # The blurry dataset: everything training sees from here on.
     low_train, low_validation = train[:, ::2, ::2], validation[:, ::2, ::2]
     low_size = low_train.shape[1]
@@ -213,7 +222,7 @@ def main() -> None:
             shifted(low_train, args.shift_copies, np.random.default_rng(args.seed))
         ),
         to_layout(low_validation),
-        grid_mask(low_size, 1, 2),
+        grid_mask(low_size, colours, 2),
         args=args,
         config=config,
     )
@@ -227,7 +236,7 @@ def main() -> None:
             imputed_train, imputed_validation = imputed["train"], imputed["validation"]
     else:
         logging.info(
-            "Imputing %d training digits %dx%d -> %dx%d (%d each)",
+            "Imputing %d training images %dx%d -> %dx%d (%d each)",
             len(low_train),
             low_size,
             low_size,
@@ -239,14 +248,14 @@ def main() -> None:
         imputed_train = upscale(
             to_layout(low_train),
             round1_sampler,
-            colours=1,
+            colours=colours,
             n_samples=args.imputations,
             seed=args.seed + 1,
-        ).reshape(-1, size, size)
+        ).reshape(-1, size, size * colours)
         imputed_validation = upscale(
             to_layout(low_validation),
             round1_sampler,
-            colours=1,
+            colours=colours,
             n_samples=1,
             seed=args.seed + 2,
         )[:, 0]
@@ -258,7 +267,7 @@ def main() -> None:
         )
 
     start = time.perf_counter()
-    mask = grid_mask(size, 1, 2)
+    mask = grid_mask(size, colours, 2)
     round2 = fit(
         "round2",
         imputed_train,
@@ -292,7 +301,7 @@ def main() -> None:
         "round1": upscale(
             to_layout(test[:, ::2, ::2]),
             round1_sampler,
-            colours=1,
+            colours=colours,
             n_samples=args.n_samples,
             seed=args.seed + 3,
         ),
@@ -320,7 +329,7 @@ def main() -> None:
 
     scores = {}
     for name, values in draws.items():
-        method = score_methods(estimates, values, target, test_mask, 1)
+        method = score_methods(estimates, values, target, test_mask, colours)
         scores.update({key: method.pop(key) for key in estimates})
         scores[f"{name}_mean"] = method["csdi_mean"]
         scores[f"{name}_sample"] = method["csdi_sample"]
@@ -333,8 +342,8 @@ def main() -> None:
         "round2_sample": "Round 2, self-trained\n(single sample)",
     }
     if oracle is not None:
-        labels["oracle_mean"] = f"Oracle, clear digits\n(mean of {args.n_samples})"
-        labels["oracle_sample"] = "Oracle, clear digits\n(single sample)"
+        labels["oracle_mean"] = f"Oracle, clear images\n(mean of {args.n_samples})"
+        labels["oracle_sample"] = "Oracle, clear images\n(single sample)"
     results = {
         "scores": scores,
         "timings": timings,
@@ -347,7 +356,7 @@ def main() -> None:
         args.output / "samples.npz",
         truth=test[:32],
         **{
-            name: (to_pixels(values[:32], 1)[..., 0] * 255).round().astype(np.uint8)
+            name: (to_pixels(values[:32], colours) * 255).round().astype(np.uint8)
             for name, values in draws.items()
         },
     )
@@ -356,11 +365,11 @@ def main() -> None:
     if args.no_plot:
         return
     n_examples = min(10, len(test))
-    truth = test[:n_examples, ..., 0] / 255
+    truth = test[:n_examples] / 255
     rows = [
         ("Clear truth", truth),
         (f"Blurry input\n{low_size}×{low_size}", enlarge(truth[:, ::2, ::2], size)),
-        ("Bicubic", to_pixels(estimates["bicubic"][:n_examples, 0], 1)[..., 0]),
+        ("Bicubic", to_pixels(estimates["bicubic"][:n_examples, 0], colours)),
     ]
     for name, label in (
         ("round1", "Round 1"),
@@ -368,27 +377,22 @@ def main() -> None:
         ("oracle", "Oracle"),
     ):
         if name in draws:
-            pixels = to_pixels(draws[name][:n_examples], 1)[..., 0]
+            pixels = to_pixels(draws[name][:n_examples], colours)
             rows += [
                 (f"{label}\nsample", pixels[:, 0]),
                 (f"{label}\nmean", pixels.mean(1)),
             ]
     plot_rows(args.output / "examples.png", rows, n_examples)
+    first_imputation = imputed_train.reshape(
+        len(low_train), -1, *imputed_train.shape[1:]
+    )
     plot_rows(
         args.output / "imputed_train.png",
         [
-            (
-                "Blurry training\ndigit",
-                enlarge(low_train[:n_examples, ..., 0] / 255, size),
-            ),
+            ("Blurry training\nimage", enlarge(low_train[:n_examples] / 255, size)),
             (
                 "Round 1 imputation\n(round 2 trains on)",
-                to_pixels(
-                    imputed_train.reshape(len(low_train), -1, size, size)[
-                        :n_examples, 0
-                    ],
-                    1,
-                )[..., 0],
+                to_pixels(first_imputation[:n_examples, 0], colours),
             ),
         ],
         n_examples,
@@ -397,10 +401,10 @@ def main() -> None:
         args.output / "table.png",
         scores,
         labels,
-        title="Self-trained CSDI super-resolution on MNIST digits",
+        title=f"Self-trained CSDI super-resolution on {data_config['dataset']}",
         subtitle=(
-            f"Trained on {low_size}×{low_size} digits only ({len(low_train)} images); "
-            f"tested {low_size}×{low_size} → {size}×{size} on {len(test)} digits\n"
+            f"Trained on {low_size}×{low_size} images only ({len(low_train)} images); "
+            f"tested {low_size}×{low_size} → {size}×{size} on {len(test)} images\n"
             "CRPS on hidden pixels (= MAE for deterministic methods); "
             "PSNR and SSIM on whole images"
         ),
