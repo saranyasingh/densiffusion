@@ -17,6 +17,13 @@
 # the matching Round 3 script, for example the oracle upper bounds:
 #   sbatch scripts/cluster/bootstrap_csdi.sbatch --oracle
 #   sbatch --export=ALL,DATASET=div2k scripts/cluster/bootstrap_csdi.sbatch --oracle
+#
+# PSNR-oriented combo (CSDI only; prefer A/B one flag at a time):
+#   sbatch --export=ALL,DATASET=div2k scripts/cluster/bootstrap_csdi.sbatch \
+#       --augment --residual --imputations 3 --imputation-aggregate mean \
+#       --n-samples 30 --aggregate median --self-ensemble --blend 0.5 \
+#       --refine-epochs 20 --oracle
+#
 # To regenerate from a finished run without retraining rounds 1–2:
 #   sbatch --export=ALL,RUN=outputs/digits_60074338 \
 #       scripts/cluster/generate_digits_csdi.sbatch --oracle

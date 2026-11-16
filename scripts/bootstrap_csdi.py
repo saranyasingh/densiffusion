@@ -5,6 +5,11 @@
     uv run --extra research --with matplotlib python scripts/bootstrap_csdi.py \
         --data data/div2k65.npz --shift-copies 0 --output outputs/div2k --device cuda
 
+PSNR-oriented options (opt-in; defaults match earlier runs):
+
+    --augment --residual --imputations 3 --imputation-aggregate mean \\
+    --n-samples 30 --aggregate median --self-ensemble --blend 0.5 --refine-epochs 20
+
 Reads the uint8 (images, size, size, colours) splits written by
 `prepare_digits.py` (MNIST, 29x29 grey) or `prepare_div2k.py` (DIV2K crops,
 65x65 RGB). Only low-resolution images are used for training: each image is
@@ -12,28 +17,17 @@ reduced to every other row and column, and the full-size training images are
 never read (except by `--oracle`).
 
 Round 1 learns imputation from the blurry data. CSDI is trained to restore a
-low-resolution image from every other pixel of it (8x8 -> 15x15 for MNIST,
-17x17 -> 33x33 for DIV2K). Centred objects such as MNIST digits teach it that
-borders are blank, so it erases strokes cut by tile edges in the next step;
-`--shift-copies` adds copies translated by up to half their size, so content
-appears at every position. Random crops (DIV2K) have no centre and need none.
+low-resolution image from every other pixel of it. `--shift-copies` adds
+translated copies; `--augment` adds flips and 90-degree rotations.
 
-Round 1 then imputes the data. Assuming scale invariance, the same model
-doubles every blurry training and validation image, in overlapping tiles of
-its trained size (see `impute_cats_selfsup_csdi.upscale`). The original
-low-resolution pixels are kept exactly; only the pixels between them are
-imputed. `--imputations k` draws k versions of each image.
+Round 1 then imputes the training set to full size in overlapping tiles.
+`--imputations k` draws k versions; `--imputation-aggregate mean|median` collapses
+them into one Round 2 target per image (better for PSNR than stacking noisy draws).
 
-Round 2 trains on the imputed data. A new CSDI learns the doubling directly
-from the imputed images, with the imputed pixels as targets, and is applied
-to whole test images without tiles to produce the clear images.
-
-Test images are scored against their true full-size versions with the
-metrics of `impute_cats_csdi.py`, next to bilinear and bicubic interpolation
-and the round 1 model applied to test images directly. `--oracle` adds an
-upper bound trained on the true full-size training images. Checkpoints and the
-imputed data are saved in --output and reused, so a rerun continues where it
-stopped.
+Round 2 / `--oracle` can use `--residual` (diffuse the residual around bilinear).
+At test time, draws are aggregated (`--aggregate`), optionally self-ensembled with
+a horizontal flip, observed pixels are clamped, optionally blended with bilinear
+(`--blend`), and optionally refined by a tiny L2 CNN (`--refine-epochs`).
 """
 
 import argparse
@@ -48,14 +42,30 @@ import torch
 from impute_cats_csdi import (
     grid_mask,
     interpolate,
+    psnr,
     score_methods,
     scores_table,
+    ssim,
     to_layout,
     to_pixels,
 )
 from impute_cats_selfsup_csdi import upscale
+from psnr_hacks import (
+    aggregate,
+    apply_refine,
+    blend,
+    clamp_layout,
+    clamp_observed,
+    flip_layout,
+    from_residual_pair,
+    geometric_augment,
+    residual_mask,
+    residual_pair,
+    train_refine,
+)
 
 from densiffusion.architectures.csdi import CSDIDenoiser
+from densiffusion.metrics import crps
 from densiffusion.models import ImputationModel
 from densiffusion.pipeline import impute
 from densiffusion.samplers import DDPMSampler
@@ -76,7 +86,7 @@ def fit(name, train, validation, mask, *, args, config) -> ImputationModel:
     checkpoint = args.output / f"{name}.pt"
     if checkpoint.exists():
         logging.info("Loading %s", checkpoint)
-        state = torch.load(checkpoint, map_location=args.device)
+        state = torch.load(checkpoint, map_location=args.device, weights_only=False)
         model.to(args.device).load_state_dict(state["model_state_dict"])
         model.eval()
         return model
@@ -141,6 +151,34 @@ def enlarge(images: np.ndarray, size: int) -> np.ndarray:
     return np.repeat(np.repeat(images, 2, 1), 2, 2)[:, :size, :size]
 
 
+def maybe_augment(images: np.ndarray, enabled: bool, rng) -> np.ndarray:
+    return geometric_augment(images, rng) if enabled else images
+
+
+def score_estimate(
+    name, estimate_layout, draws, target, mask, colours, scores, labels, label
+):
+    """PSNR/SSIM of a deterministic estimate; CRPS from draws if provided."""
+    truth = to_pixels(target, colours)
+    pixels = to_pixels(estimate_layout, colours)
+    entry = {
+        "psnr": psnr(pixels, truth),
+        "ssim": ssim(pixels, truth),
+        "crps": crps(
+            draws if draws is not None else estimate_layout[:, None],
+            target,
+            mask=mask,
+        )
+        / 2,
+    }
+    scores[name] = entry
+    labels[name] = label
+
+
+def method_label(name: str) -> str:
+    return {"round1": "Round 1", "round2": "Round 2", "oracle": "Oracle"}[name]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--data", type=Path, default=Path("data/mnist29.npz"))
@@ -149,10 +187,54 @@ def main() -> None:
     parser.add_argument("--test-images", type=int, default=1000)
     parser.add_argument("--imputations", type=int, default=1)
     parser.add_argument(
+        "--imputation-aggregate",
+        choices=("none", "mean", "median"),
+        default="none",
+        help="Collapse Round 1 imputations into one Round 2 target per image",
+    )
+    parser.add_argument(
         "--shift-copies",
         type=int,
         default=4,
         help="Translated copies of each blurry image for round 1",
+    )
+    parser.add_argument(
+        "--augment",
+        action="store_true",
+        help="Add flips and 90-degree rotations to Round 1/2/oracle training",
+    )
+    parser.add_argument(
+        "--residual",
+        action="store_true",
+        help="Round 2/oracle: diffuse residual around bilinear (PSNR-oriented)",
+    )
+    parser.add_argument(
+        "--aggregate",
+        choices=("mean", "median"),
+        default="mean",
+        help="Collapse test draws for the PSNR estimate",
+    )
+    parser.add_argument(
+        "--self-ensemble",
+        action="store_true",
+        help="Average test draws with a horizontally flipped pass (Round 2/oracle)",
+    )
+    parser.add_argument(
+        "--blend",
+        type=float,
+        default=1.0,
+        help="alpha * model + (1-alpha) * bilinear for the PSNR estimate",
+    )
+    parser.add_argument(
+        "--no-clamp-observed",
+        action="store_true",
+        help="Do not force observed grid pixels to the low-res input",
+    )
+    parser.add_argument(
+        "--refine-epochs",
+        type=int,
+        default=0,
+        help="Train a tiny L2 CNN on (bilinear, estimate) -> refined image",
     )
     parser.add_argument(
         "--oracle", action="store_true", help="Also train on true full-size images"
@@ -171,6 +253,8 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--no-plot", action="store_true")
     args = parser.parse_args()
+    if not 0 <= args.blend <= 1:
+        parser.error("--blend must be in [0, 1]")
     if args.device == "auto":
         args.device = (
             "cuda"
@@ -189,6 +273,12 @@ def main() -> None:
             logging.StreamHandler(),
         ],
     )
+    if args.imputations > 1 and args.imputation_aggregate == "none":
+        logging.warning(
+            "imputations=%d with imputation-aggregate=none stacks noisy draws; "
+            "mean/median is usually better for PSNR",
+            args.imputations,
+        )
     with np.load(args.data, allow_pickle=False) as dataset:
         train = dataset["train"][: args.train_images]
         validation = dataset["validation"]
@@ -197,8 +287,10 @@ def main() -> None:
     size, colours = test.shape[1], test.shape[-1]
     if size % 4 != 1:
         parser.error("Image size must be 4k + 1 so both scales keep their edges")
+    rng = np.random.default_rng(args.seed)
     # The blurry dataset: everything training sees from here on.
     low_train, low_validation = train[:, ::2, ::2], validation[:, ::2, ::2]
+    low_test = test[:, ::2, ::2]
     low_size = low_train.shape[1]
     config = TrainingConfig(
         epochs=args.epochs,
@@ -216,11 +308,12 @@ def main() -> None:
     timings = {}
     started = time.perf_counter()
 
+    round1_train = maybe_augment(
+        shifted(low_train, args.shift_copies, rng), args.augment, rng
+    )
     round1 = fit(
         "round1",
-        to_layout(
-            shifted(low_train, args.shift_copies, np.random.default_rng(args.seed))
-        ),
+        to_layout(round1_train),
         to_layout(low_validation),
         grid_mask(low_size, colours, 2),
         args=args,
@@ -236,22 +329,27 @@ def main() -> None:
             imputed_train, imputed_validation = imputed["train"], imputed["validation"]
     else:
         logging.info(
-            "Imputing %d training images %dx%d -> %dx%d (%d each)",
+            "Imputing %d training images %dx%d -> %dx%d (%d each, aggregate=%s)",
             len(low_train),
             low_size,
             low_size,
             size,
             size,
             args.imputations,
+            args.imputation_aggregate,
         )
         start = time.perf_counter()
-        imputed_train = upscale(
+        imputed_draws = upscale(
             to_layout(low_train),
             round1_sampler,
             colours=colours,
             n_samples=args.imputations,
             seed=args.seed + 1,
-        ).reshape(-1, size, size * colours)
+        )
+        if args.imputation_aggregate == "none":
+            imputed_train = imputed_draws.reshape(-1, size, size * colours)
+        else:
+            imputed_train = aggregate(imputed_draws, args.imputation_aggregate)
         imputed_validation = upscale(
             to_layout(low_validation),
             round1_sampler,
@@ -266,25 +364,67 @@ def main() -> None:
             validation=imputed_validation.astype(np.float32),
         )
 
+    spatial_mask = grid_mask(size, colours, 2)
+    planes = 2 * colours if args.residual else colours
+
+    def baseline_from_low(low_uint8: np.ndarray) -> np.ndarray:
+        canvas = np.zeros((len(low_uint8), size, size, colours), dtype=np.uint8)
+        canvas[:, ::2, ::2] = low_uint8
+        return interpolate(canvas, 2, "linear")[:, 0]
+
+    if args.residual:
+        if len(imputed_train) == len(low_train):
+            low_for_imputed = low_train
+        else:
+            low_for_imputed = np.repeat(
+                low_train, len(imputed_train) // len(low_train), 0
+            )
+        round2_train = residual_pair(imputed_train, baseline_from_low(low_for_imputed))
+        round2_val = residual_pair(
+            imputed_validation, baseline_from_low(low_validation)
+        )
+        round2_mask = residual_mask(spatial_mask)
+    else:
+        round2_train = imputed_train
+        round2_val = imputed_validation
+        round2_mask = spatial_mask
+    if args.augment:
+        round2_train = np.concatenate((round2_train, flip_layout(round2_train, planes)))
     start = time.perf_counter()
-    mask = grid_mask(size, colours, 2)
     round2 = fit(
-        "round2",
-        imputed_train,
-        imputed_validation,
-        mask,
+        "round2" + ("_residual" if args.residual else ""),
+        round2_train,
+        round2_val,
+        round2_mask,
         args=args,
         config=config,
     )
     timings["round2_train_seconds"] = time.perf_counter() - start
+
     oracle = None
     if args.oracle:
         start = time.perf_counter()
+        if args.residual:
+            oracle_train = residual_pair(
+                to_layout(train), baseline_from_low(train[:, ::2, ::2])
+            )
+            oracle_val = residual_pair(
+                to_layout(validation), baseline_from_low(validation[:, ::2, ::2])
+            )
+            oracle_mask = residual_mask(spatial_mask)
+            if args.augment:
+                oracle_train = np.concatenate(
+                    (oracle_train, flip_layout(oracle_train, planes))
+                )
+        else:
+            oracle_train = to_layout(maybe_augment(train, args.augment, rng))
+            oracle_val = to_layout(validation)
+            oracle_mask = spatial_mask
         oracle = fit(
-            "oracle",
-            to_layout(train),
-            to_layout(validation),
-            mask,
+            "oracle" + ("_residual" if args.residual else ""),
+            oracle_train,
+            oracle_val,
+            oracle_mask,
             args=args,
             config=config,
         )
@@ -292,64 +432,196 @@ def main() -> None:
 
     start = time.perf_counter()
     target = to_layout(test)
-    test_mask = np.broadcast_to(mask, target.shape)
-    estimates = {
-        "bilinear": interpolate(test, 2, "linear"),
-        "bicubic": interpolate(test, 2, "cubic"),
-    }
-    draws = {
-        "round1": upscale(
-            to_layout(test[:, ::2, ::2]),
-            round1_sampler,
-            colours=colours,
-            n_samples=args.n_samples,
-            seed=args.seed + 3,
-        ),
-        "round2": impute(
-            target,
-            DDPMSampler(round2, sampling),
-            factor=1,
-            mask=test_mask,
-            n_samples=args.n_samples,
-            dt=1.0,
-            seed=args.seed + 4,
-        ),
-    }
+    test_mask = np.broadcast_to(spatial_mask, target.shape)
+    bilinear = interpolate(test, 2, "linear")
+    bicubic = interpolate(test, 2, "cubic")
+    estimates = {"bilinear": bilinear, "bicubic": bicubic}
+    low_layout = to_layout(low_test)
+
+    round1_draws = upscale(
+        low_layout,
+        round1_sampler,
+        colours=colours,
+        n_samples=args.n_samples,
+        seed=args.seed + 3,
+    )
+
+    def run_full(model, seed):
+        sampler = DDPMSampler(model, sampling)
+        if args.residual:
+            observed = residual_pair(target, baseline_from_low(low_test))
+            mask = np.broadcast_to(residual_mask(spatial_mask), observed.shape)
+            pack = planes
+        else:
+            observed, mask, pack = target, test_mask, colours
+        orientations = [False, True] if args.self_ensemble else [False]
+        parts = []
+        for index, flip in enumerate(orientations):
+            obs = flip_layout(observed, pack) if flip else observed
+            m = (
+                flip_layout(mask.astype(np.float32), pack).astype(bool)
+                if flip
+                else mask
+            )
+            sampled = impute(
+                obs,
+                sampler,
+                factor=1,
+                mask=m,
+                n_samples=args.n_samples,
+                dt=1.0,
+                seed=seed + index,
+            )
+            if args.residual:
+                sampled = from_residual_pair(sampled)
+            if flip:
+                sampled = flip_layout(sampled, colours)
+            parts.append(sampled)
+        return np.concatenate(parts, axis=1)
+
+    draws = {"round1": round1_draws, "round2": run_full(round2, args.seed + 4)}
     if oracle is not None:
-        draws["oracle"] = impute(
-            target,
-            DDPMSampler(oracle, sampling),
-            factor=1,
-            mask=test_mask,
-            n_samples=args.n_samples,
-            dt=1.0,
-            seed=args.seed + 4,
-        )
+        draws["oracle"] = run_full(oracle, args.seed + 5)
     timings["test_sample_seconds"] = time.perf_counter() - start
 
+    def psnr_estimate(values: np.ndarray) -> np.ndarray:
+        estimate = aggregate(values, args.aggregate)
+        if not args.no_clamp_observed:
+            estimate = clamp_layout(estimate, low_layout, colours)
+        if args.blend < 1:
+            estimate = blend(estimate, bilinear[:, 0], args.blend)
+        return estimate
+
     scores = {}
-    for name, values in draws.items():
-        method = score_methods(estimates, values, target, test_mask, colours)
-        scores.update({key: method.pop(key) for key in estimates})
-        scores[f"{name}_mean"] = method["csdi_mean"]
-        scores[f"{name}_sample"] = method["csdi_sample"]
     labels = {
         "bilinear": "Bilinear",
         "bicubic": "Bicubic",
-        "round1_mean": f"Round 1, tiles\n(mean of {args.n_samples})",
-        "round1_sample": "Round 1, tiles\n(single sample)",
-        "round2_mean": f"Round 2, self-trained\n(mean of {args.n_samples})",
-        "round2_sample": "Round 2, self-trained\n(single sample)",
     }
-    if oracle is not None:
-        labels["oracle_mean"] = f"Oracle, clear images\n(mean of {args.n_samples})"
-        labels["oracle_sample"] = "Oracle, clear images\n(single sample)"
+    # Baselines via score_methods once
+    base = score_methods(estimates, draws["round2"], target, test_mask, colours)
+    scores["bilinear"] = base["bilinear"]
+    scores["bicubic"] = base["bicubic"]
+
+    processed = {}
+    for name, values in draws.items():
+        method = score_methods({}, values, target, test_mask, colours)
+        estimate = psnr_estimate(values)
+        processed[name] = estimate
+        # PSNR/SSIM from the processed estimate; CRPS from the raw draws.
+        est_pixels = to_pixels(estimate, colours)
+        truth_pixels = to_pixels(target, colours)
+        scores[f"{name}_mean"] = {
+            "crps": method["csdi_mean"]["crps"],
+            "psnr": psnr(est_pixels, truth_pixels),
+            "ssim": ssim(est_pixels, truth_pixels),
+        }
+        scores[f"{name}_sample"] = method["csdi_sample"]
+        hack = args.aggregate
+        if args.blend < 1:
+            hack += f", blend {args.blend}"
+        if args.self_ensemble:
+            hack += ", ensemble"
+        labels[f"{name}_mean"] = f"{method_label(name)}\n({hack} of {values.shape[1]})"
+        labels[f"{name}_sample"] = f"{method_label(name)}\n(single sample)"
+
+    if args.refine_epochs > 0:
+        start = time.perf_counter()
+        refine_sampler = DDPMSampler(round2, sampling)
+        canvas_f = np.zeros((len(low_train), size, size, colours))
+        canvas_f[:, ::2, ::2] = low_train / 127.5 - 1
+        conditioned = canvas_f.reshape(len(low_train), size, size * colours)
+        if args.residual:
+            observed = residual_pair(conditioned, baseline_from_low(low_train))
+            mask = np.broadcast_to(residual_mask(spatial_mask), observed.shape)
+            refine_draws = impute(
+                observed,
+                refine_sampler,
+                factor=1,
+                mask=mask,
+                n_samples=max(4, args.n_samples // 2),
+                dt=1.0,
+                seed=args.seed + 7,
+            )
+            refine_est = from_residual_pair(aggregate(refine_draws, args.aggregate))
+        else:
+            mask = np.broadcast_to(spatial_mask, conditioned.shape)
+            refine_draws = impute(
+                conditioned,
+                refine_sampler,
+                factor=1,
+                mask=mask,
+                n_samples=max(4, args.n_samples // 2),
+                dt=1.0,
+                seed=args.seed + 7,
+            )
+            refine_est = aggregate(refine_draws, args.aggregate)
+        if not args.no_clamp_observed:
+            refine_est = clamp_layout(refine_est, to_layout(low_train), colours)
+        canvas_u8 = np.zeros((len(low_train), size, size, colours), dtype=np.uint8)
+        canvas_u8[:, ::2, ::2] = low_train
+        refine_bi = interpolate(canvas_u8, 2, "linear")
+        if args.oracle:
+            refine_target = train / 255
+        elif len(imputed_train) == len(low_train):
+            refine_target = to_pixels(imputed_train, colours)
+        else:
+            refine_target = to_pixels(
+                aggregate(
+                    imputed_train.reshape(len(low_train), -1, size, size * colours),
+                    "mean",
+                ),
+                colours,
+            )
+        refine_model = train_refine(
+            to_pixels(refine_bi[:, 0], colours),
+            to_pixels(refine_est, colours),
+            refine_target,
+            colours=colours,
+            epochs=args.refine_epochs,
+            batch_size=min(args.batch_size, 32),
+            device=args.device,
+            seed=args.seed,
+            path=args.output / "refine.pt",
+        )
+        refined = apply_refine(
+            refine_model,
+            to_pixels(bilinear[:, 0], colours),
+            to_pixels(processed["round2"], colours),
+            args.device,
+        )
+        if not args.no_clamp_observed:
+            refined = clamp_observed(refined, low_test / 255)
+        refined_layout = (refined * 2 - 1).reshape(len(test), size, size * colours)
+        score_estimate(
+            "round2_refined",
+            refined_layout,
+            draws["round2"],
+            target,
+            test_mask,
+            colours,
+            scores,
+            labels,
+            f"Round 2 refined\n(L2 CNN, {args.refine_epochs} ep)",
+        )
+        processed["round2_refined"] = refined_layout
+        timings["refine_seconds"] = time.perf_counter() - start
+
     results = {
         "scores": scores,
         "timings": timings,
         "data": data_config,
         "args": {key: str(value) for key, value in vars(args).items()},
         "training": asdict(config),
+        "hacks": {
+            "augment": args.augment,
+            "residual": args.residual,
+            "imputation_aggregate": args.imputation_aggregate,
+            "aggregate": args.aggregate,
+            "self_ensemble": args.self_ensemble,
+            "blend": args.blend,
+            "clamp_observed": not args.no_clamp_observed,
+            "refine_epochs": args.refine_epochs,
+        },
     }
     (args.output / "results.json").write_text(json.dumps(results, indent=2) + "\n")
     np.savez_compressed(
@@ -369,8 +641,19 @@ def main() -> None:
     rows = [
         ("Clear truth", truth),
         (f"Blurry input\n{low_size}×{low_size}", enlarge(truth[:, ::2, ::2], size)),
-        ("Bicubic", to_pixels(estimates["bicubic"][:n_examples, 0], colours)),
+        ("Bicubic", to_pixels(bicubic[:n_examples, 0], colours)),
+        (
+            f"Round 2\n{args.aggregate}",
+            to_pixels(processed["round2"][:n_examples], colours),
+        ),
     ]
+    if "round2_refined" in processed:
+        rows.append(
+            (
+                "Round 2\nrefined",
+                to_pixels(processed["round2_refined"][:n_examples], colours),
+            )
+        )
     for name, label in (
         ("round1", "Round 1"),
         ("round2", "Round 2"),
@@ -380,19 +663,20 @@ def main() -> None:
             pixels = to_pixels(draws[name][:n_examples], colours)
             rows += [
                 (f"{label}\nsample", pixels[:, 0]),
-                (f"{label}\nmean", pixels.mean(1)),
+                (f"{label}\nraw mean", pixels.mean(1)),
             ]
     plot_rows(args.output / "examples.png", rows, n_examples)
-    first_imputation = imputed_train.reshape(
-        len(low_train), -1, *imputed_train.shape[1:]
-    )
+    if len(imputed_train) == len(low_train):
+        show = imputed_train
+    else:
+        show = imputed_train.reshape(len(low_train), -1, size, size * colours)[:, 0]
     plot_rows(
         args.output / "imputed_train.png",
         [
             ("Blurry training\nimage", enlarge(low_train[:n_examples] / 255, size)),
             (
                 "Round 1 imputation\n(round 2 trains on)",
-                to_pixels(first_imputation[:n_examples, 0], colours),
+                to_pixels(show[:n_examples], colours),
             ),
         ],
         n_examples,
