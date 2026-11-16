@@ -1,4 +1,4 @@
-"""Impute synthetic images with CSDI and score them against the exact GP posterior.
+"""Impute synthetic images with CSDI or a U-Net and score them against the GP posterior.
 
     uv run --extra research --with matplotlib python scripts/impute_images_csdi.py \
         --output outputs/csdi_images
@@ -17,9 +17,15 @@ CSDI needs no changes: an image is passed as (batch, time, channels) with rows
 as time and columns as channels, so its temporal and feature attention become
 attention down columns and along rows. Training and sampling reuse
 `train_densifier` and `DDPMSampler`, which keep observed pixels fixed.
+`--denoiser unet` swaps CSDI for a 2D convolutional U-Net on the same pixel
+grid. `--residual` diffuses only the hidden residual around linear
+interpolation: the interpolant becomes a second, fully observed plane of every
+pixel, so the network sees it and observed pixels stay exact by construction.
 
 The exact GP posterior is the best achievable imputer for these images, and
 linear interpolation is a deterministic reference whose CRPS equals its MAE.
+Scores report the shared ensemble CRPS, its fair (unbiased) variant, and for
+the GP posterior also the exact CRPS of its Gaussian marginals.
 """
 
 import argparse
@@ -32,8 +38,10 @@ from pathlib import Path
 import numpy as np
 import torch
 from scipy.interpolate import griddata
+from scipy.stats import norm
 
 from densiffusion.architectures.csdi import CSDIDenoiser
+from densiffusion.architectures.unet2d import UNet2DDenoiser
 from densiffusion.gp.kernels import get_kernel
 from densiffusion.gp.sampling import covariance_factor
 from densiffusion.metrics import crps
@@ -48,6 +56,7 @@ KERNEL_NAMES = {
     "matern_3_2": "Matérn 3/2",
     "matern_5_2": "Matérn 5/2",
 }
+DENOISER_NAMES = {"csdi": "CSDI", "unet": "U-Net"}
 
 
 def pixel_covariance(size: int, kernel: str, **params: float) -> np.ndarray:
@@ -81,15 +90,20 @@ def make_masks(n_images, size, args, rng) -> np.ndarray:
     return masks
 
 
+def _mask_groups(masks: np.ndarray) -> dict[bytes, list[int]]:
+    """Indices of the images sharing each distinct flattened mask."""
+    groups = {}
+    for index, mask in enumerate(masks.reshape(len(masks), -1)):
+        groups.setdefault(mask.tobytes(), []).append(index)
+    return groups
+
+
 def gp_posterior_samples(images, masks, covariance, n_samples, rng) -> np.ndarray:
     """Exact posterior draws of hidden pixels, sharing work across equal masks."""
     n_images, size, _ = images.shape
     samples = np.repeat(images[:, None], n_samples, axis=1)
     flat_masks = masks.reshape(n_images, -1)
-    groups = {}
-    for index, mask in enumerate(flat_masks):
-        groups.setdefault(mask.tobytes(), []).append(index)
-    for indices in groups.values():
+    for indices in _mask_groups(masks).values():
         hidden = flat_masks[indices[0]]
         observed = ~hidden
         cholesky = np.linalg.cholesky(covariance[np.ix_(observed, observed)])
@@ -106,6 +120,31 @@ def gp_posterior_samples(images, masks, covariance, n_samples, rng) -> np.ndarra
         flat[:, :, hidden] = draws
         samples[indices] = flat.reshape(len(indices), n_samples, size, size)
     return samples
+
+
+def gp_posterior_crps(images, masks, covariance) -> float:
+    """Exact mean CRPS of the Gaussian posterior marginals at hidden pixels."""
+    n_images = len(images)
+    flat_masks = masks.reshape(n_images, -1)
+    values = images.reshape(n_images, -1)
+    total, count = 0.0, 0
+    for indices in _mask_groups(masks).values():
+        hidden = flat_masks[indices[0]]
+        observed = ~hidden
+        cholesky = np.linalg.cholesky(covariance[np.ix_(observed, observed)])
+        cross = covariance[np.ix_(hidden, observed)]
+        solved = np.linalg.solve(cholesky, cross.T)
+        variance = np.diag(covariance)[hidden] - np.sum(solved**2, axis=0)
+        weights = np.linalg.solve(cholesky.T, solved).T
+        means = values[indices][:, observed] @ weights.T
+        sigma = np.sqrt(np.clip(variance, np.finfo(float).tiny, None))
+        z = (values[indices][:, hidden] - means) / sigma
+        scores = sigma * (
+            z * (2 * norm.cdf(z) - 1) + 2 * norm.pdf(z) - 1 / np.sqrt(np.pi)
+        )
+        total += scores.sum()
+        count += scores.size
+    return float(total / count)
 
 
 def linear_interpolation(images, masks) -> np.ndarray:
@@ -127,15 +166,38 @@ def linear_interpolation(images, masks) -> np.ndarray:
     return filled[:, None]
 
 
+def residual_layout(images, masks, baseline) -> tuple[np.ndarray, np.ndarray]:
+    """Pair each pixel's hidden residual with its fully observed interpolant.
+
+    Returns (images, size, 2 * size) values and masks: the residual of a pixel
+    sits next to its baseline value, in the layout the denoisers expect for
+    multi-plane pixels. The residual is exactly zero at observed pixels.
+    """
+    n_images, size, _ = images.shape
+    values = np.stack((images - baseline, baseline), axis=-1)
+    hidden = np.stack((masks, np.zeros_like(masks)), axis=-1)
+    return values.reshape(n_images, size, -1), hidden.reshape(n_images, size, -1)
+
+
+def from_residual_layout(values: np.ndarray) -> np.ndarray:
+    """Inverse of residual_layout for any leading shape: residual + baseline."""
+    return values.reshape(*values.shape[:-1], -1, 2).sum(axis=-1)
+
+
 def score(samples, images, masks) -> dict[str, float]:
     mean = samples.mean(axis=1)
-    return {
+    scores = {
         "crps": crps(samples, images, mask=masks),
         "rmse": float(np.sqrt(np.mean((mean - images)[masks] ** 2))),
     }
+    if samples.shape[1] > 1:
+        scores["crps_fair"] = crps(samples, images, mask=masks, fair=True)
+    return scores
 
 
-def plot_examples(path, images, masks, samples, n_examples=4, observed=None) -> None:
+def plot_examples(
+    path, images, masks, samples, *, model, label, n_examples=4, observed=None
+) -> None:
     from matplotlib.figure import Figure
 
     columns = [
@@ -143,8 +205,8 @@ def plot_examples(path, images, masks, samples, n_examples=4, observed=None) -> 
         ("Observed", np.where(masks, np.nan, images) if observed is None else observed),
         ("Linear interp.", samples["linear_interpolation"][:, 0]),
         ("GP posterior mean", samples["gp_posterior"].mean(axis=1)),
-        ("CSDI sample", samples["csdi"][:, 0]),
-        ("CSDI mean", samples["csdi"].mean(axis=1)),
+        (f"{label} sample", samples[model][:, 0]),
+        (f"{label} mean", samples[model].mean(axis=1)),
     ]
     figure = Figure(figsize=(2 * len(columns), 2.1 * n_examples))
     axes = figure.subplots(n_examples, len(columns))
@@ -180,9 +242,23 @@ def main() -> None:
     parser.add_argument("--learning-rate", type=float, default=1e-3)
     parser.add_argument("--diffusion-steps", type=int, default=50)
     parser.add_argument("--beta-end", type=float, default=0.5)
+    parser.add_argument("--denoiser", choices=tuple(DENOISER_NAMES), default="csdi")
+    parser.add_argument(
+        "--residual",
+        action="store_true",
+        help="diffuse the hidden residual around linear interpolation",
+    )
     parser.add_argument("--hidden-channels", type=int, default=32)
     parser.add_argument("--residual-layers", type=int, default=4)
     parser.add_argument("--attention-heads", type=int, default=4)
+    parser.add_argument(
+        "--channel-multipliers",
+        type=int,
+        nargs="+",
+        default=[1, 2, 4],
+        help="U-Net level widths as multiples of --hidden-channels",
+    )
+    parser.add_argument("--blocks-per-level", type=int, default=1)
     parser.add_argument("--n-samples", type=int, default=20)
     parser.add_argument("--sample-batch-size", type=int, default=256)
     parser.add_argument("--device", default="cpu")
@@ -199,6 +275,8 @@ def main() -> None:
             logging.StreamHandler(),
         ],
     )
+    name = args.denoiser + ("_residual" if args.residual else "")
+    label = DENOISER_NAMES[args.denoiser] + (" residual" if args.residual else "")
     streams = np.random.SeedSequence(args.seed).spawn(6)
     covariance = pixel_covariance(
         args.size, args.kernel, variance=args.variance, lengthscale=args.lengthscale
@@ -236,13 +314,11 @@ def main() -> None:
             images = sample_fields(covariance, args.size, n_images, rng)
             masks = make_masks(n_images, args.size, args, rng)
         splits[split] = (images, masks)
-    (train, train_mask), (validation, validation_mask), (test, test_mask) = (
-        splits[split] for split in ("train", "validation", "test")
-    )
+    test, test_mask = splits["test"]
     logging.info(
         "%d train / %d validation / %d test images of %dx%d, %.0f%% hidden",
-        len(train),
-        len(validation),
+        len(splits["train"][0]),
+        len(splits["validation"][0]),
         len(test),
         args.size,
         args.size,
@@ -260,6 +336,22 @@ def main() -> None:
         "linear_interpolation": linear_interpolation(test, test_mask),
     }
 
+    # The denoiser sees (images, rows, columns * planes); planes are the
+    # residual and its interpolant in residual mode, otherwise the pixel itself.
+    planes = 1
+    data = dict(splits)
+    if args.residual:
+        planes = 2
+        for split, (images, masks) in splits.items():
+            if split == "test":
+                baseline = samples["linear_interpolation"][:, 0]
+            else:
+                baseline = linear_interpolation(images, masks)[:, 0]
+            data[split] = residual_layout(images, masks, baseline)
+    (train, train_mask), (validation, validation_mask), (inputs, hidden) = (
+        data[split] for split in ("train", "validation", "test")
+    )
+
     config = TrainingConfig(
         epochs=args.epochs,
         batch_size=args.batch_size,
@@ -273,17 +365,24 @@ def main() -> None:
         device=args.device,
     )
     torch.manual_seed(args.seed)
-    model = ImputationModel(
-        CSDIDenoiser(
-            n_channels=args.size,
+    if args.denoiser == "csdi":
+        denoiser = CSDIDenoiser(
+            n_channels=planes * args.size,
             hidden_channels=args.hidden_channels,
             residual_layers=args.residual_layers,
             attention_heads=args.attention_heads,
             time_embedding_dim=64,
         )
-    )
+    else:
+        denoiser = UNet2DDenoiser(
+            planes,
+            hidden_channels=args.hidden_channels,
+            channel_multipliers=tuple(args.channel_multipliers),
+            blocks_per_level=args.blocks_per_level,
+        )
+    model = ImputationModel(denoiser)
     parameters = sum(p.numel() for p in model.parameters())
-    logging.info("CSDI with %d parameters", parameters)
+    logging.info("%s with %d parameters", label, parameters)
     started = time.perf_counter()
     train_densifier(
         model,
@@ -292,24 +391,29 @@ def main() -> None:
         config=config,
         dt=1.0,
         seed=args.seed,
-        checkpoint=args.output / "csdi.pt",
+        checkpoint=args.output / f"{name}.pt",
         train_mask=train_mask,
         validation_mask=validation_mask,
     )
     trained = time.perf_counter()
-    samples["csdi"] = impute(
-        test,
+    draws = impute(
+        inputs,
         DDPMSampler(model, replace(config, batch_size=args.sample_batch_size)),
         factor=1,
-        mask=test_mask,
+        mask=hidden,
         n_samples=args.n_samples,
         dt=1.0,
         seed=int(np.random.default_rng(streams[4]).integers(2**63)),
     )
+    samples[name] = from_residual_layout(draws) if args.residual else draws
     sampled = time.perf_counter()
 
-    scores = {name: score(draws, test, test_mask) for name, draws in samples.items()}
+    scores = {key: score(draws, test, test_mask) for key, draws in samples.items()}
+    scores["gp_posterior"]["crps_exact"] = gp_posterior_crps(
+        test, test_mask, covariance
+    )
     results = {
+        "model": name,
         "scores": scores,
         "parameters": parameters,
         "train_seconds": trained - started,
@@ -322,7 +426,7 @@ def main() -> None:
         args.output / "samples.npz",
         images=test,
         masks=test_mask,
-        **{name: draws[:8] for name, draws in samples.items()},
+        **{key: draws[:8] for key, draws in samples.items()},
     )
     logging.info("%s", json.dumps(scores, indent=2))
 
@@ -333,13 +437,15 @@ def main() -> None:
         test,
         test_mask,
         samples,
+        model=name,
+        label=label,
         observed=test[:, ::2, ::2] if args.mask == "upsample" else None,
     )
     from plot_forecast_table import render_table
 
     best = scores["gp_posterior"]["crps"]
-    rows = ("gp_posterior", "csdi", "linear_interpolation")
-    hidden = {
+    rows = ("gp_posterior", name, "linear_interpolation")
+    hidden_description = {
         "grid": "every other row and column observed (x2 super-resolution)",
         "upsample": (
             f"full {observed_size}×{observed_size} images observed, "
@@ -350,7 +456,7 @@ def main() -> None:
     render_table(
         [
             "Exact GP posterior\n(best possible)",
-            "CSDI" + (" ×2\ndensified" if args.mask != "random" else ""),
+            label + (" ×2\ndensified" if args.mask != "random" else ""),
             "Linear interpolation",
         ],
         [
@@ -358,23 +464,24 @@ def main() -> None:
                 KERNEL_NAMES[args.kernel],
                 [
                     (
-                        scores[name]["crps"],
+                        scores[key]["crps"],
                         None
-                        if name == "gp_posterior"
-                        else scores[name]["crps"] / best - 1,
+                        if key == "gp_posterior"
+                        else scores[key]["crps"] / best - 1,
                     )
-                    for name in rows
+                    for key in rows
                 ],
             )
         ],
         candidates=(1,),
         heading="Imputer",
-        title="CSDI image imputation",
+        title=f"{label} image imputation",
         subtitle=(
             f"{KERNEL_NAMES[args.kernel]} Gaussian random field, lengthscale "
             f"{args.lengthscale:g} px of the {observed_size}×{observed_size} "
             f"grid, variance {args.variance:g}\n"
-            f"{len(test)} test images of {args.size}×{args.size} pixels; {hidden}"
+            f"{len(test)} test images of {args.size}×{args.size} pixels; "
+            f"{hidden_description}"
         ),
         output=args.output / "table.png",
     )
