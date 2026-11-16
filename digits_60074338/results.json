@@ -1,0 +1,95 @@
+{
+  "scores": {
+    "bilinear": {
+      "crps": 0.049643573338426276,
+      "psnr": 19.65067132237884,
+      "ssim": 0.8875008724045436
+    },
+    "bicubic": {
+      "crps": 0.04420923446328,
+      "psnr": 20.56543287404278,
+      "ssim": 0.8466290123388436
+    },
+    "round1_mean": {
+      "crps": 0.027153995704968407,
+      "psnr": 20.024161090491088,
+      "ssim": 0.8657401066237803
+    },
+    "round1_sample": {
+      "psnr": 16.66656366449013,
+      "ssim": 0.8179552845761272
+    },
+    "round2_mean": {
+      "crps": 0.025513257826156637,
+      "psnr": 20.486446893996675,
+      "ssim": 0.8884604836672694
+    },
+    "round2_sample": {
+      "psnr": 17.129977687588134,
+      "ssim": 0.8387958477502472
+    },
+    "oracle_mean": {
+      "crps": 0.013049654482847426,
+      "psnr": 25.14736426578792,
+      "ssim": 0.9689633970392287
+    },
+    "oracle_sample": {
+      "psnr": 22.79571277917288,
+      "ssim": 0.9500769536669255
+    }
+  },
+  "timings": {
+    "round1_train_seconds": 2395.1599348904565,
+    "impute_seconds": 176.26880434900522,
+    "round2_train_seconds": 1029.3232605541125,
+    "oracle_train_seconds": 1027.8094143932685,
+    "test_sample_seconds": 198.0324136307463
+  },
+  "data": {
+    "dataset": "MNIST",
+    "url": "https://ossci-datasets.s3.amazonaws.com/mnist/",
+    "size": 29,
+    "seed": 0
+  },
+  "args": {
+    "data": "data/mnist29.npz",
+    "output": "outputs/digits_60074338",
+    "train_images": "20000",
+    "test_images": "1000",
+    "imputations": "1",
+    "shift_copies": "4",
+    "oracle": "True",
+    "epochs": "100",
+    "batch_size": "64",
+    "learning_rate": "0.001",
+    "diffusion_steps": "50",
+    "beta_end": "0.5",
+    "hidden_channels": "64",
+    "residual_layers": "4",
+    "attention_heads": "8",
+    "n_samples": "10",
+    "sample_batch_size": "256",
+    "device": "cuda",
+    "seed": "0",
+    "no_plot": "False"
+  },
+  "training": {
+    "epochs": 100,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "diffusion_steps": 50,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "cuda",
+    "schedule": "quadratic",
+    "weight_decay": 0.0,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "sampled",
+    "validation_interval": 5
+  }
+}

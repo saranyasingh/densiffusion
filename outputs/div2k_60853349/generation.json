@@ -1,0 +1,38 @@
+{
+  "scores": {
+    "real": {
+      "fid": 6.592430890403086e-08,
+      "nearest_distance": 0.16065868735313416
+    },
+    "round3_round2": {
+      "fid": 2.6824236671641155e-07,
+      "nearest_distance": 0.10092626512050629
+    }
+  },
+  "timings": {
+    "round2_train_set_seconds": 1193.3327986259828,
+    "round3_train_seconds": 9308.885253444023,
+    "generate_seconds": 59.24915593903279
+  },
+  "args": {
+    "data": "data/div2k65.npz",
+    "output": "outputs/div2k_60853349",
+    "source": "round2",
+    "train_images": "10000",
+    "n_generate": "500",
+    "oracle": "False",
+    "encoder_epochs": "5",
+    "epochs": "100",
+    "batch_size": "32",
+    "learning_rate": "0.001",
+    "diffusion_steps": "50",
+    "beta_end": "0.5",
+    "hidden_channels": "64",
+    "residual_layers": "4",
+    "attention_heads": "8",
+    "sample_batch_size": "64",
+    "device": "cuda",
+    "seed": "0",
+    "no_plot": "False"
+  }
+}

@@ -1,0 +1,118 @@
+Loading outputs/div2k_60853349/round2.pt
+Super-resolving 10000 blurry training crops
+Training round3_round2 on 10000 65x65 images
+epoch=1 train_loss=0.198692 lr=0.001
+epoch=2 train_loss=0.134996 lr=0.001
+epoch=3 train_loss=0.122274 lr=0.001
+epoch=4 train_loss=0.116554 lr=0.001
+epoch=5 train_loss=0.116218 validation_loss=0.0995327 lr=0.001
+epoch=6 train_loss=0.114105 lr=0.001
+epoch=7 train_loss=0.11087 lr=0.001
+epoch=8 train_loss=0.108543 lr=0.001
+epoch=9 train_loss=0.108683 lr=0.001
+epoch=10 train_loss=0.109239 validation_loss=0.0927719 lr=0.001
+epoch=11 train_loss=0.103644 lr=0.001
+epoch=12 train_loss=0.0988883 lr=0.001
+epoch=13 train_loss=0.0956377 lr=0.001
+epoch=14 train_loss=0.0932395 lr=0.001
+epoch=15 train_loss=0.0901666 validation_loss=0.083957 lr=0.001
+epoch=16 train_loss=0.0912886 lr=0.001
+epoch=17 train_loss=0.0896237 lr=0.001
+epoch=18 train_loss=0.0886079 lr=0.001
+epoch=19 train_loss=0.0850543 lr=0.001
+epoch=20 train_loss=0.0836436 validation_loss=0.0708364 lr=0.001
+epoch=21 train_loss=0.08326 lr=0.001
+epoch=22 train_loss=0.0798366 lr=0.001
+epoch=23 train_loss=0.0791813 lr=0.001
+epoch=24 train_loss=0.0760035 lr=0.001
+epoch=25 train_loss=0.072575 validation_loss=0.0644744 lr=0.001
+epoch=26 train_loss=0.0726728 lr=0.001
+epoch=27 train_loss=0.0704261 lr=0.001
+epoch=28 train_loss=0.0713654 lr=0.001
+epoch=29 train_loss=0.0697563 lr=0.001
+epoch=30 train_loss=0.0705775 validation_loss=0.0612199 lr=0.001
+epoch=31 train_loss=0.0694766 lr=0.001
+epoch=32 train_loss=0.0667113 lr=0.001
+epoch=33 train_loss=0.0671088 lr=0.001
+epoch=34 train_loss=0.0672397 lr=0.001
+epoch=35 train_loss=0.0690016 validation_loss=0.0603821 lr=0.001
+epoch=36 train_loss=0.0645176 lr=0.001
+epoch=37 train_loss=0.0680552 lr=0.001
+epoch=38 train_loss=0.064211 lr=0.001
+epoch=39 train_loss=0.0661141 lr=0.001
+epoch=40 train_loss=0.0683237 validation_loss=0.0596966 lr=0.001
+epoch=41 train_loss=0.0674592 lr=0.001
+epoch=42 train_loss=0.0644465 lr=0.001
+epoch=43 train_loss=0.0657249 lr=0.001
+epoch=44 train_loss=0.0653699 lr=0.001
+epoch=45 train_loss=0.0637656 validation_loss=0.0585791 lr=0.001
+epoch=46 train_loss=0.0637686 lr=0.001
+epoch=47 train_loss=0.0658442 lr=0.001
+epoch=48 train_loss=0.0656987 lr=0.001
+epoch=49 train_loss=0.0648047 lr=0.001
+epoch=50 train_loss=0.0622647 validation_loss=0.0573779 lr=0.001
+epoch=51 train_loss=0.0644875 lr=0.001
+epoch=52 train_loss=0.0621901 lr=0.001
+epoch=53 train_loss=0.0648362 lr=0.001
+epoch=54 train_loss=0.0643152 lr=0.001
+epoch=55 train_loss=0.0616947 validation_loss=0.0572697 lr=0.001
+epoch=56 train_loss=0.0620428 lr=0.001
+epoch=57 train_loss=0.0624876 lr=0.001
+epoch=58 train_loss=0.0629037 lr=0.001
+epoch=59 train_loss=0.0606239 lr=0.001
+epoch=60 train_loss=0.0601406 validation_loss=0.0565842 lr=0.001
+epoch=61 train_loss=0.0625239 lr=0.001
+epoch=62 train_loss=0.064808 lr=0.001
+epoch=63 train_loss=0.0633976 lr=0.001
+epoch=64 train_loss=0.062876 lr=0.001
+epoch=65 train_loss=0.0618618 validation_loss=0.056033 lr=0.001
+epoch=66 train_loss=0.0601096 lr=0.001
+epoch=67 train_loss=0.0631928 lr=0.001
+epoch=68 train_loss=0.0635791 lr=0.001
+epoch=69 train_loss=0.0605747 lr=0.001
+epoch=70 train_loss=0.0625669 validation_loss=0.0566296 lr=0.001
+epoch=71 train_loss=0.0610394 lr=0.001
+epoch=72 train_loss=0.06233 lr=0.001
+epoch=73 train_loss=0.0610258 lr=0.001
+epoch=74 train_loss=0.0619136 lr=0.001
+epoch=75 train_loss=0.0617897 validation_loss=0.0557996 lr=0.001
+epoch=76 train_loss=0.0604198 lr=0.0001
+epoch=77 train_loss=0.0583985 lr=0.0001
+epoch=78 train_loss=0.0596427 lr=0.0001
+epoch=79 train_loss=0.0603492 lr=0.0001
+epoch=80 train_loss=0.0573048 validation_loss=0.0545295 lr=0.0001
+epoch=81 train_loss=0.0570881 lr=0.0001
+epoch=82 train_loss=0.0578746 lr=0.0001
+epoch=83 train_loss=0.0580123 lr=0.0001
+epoch=84 train_loss=0.0602401 lr=0.0001
+epoch=85 train_loss=0.0598555 validation_loss=0.0544862 lr=0.0001
+epoch=86 train_loss=0.0592458 lr=0.0001
+epoch=87 train_loss=0.0589799 lr=0.0001
+epoch=88 train_loss=0.0605762 lr=0.0001
+epoch=89 train_loss=0.0566726 lr=0.0001
+epoch=90 train_loss=0.0577151 validation_loss=0.0544168 lr=0.0001
+epoch=91 train_loss=0.0600082 lr=1e-05
+epoch=92 train_loss=0.0598338 lr=1e-05
+epoch=93 train_loss=0.0600565 lr=1e-05
+epoch=94 train_loss=0.0563251 lr=1e-05
+epoch=95 train_loss=0.0578578 validation_loss=0.0542881 lr=1e-05
+epoch=96 train_loss=0.0617962 lr=1e-05
+epoch=97 train_loss=0.0575014 lr=1e-05
+epoch=98 train_loss=0.0603622 lr=1e-05
+epoch=99 train_loss=0.0578034 lr=1e-05
+epoch=100 train_loss=0.0594075 validation_loss=0.0543166 lr=1e-05
+encoder epoch=1 loss=1.391
+encoder epoch=2 loss=1.388
+encoder epoch=3 loss=1.387
+encoder epoch=4 loss=1.388
+encoder epoch=5 loss=1.383
+{
+  "real": {
+    "fid": 6.592430890403086e-08,
+    "nearest_distance": 0.16065868735313416
+  },
+  "round3_round2": {
+    "fid": 2.6824236671641155e-07,
+    "nearest_distance": 0.10092626512050629
+  }
+}

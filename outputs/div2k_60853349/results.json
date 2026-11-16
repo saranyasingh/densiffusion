@@ -1,0 +1,86 @@
+{
+  "scores": {
+    "bilinear": {
+      "crps": 0.03502244585334134,
+      "psnr": 29.232254900320555,
+      "ssim": 0.8463076132223334
+    },
+    "bicubic": {
+      "crps": 0.03719042639765724,
+      "psnr": 28.93483322435242,
+      "ssim": 0.8378342233128431
+    },
+    "round1_mean": {
+      "crps": 0.027177111266312018,
+      "psnr": 28.55675686119162,
+      "ssim": 0.8300761388706247
+    },
+    "round1_sample": {
+      "psnr": 26.03135069204697,
+      "ssim": 0.7562048900328662
+    },
+    "round2_mean": {
+      "crps": 0.027776730776693397,
+      "psnr": 28.535822445529504,
+      "ssim": 0.8320801232857219
+    },
+    "round2_sample": {
+      "psnr": 26.714535455889866,
+      "ssim": 0.7827487818740905
+    }
+  },
+  "timings": {
+    "round1_train_seconds": 1884.0732964130002,
+    "impute_seconds": 891.8946705400012,
+    "round2_train_seconds": 9313.977231322962,
+    "test_sample_seconds": 2067.3191091530025
+  },
+  "data": {
+    "dataset": "DIV2K",
+    "url": "http://data.vision.ee.ethz.ch/cvl/DIV2K/",
+    "size": 65,
+    "downscale": 4,
+    "seed": 0
+  },
+  "args": {
+    "data": "data/div2k65.npz",
+    "output": "outputs/div2k_60853349",
+    "train_images": "10000",
+    "test_images": "1000",
+    "imputations": "1",
+    "shift_copies": "0",
+    "oracle": "False",
+    "epochs": "100",
+    "batch_size": "32",
+    "learning_rate": "0.001",
+    "diffusion_steps": "50",
+    "beta_end": "0.5",
+    "hidden_channels": "64",
+    "residual_layers": "4",
+    "attention_heads": "8",
+    "n_samples": "10",
+    "sample_batch_size": "256",
+    "device": "cuda",
+    "seed": "0",
+    "no_plot": "False"
+  },
+  "training": {
+    "epochs": 100,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "diffusion_steps": 50,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "max_grad_norm": 1.0,
+    "device": "cuda",
+    "schedule": "quadratic",
+    "weight_decay": 0.0,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "sampled",
+    "validation_interval": 5
+  }
+}
