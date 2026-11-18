@@ -13,6 +13,14 @@ run its own --output so their files do not collide:
         --script run_sssd_forecast.py \
         --args "--seed 1 --output outputs/seed1; --seed 2 --output outputs/seed2"
 
+Add --timeout-minutes N to cap each run's time, and so its cost, for one
+launch (Modal stops a run that is still going after N minutes).
+
+For long runs, add --spawn and launch with `modal run --detach`: the runs are
+handed to Modal and this command returns at once, so they keep going if this
+computer sleeps or disconnects (otherwise Modal cancels unfinished runs).
+Follow them with `modal app logs --env Densiffusion <app id>`.
+
 Each container installs the locked dependencies (uv.lock with the research
 extra), runs the script from the repository root with `--device cuda` unless
 another device is given, and keeps everything the script writes under
@@ -68,16 +76,29 @@ def run(script: str, arguments: list[str]) -> int:
 
 
 @app.local_entrypoint()
-def main(script: str, args: str = "") -> None:
+def main(
+    script: str, args: str = "", timeout_minutes: int = 0, spawn: bool = False
+) -> None:
+    """--timeout-minutes caps each run's time (and so its cost) for this launch."""
     if not (ROOT / "scripts" / script).is_file():
         raise SystemExit(f"No such script: scripts/{script}")
     runs = [shlex.split(part) for part in args.split(";")] if args.strip() else [[]]
     if len(runs) > MAX_CONTAINERS:
         raise SystemExit(f"At most {MAX_CONTAINERS} parallel runs")
+    if not 0 <= timeout_minutes <= TIMEOUT_HOURS * 60:
+        raise SystemExit(f"--timeout-minutes must be at most {TIMEOUT_HOURS * 60}")
     for arguments in runs:
         if "--device" not in arguments:
             arguments += ["--device", "cuda"]
-    codes = list(run.starmap([(script, arguments) for arguments in runs]))
+    function = (
+        run.with_options(timeout=timeout_minutes * 60) if timeout_minutes else run
+    )
+    if spawn:
+        for arguments in runs:
+            call = function.spawn(script, arguments)
+            print(f"spawned {call.object_id}: {shlex.join(arguments)}")
+        return
+    codes = list(function.starmap([(script, arguments) for arguments in runs]))
     for arguments, code in zip(runs, codes, strict=True):
         print(f"exit {code}: {shlex.join(arguments)}")
     if any(codes):
