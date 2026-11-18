@@ -1,0 +1,263 @@
+2026-11-18 11:42:22,605 lstnet_electricity ['client_089', 'client_093', 'client_128', 'client_153', 'client_155', 'client_167', 'client_175', 'client_179', 'client_186', 'client_199', 'client_233', 'client_236', 'client_276', 'client_290', 'client_296', 'client_302', 'client_308', 'client_313', 'client_314', 'client_315']: T=26301 C=20; windows train/val=382/81; sparse_step=4 freq=h
+2026-11-18 11:42:47,282 epoch=1 train_loss=0.579782 lr=0.001
+2026-11-18 11:42:47,840 epoch=2 train_loss=0.305625 lr=0.001
+2026-11-18 11:42:48,390 epoch=3 train_loss=0.297203 lr=0.001
+2026-11-18 11:42:48,940 epoch=4 train_loss=0.257833 lr=0.001
+2026-11-18 11:42:49,491 epoch=5 train_loss=0.228581 lr=0.001
+2026-11-18 11:42:50,042 epoch=6 train_loss=0.219681 lr=0.001
+2026-11-18 11:42:50,592 epoch=7 train_loss=0.170968 lr=0.001
+2026-11-18 11:42:51,142 epoch=8 train_loss=0.201809 lr=0.001
+2026-11-18 11:42:51,694 epoch=9 train_loss=0.193757 lr=0.001
+2026-11-18 11:42:53,852 epoch=10 train_loss=0.193367 validation_loss=0.262839 lr=0.001
+2026-11-18 11:42:54,552 epoch=11 train_loss=0.171706 lr=0.001
+2026-11-18 11:42:55,105 epoch=12 train_loss=0.192129 lr=0.001
+2026-11-18 11:42:55,656 epoch=13 train_loss=0.154941 lr=0.001
+2026-11-18 11:42:56,207 epoch=14 train_loss=0.158285 lr=0.001
+2026-11-18 11:42:56,758 epoch=15 train_loss=0.182294 lr=0.001
+2026-11-18 11:42:57,309 epoch=16 train_loss=0.173068 lr=0.001
+2026-11-18 11:42:57,859 epoch=17 train_loss=0.181373 lr=0.001
+2026-11-18 11:42:58,412 epoch=18 train_loss=0.1482 lr=0.001
+2026-11-18 11:42:58,963 epoch=19 train_loss=0.162731 lr=0.001
+2026-11-18 11:43:01,043 epoch=20 train_loss=0.163049 validation_loss=0.224059 lr=0.001
+2026-11-18 11:43:01,672 epoch=21 train_loss=0.175358 lr=0.001
+2026-11-18 11:43:02,223 epoch=22 train_loss=0.145287 lr=0.001
+2026-11-18 11:43:02,774 epoch=23 train_loss=0.193181 lr=0.001
+2026-11-18 11:43:03,324 epoch=24 train_loss=0.150004 lr=0.001
+2026-11-18 11:43:03,877 epoch=25 train_loss=0.152332 lr=0.001
+2026-11-18 11:43:04,428 epoch=26 train_loss=0.122839 lr=0.001
+2026-11-18 11:43:04,979 epoch=27 train_loss=0.158577 lr=0.001
+2026-11-18 11:43:05,530 epoch=28 train_loss=0.145734 lr=0.001
+2026-11-18 11:43:06,081 epoch=29 train_loss=0.151237 lr=0.001
+2026-11-18 11:43:08,166 epoch=30 train_loss=0.136704 validation_loss=0.218575 lr=0.001
+2026-11-18 11:43:08,795 epoch=31 train_loss=0.160658 lr=0.001
+2026-11-18 11:43:09,347 epoch=32 train_loss=0.157941 lr=0.001
+2026-11-18 11:43:09,898 epoch=33 train_loss=0.130284 lr=0.001
+2026-11-18 11:43:10,449 epoch=34 train_loss=0.139212 lr=0.001
+2026-11-18 11:43:11,000 epoch=35 train_loss=0.137867 lr=0.001
+2026-11-18 11:43:11,551 epoch=36 train_loss=0.129654 lr=0.001
+2026-11-18 11:43:12,102 epoch=37 train_loss=0.130407 lr=0.001
+2026-11-18 11:43:12,653 epoch=38 train_loss=0.142808 lr=0.001
+2026-11-18 11:43:13,204 epoch=39 train_loss=0.138532 lr=0.001
+2026-11-18 11:43:15,286 epoch=40 train_loss=0.160185 validation_loss=0.216699 lr=0.001
+2026-11-18 11:43:15,918 epoch=41 train_loss=0.130204 lr=0.001
+2026-11-18 11:43:16,469 epoch=42 train_loss=0.132886 lr=0.001
+2026-11-18 11:43:17,021 epoch=43 train_loss=0.153889 lr=0.001
+2026-11-18 11:43:17,572 epoch=44 train_loss=0.128012 lr=0.001
+2026-11-18 11:43:18,123 epoch=45 train_loss=0.141139 lr=0.001
+2026-11-18 11:43:18,676 epoch=46 train_loss=0.142182 lr=0.001
+2026-11-18 11:43:19,227 epoch=47 train_loss=0.124153 lr=0.001
+2026-11-18 11:43:19,779 epoch=48 train_loss=0.107118 lr=0.001
+2026-11-18 11:43:20,331 epoch=49 train_loss=0.126844 lr=0.001
+2026-11-18 11:43:22,415 epoch=50 train_loss=0.153383 validation_loss=0.210984 lr=0.001
+2026-11-18 11:43:23,041 epoch=51 train_loss=0.131475 lr=0.001
+2026-11-18 11:43:23,585 epoch=52 train_loss=0.127359 lr=0.001
+2026-11-18 11:43:24,129 epoch=53 train_loss=0.108731 lr=0.001
+2026-11-18 11:43:24,672 epoch=54 train_loss=0.154521 lr=0.001
+2026-11-18 11:43:25,216 epoch=55 train_loss=0.132843 lr=0.001
+2026-11-18 11:43:25,760 epoch=56 train_loss=0.14465 lr=0.001
+2026-11-18 11:43:26,304 epoch=57 train_loss=0.113225 lr=0.001
+2026-11-18 11:43:26,847 epoch=58 train_loss=0.132754 lr=0.001
+2026-11-18 11:43:27,391 epoch=59 train_loss=0.136711 lr=0.001
+2026-11-18 11:43:29,463 epoch=60 train_loss=0.146305 validation_loss=0.20879 lr=0.001
+2026-11-18 11:43:30,082 epoch=61 train_loss=0.142462 lr=0.001
+2026-11-18 11:43:30,626 epoch=62 train_loss=0.124951 lr=0.001
+2026-11-18 11:43:31,170 epoch=63 train_loss=0.125625 lr=0.001
+2026-11-18 11:43:31,715 epoch=64 train_loss=0.129348 lr=0.001
+2026-11-18 11:43:32,259 epoch=65 train_loss=0.114505 lr=0.001
+2026-11-18 11:43:32,802 epoch=66 train_loss=0.127279 lr=0.001
+2026-11-18 11:43:33,347 epoch=67 train_loss=0.116425 lr=0.001
+2026-11-18 11:43:33,892 epoch=68 train_loss=0.135445 lr=0.001
+2026-11-18 11:43:34,436 epoch=69 train_loss=0.134319 lr=0.001
+2026-11-18 11:43:36,509 epoch=70 train_loss=0.117265 validation_loss=0.211155 lr=0.001
+2026-11-18 11:43:37,055 epoch=71 train_loss=0.112024 lr=0.001
+2026-11-18 11:43:37,599 epoch=72 train_loss=0.113582 lr=0.001
+2026-11-18 11:43:38,143 epoch=73 train_loss=0.130208 lr=0.001
+2026-11-18 11:43:38,687 epoch=74 train_loss=0.146778 lr=0.001
+2026-11-18 11:43:39,231 epoch=75 train_loss=0.12414 lr=0.001
+2026-11-18 11:43:39,775 epoch=76 train_loss=0.129885 lr=0.001
+2026-11-18 11:43:40,319 epoch=77 train_loss=0.114159 lr=0.001
+2026-11-18 11:43:40,865 epoch=78 train_loss=0.140675 lr=0.001
+2026-11-18 11:43:41,409 epoch=79 train_loss=0.128093 lr=0.001
+2026-11-18 11:43:43,480 epoch=80 train_loss=0.132533 validation_loss=0.207327 lr=0.001
+2026-11-18 11:43:44,100 epoch=81 train_loss=0.140122 lr=0.001
+2026-11-18 11:43:44,644 epoch=82 train_loss=0.126389 lr=0.001
+2026-11-18 11:43:45,188 epoch=83 train_loss=0.106118 lr=0.001
+2026-11-18 11:43:45,732 epoch=84 train_loss=0.11743 lr=0.001
+2026-11-18 11:43:46,276 epoch=85 train_loss=0.134834 lr=0.001
+2026-11-18 11:43:46,820 epoch=86 train_loss=0.132602 lr=0.001
+2026-11-18 11:43:47,364 epoch=87 train_loss=0.14454 lr=0.001
+2026-11-18 11:43:47,908 epoch=88 train_loss=0.138678 lr=0.001
+2026-11-18 11:43:48,453 epoch=89 train_loss=0.119712 lr=0.001
+2026-11-18 11:43:50,526 epoch=90 train_loss=0.138168 validation_loss=0.202074 lr=0.001
+2026-11-18 11:43:51,146 epoch=91 train_loss=0.13875 lr=0.001
+2026-11-18 11:43:51,690 epoch=92 train_loss=0.118009 lr=0.001
+2026-11-18 11:43:52,234 epoch=93 train_loss=0.114056 lr=0.001
+2026-11-18 11:43:52,778 epoch=94 train_loss=0.102698 lr=0.001
+2026-11-18 11:43:53,322 epoch=95 train_loss=0.122148 lr=0.001
+2026-11-18 11:43:53,866 epoch=96 train_loss=0.132067 lr=0.001
+2026-11-18 11:43:54,410 epoch=97 train_loss=0.112486 lr=0.001
+2026-11-18 11:43:54,954 epoch=98 train_loss=0.13014 lr=0.001
+2026-11-18 11:43:55,499 epoch=99 train_loss=0.118192 lr=0.001
+2026-11-18 11:43:57,573 epoch=100 train_loss=0.127011 validation_loss=0.207616 lr=0.001
+2026-11-18 11:43:58,119 epoch=101 train_loss=0.121566 lr=0.001
+2026-11-18 11:43:58,663 epoch=102 train_loss=0.115075 lr=0.001
+2026-11-18 11:43:59,208 epoch=103 train_loss=0.113756 lr=0.001
+2026-11-18 11:43:59,752 epoch=104 train_loss=0.121951 lr=0.001
+2026-11-18 11:44:00,297 epoch=105 train_loss=0.116872 lr=0.001
+2026-11-18 11:44:00,841 epoch=106 train_loss=0.126836 lr=0.001
+2026-11-18 11:44:01,385 epoch=107 train_loss=0.148646 lr=0.001
+2026-11-18 11:44:01,929 epoch=108 train_loss=0.140431 lr=0.001
+2026-11-18 11:44:02,474 epoch=109 train_loss=0.123013 lr=0.001
+2026-11-18 11:44:04,551 epoch=110 train_loss=0.1382 validation_loss=0.2102 lr=0.001
+2026-11-18 11:44:05,098 epoch=111 train_loss=0.128831 lr=0.001
+2026-11-18 11:44:05,642 epoch=112 train_loss=0.136585 lr=0.001
+2026-11-18 11:44:06,188 epoch=113 train_loss=0.119683 lr=0.001
+2026-11-18 11:44:06,732 epoch=114 train_loss=0.110679 lr=0.001
+2026-11-18 11:44:07,277 epoch=115 train_loss=0.124935 lr=0.001
+2026-11-18 11:44:07,821 epoch=116 train_loss=0.137812 lr=0.001
+2026-11-18 11:44:08,365 epoch=117 train_loss=0.0999443 lr=0.001
+2026-11-18 11:44:08,910 epoch=118 train_loss=0.145105 lr=0.001
+2026-11-18 11:44:09,455 epoch=119 train_loss=0.115162 lr=0.001
+2026-11-18 11:44:11,529 epoch=120 train_loss=0.121704 validation_loss=0.20187 lr=0.001
+2026-11-18 11:44:12,151 epoch=121 train_loss=0.118585 lr=0.001
+2026-11-18 11:44:12,695 epoch=122 train_loss=0.142107 lr=0.001
+2026-11-18 11:44:13,239 epoch=123 train_loss=0.132256 lr=0.001
+2026-11-18 11:44:13,784 epoch=124 train_loss=0.0909296 lr=0.001
+2026-11-18 11:44:14,328 epoch=125 train_loss=0.131445 lr=0.001
+2026-11-18 11:44:14,873 epoch=126 train_loss=0.116461 lr=0.001
+2026-11-18 11:44:15,417 epoch=127 train_loss=0.0988957 lr=0.001
+2026-11-18 11:44:15,961 epoch=128 train_loss=0.143755 lr=0.001
+2026-11-18 11:44:16,505 epoch=129 train_loss=0.131026 lr=0.001
+2026-11-18 11:44:18,578 epoch=130 train_loss=0.132872 validation_loss=0.206072 lr=0.001
+2026-11-18 11:44:19,124 epoch=131 train_loss=0.136289 lr=0.001
+2026-11-18 11:44:19,668 epoch=132 train_loss=0.12808 lr=0.001
+2026-11-18 11:44:20,212 epoch=133 train_loss=0.133871 lr=0.001
+2026-11-18 11:44:20,756 epoch=134 train_loss=0.122635 lr=0.001
+2026-11-18 11:44:21,300 epoch=135 train_loss=0.106858 lr=0.001
+2026-11-18 11:44:21,844 epoch=136 train_loss=0.0974523 lr=0.001
+2026-11-18 11:44:22,388 epoch=137 train_loss=0.112864 lr=0.001
+2026-11-18 11:44:22,932 epoch=138 train_loss=0.105192 lr=0.001
+2026-11-18 11:44:23,477 epoch=139 train_loss=0.115707 lr=0.001
+2026-11-18 11:44:25,548 epoch=140 train_loss=0.130064 validation_loss=0.206809 lr=0.001
+2026-11-18 11:44:26,093 epoch=141 train_loss=0.123361 lr=0.001
+2026-11-18 11:44:26,637 epoch=142 train_loss=0.124316 lr=0.001
+2026-11-18 11:44:27,180 epoch=143 train_loss=0.13991 lr=0.001
+2026-11-18 11:44:27,724 epoch=144 train_loss=0.129731 lr=0.001
+2026-11-18 11:44:28,268 epoch=145 train_loss=0.130569 lr=0.001
+2026-11-18 11:44:28,812 epoch=146 train_loss=0.111907 lr=0.001
+2026-11-18 11:44:29,356 epoch=147 train_loss=0.111914 lr=0.001
+2026-11-18 11:44:29,899 epoch=148 train_loss=0.109063 lr=0.001
+2026-11-18 11:44:30,443 epoch=149 train_loss=0.123025 lr=0.001
+2026-11-18 11:44:32,517 epoch=150 train_loss=0.119403 validation_loss=0.205324 lr=0.001
+2026-11-18 11:44:33,063 epoch=151 train_loss=0.13323 lr=0.0001
+2026-11-18 11:44:33,606 epoch=152 train_loss=0.11967 lr=0.0001
+2026-11-18 11:44:34,150 epoch=153 train_loss=0.110015 lr=0.0001
+2026-11-18 11:44:34,694 epoch=154 train_loss=0.117069 lr=0.0001
+2026-11-18 11:44:35,238 epoch=155 train_loss=0.115928 lr=0.0001
+2026-11-18 11:44:35,782 epoch=156 train_loss=0.120594 lr=0.0001
+2026-11-18 11:44:36,325 epoch=157 train_loss=0.0993209 lr=0.0001
+2026-11-18 11:44:36,869 epoch=158 train_loss=0.129739 lr=0.0001
+2026-11-18 11:44:37,413 epoch=159 train_loss=0.112633 lr=0.0001
+2026-11-18 11:44:39,485 epoch=160 train_loss=0.0884185 validation_loss=0.207162 lr=0.0001
+2026-11-18 11:44:40,031 epoch=161 train_loss=0.0914475 lr=0.0001
+2026-11-18 11:44:40,575 epoch=162 train_loss=0.100636 lr=0.0001
+2026-11-18 11:44:41,118 epoch=163 train_loss=0.113947 lr=0.0001
+2026-11-18 11:44:41,662 epoch=164 train_loss=0.100267 lr=0.0001
+2026-11-18 11:44:42,205 epoch=165 train_loss=0.117327 lr=0.0001
+2026-11-18 11:44:42,749 epoch=166 train_loss=0.102942 lr=0.0001
+2026-11-18 11:44:43,293 epoch=167 train_loss=0.105949 lr=0.0001
+2026-11-18 11:44:43,837 epoch=168 train_loss=0.0938662 lr=0.0001
+2026-11-18 11:44:44,380 epoch=169 train_loss=0.109558 lr=0.0001
+2026-11-18 11:44:46,455 epoch=170 train_loss=0.126276 validation_loss=0.209993 lr=0.0001
+2026-11-18 11:44:47,001 epoch=171 train_loss=0.099468 lr=0.0001
+2026-11-18 11:44:47,545 epoch=172 train_loss=0.124634 lr=0.0001
+2026-11-18 11:44:48,089 epoch=173 train_loss=0.140888 lr=0.0001
+2026-11-18 11:44:48,633 epoch=174 train_loss=0.114052 lr=0.0001
+2026-11-18 11:44:49,177 epoch=175 train_loss=0.100588 lr=0.0001
+2026-11-18 11:44:49,721 epoch=176 train_loss=0.117525 lr=0.0001
+2026-11-18 11:44:50,266 epoch=177 train_loss=0.124195 lr=0.0001
+2026-11-18 11:44:50,810 epoch=178 train_loss=0.0993688 lr=0.0001
+2026-11-18 11:44:51,354 epoch=179 train_loss=0.107675 lr=0.0001
+2026-11-18 11:44:53,426 epoch=180 train_loss=0.113691 validation_loss=0.210883 lr=0.0001
+2026-11-18 11:44:53,972 epoch=181 train_loss=0.10244 lr=1e-05
+2026-11-18 11:44:54,516 epoch=182 train_loss=0.125681 lr=1e-05
+2026-11-18 11:44:55,061 epoch=183 train_loss=0.106595 lr=1e-05
+2026-11-18 11:44:55,605 epoch=184 train_loss=0.109898 lr=1e-05
+2026-11-18 11:44:56,149 epoch=185 train_loss=0.109151 lr=1e-05
+2026-11-18 11:44:56,693 epoch=186 train_loss=0.123659 lr=1e-05
+2026-11-18 11:44:57,237 epoch=187 train_loss=0.111663 lr=1e-05
+2026-11-18 11:44:57,781 epoch=188 train_loss=0.107325 lr=1e-05
+2026-11-18 11:44:58,325 epoch=189 train_loss=0.107872 lr=1e-05
+2026-11-18 11:45:00,399 epoch=190 train_loss=0.112965 validation_loss=0.208725 lr=1e-05
+2026-11-18 11:45:00,945 epoch=191 train_loss=0.104082 lr=1e-05
+2026-11-18 11:45:01,489 epoch=192 train_loss=0.117176 lr=1e-05
+2026-11-18 11:45:02,033 epoch=193 train_loss=0.0907091 lr=1e-05
+2026-11-18 11:45:02,578 epoch=194 train_loss=0.113243 lr=1e-05
+2026-11-18 11:45:03,122 epoch=195 train_loss=0.117907 lr=1e-05
+2026-11-18 11:45:03,666 epoch=196 train_loss=0.120002 lr=1e-05
+2026-11-18 11:45:04,210 epoch=197 train_loss=0.113928 lr=1e-05
+2026-11-18 11:45:04,755 epoch=198 train_loss=0.114677 lr=1e-05
+2026-11-18 11:45:05,299 epoch=199 train_loss=0.126782 lr=1e-05
+2026-11-18 11:45:07,371 epoch=200 train_loss=0.113114 validation_loss=0.210046 lr=1e-05
+2026-11-18 11:45:07,377 Imputing full series with 16 CSDI draws
+2026-11-18 11:48:07,298 Imputation CRPS: CSDI=0.081349 linear=0.211947
+2026-11-18 11:48:50,227 HTTP Request: HEAD https://huggingface.co/amazon/chronos-2/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-11-18 11:48:50,227 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-18 11:48:50,302 HTTP Request: GET https://huggingface.co/api/models/amazon/chronos-2 "HTTP/1.1 200 OK"
+2026-11-18 11:48:50,379 HTTP Request: GET https://huggingface.co/api/models/amazon/chronos-2/revision/main "HTTP/1.1 200 OK"
+2026-11-18 11:48:55,499 Fine-tuning Chronos-2 (lora) for 1000 steps -> outputs/electricity_csdi_chronos2_61856074/chronos_sparse
+2026-11-18 11:49:00,852 Using LoRA. Number of trainable parameters: 1206912, total parameters: 120684576.
+2026-11-18 11:49:00,964 [RANK 0] Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2026-11-18 11:50:43,764 HTTP Request: HEAD https://huggingface.co/amazon/chronos-2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-18 11:50:43,774 HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/amazon/chronos-2/29ec3766d36d6f73f0696f85560a422f50e8498c/config.json?%2Famazon%2Fchronos-2%2Fresolve%2Fmain%2Fconfig.json=&etag=%22f3207394965100a2aa18820b87da3d2bbad3b1f0%22 "HTTP/1.1 200 OK"
+2026-11-18 11:50:43,810 HTTP Request: GET https://huggingface.co/api/models/amazon/chronos-2/revision/main "HTTP/1.1 200 OK"
+2026-11-18 11:50:43,959 Finetuned model saved to outputs/electricity_csdi_chronos2_61856074/chronos_sparse/finetuned-ckpt
+2026-11-18 11:50:43,971 Fine-tuning Chronos-2 (lora) for 1000 steps -> outputs/electricity_csdi_chronos2_61856074/chronos_csdi
+2026-11-18 11:50:44,891 Using LoRA. Number of trainable parameters: 1206912, total parameters: 120684576.
+2026-11-18 11:50:44,977 [RANK 0] Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2026-11-18 11:53:32,059 HTTP Request: HEAD https://huggingface.co/amazon/chronos-2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-18 11:53:32,068 HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/amazon/chronos-2/29ec3766d36d6f73f0696f85560a422f50e8498c/config.json?%2Famazon%2Fchronos-2%2Fresolve%2Fmain%2Fconfig.json=&etag=%22f3207394965100a2aa18820b87da3d2bbad3b1f0%22 "HTTP/1.1 200 OK"
+2026-11-18 11:53:32,101 HTTP Request: GET https://huggingface.co/api/models/amazon/chronos-2/revision/main "HTTP/1.1 200 OK"
+2026-11-18 11:53:32,248 Finetuned model saved to outputs/electricity_csdi_chronos2_61856074/chronos_csdi/finetuned-ckpt
+2026-11-18 11:53:32,260 Fine-tuning Chronos-2 (lora) for 1000 steps -> outputs/electricity_csdi_chronos2_61856074/chronos_linear
+2026-11-18 11:53:33,183 Using LoRA. Number of trainable parameters: 1206912, total parameters: 120684576.
+2026-11-18 11:53:33,294 [RANK 0] Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2026-11-18 11:56:20,006 HTTP Request: HEAD https://huggingface.co/amazon/chronos-2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-18 11:56:20,016 HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/amazon/chronos-2/29ec3766d36d6f73f0696f85560a422f50e8498c/config.json?%2Famazon%2Fchronos-2%2Fresolve%2Fmain%2Fconfig.json=&etag=%22f3207394965100a2aa18820b87da3d2bbad3b1f0%22 "HTTP/1.1 200 OK"
+2026-11-18 11:56:20,048 HTTP Request: GET https://huggingface.co/api/models/amazon/chronos-2/revision/main "HTTP/1.1 200 OK"
+2026-11-18 11:56:20,193 Finetuned model saved to outputs/electricity_csdi_chronos2_61856074/chronos_linear/finetuned-ckpt
+2026-11-18 11:56:20,194 Backtesting 158 origins on test region
+2026-11-18 11:56:59,648 Results:
+{
+  "sparse": {
+    "mae": 2127.7374543395226,
+    "rmse": 6112.473429241112,
+    "smape": 0.0911247422828778,
+    "wql": 856.1137476865016
+  },
+  "csdi_imputed": {
+    "mae": 1540.5781475083234,
+    "rmse": 4430.129899297754,
+    "smape": 0.06714576508154828,
+    "wql": 614.4899952872304
+  },
+  "linear_imputed": {
+    "mae": 1515.8269491332492,
+    "rmse": 4345.126185994127,
+    "smape": 0.06783853321959803,
+    "wql": 602.3976152995019
+  },
+  "zeroshot_sparse": {
+    "mae": 2064.594695085614,
+    "rmse": 6104.813418072703,
+    "smape": 0.08734364535071414,
+    "wql": 828.2560837845014
+  },
+  "zeroshot_csdi": {
+    "mae": 1403.3683991379876,
+    "rmse": 4095.6101924938275,
+    "smape": 0.06028740745431378,
+    "wql": 565.672406531726
+  }
+}
+2026-11-18 11:56:59,648 Imputation CRPS CSDI=0.081349 linear=0.211947
