@@ -79,7 +79,8 @@ def main() -> None:
         tmp,
         values=series,
         times=times,
-        currencies=np.asarray(FX_CURRENCIES),
+        channels=np.asarray(FX_CURRENCIES),
+        currencies=np.asarray(FX_CURRENCIES),  # legacy key
         config=json.dumps(config, sort_keys=True),
     )
     written = tmp if tmp.exists() else Path(str(tmp) + ".npz")

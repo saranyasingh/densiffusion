@@ -27,6 +27,13 @@ FX_CURRENCIES = (
 )
 FX_START = np.datetime64("1990-01-01")
 
+ELECTRICITY_URL = (
+    "https://github.com/laiguokun/multivariate-time-series-data/raw/master/"
+    "electricity/electricity.txt.gz"
+)
+ELECTRICITY_START = np.datetime64("2012-01-01T00")
+ELECTRICITY_N_CLIENTS = 321
+
 
 @dataclass(frozen=True)
 class ChannelNormalizer:
@@ -121,37 +128,61 @@ def linear_fill(values: Array, hidden: Array) -> Array:
     return filled
 
 
-def load_fx_dataset(path: Path) -> tuple[np.ndarray, np.ndarray, dict]:
-    """Load ``prepare_fx.py`` output: values (1, T, C), times (T,), metadata."""
+def load_multivariate_dataset(path: Path) -> tuple[np.ndarray, np.ndarray, dict]:
+    """Load prepare_*.py output: values (1, T, C), times (T,), metadata.
+
+    Channel names are read from ``channels`` or legacy ``currencies``.
+    """
     with np.load(path, allow_pickle=False) as dataset:
         values = validate_array(dataset["values"], (None, None, None))
         times = np.asarray(dataset["times"], dtype=np.float64)
-        currencies = [str(name) for name in dataset["currencies"].tolist()]
+        if "channels" in dataset.files:
+            channels = [str(name) for name in dataset["channels"].tolist()]
+        elif "currencies" in dataset.files:
+            channels = [str(name) for name in dataset["currencies"].tolist()]
+        else:
+            raise KeyError("dataset must contain 'channels' or 'currencies'")
         config = json.loads(str(dataset["config"]))
     if times.shape != (values.shape[1],):
         raise ValueError("times must have shape (n_steps,)")
-    if len(currencies) != values.shape[2]:
-        raise ValueError("currencies length must match channel count")
-    config = {**config, "currencies": currencies}
+    if len(channels) != values.shape[2]:
+        raise ValueError("channel names length must match channel count")
+    config = {
+        **config,
+        "channels": channels,
+        "currencies": channels,  # back-compat for FX call sites
+        "freq": config.get("freq", "D"),
+        "start": config.get("start", str(FX_START)),
+        "item_id": config.get("item_id", "series"),
+    }
     return values, times, config
+
+
+def load_fx_dataset(path: Path) -> tuple[np.ndarray, np.ndarray, dict]:
+    """Load ``prepare_fx.py`` output: values (1, T, C), times (T,), metadata."""
+    return load_multivariate_dataset(path)
 
 
 def to_chronos_frame(
     values: Array,
     *,
-    currencies: Sequence[str],
-    start: np.datetime64 = FX_START,
+    channels: Sequence[str] | None = None,
+    currencies: Sequence[str] | None = None,
+    start: np.datetime64 | str = FX_START,
     freq: str = "D",
-    item_id: str = "fx",
+    item_id: str = "series",
     step: int = 1,
 ):
-    """Build a Chronos-2 DataFrame for one multivariate FX series.
+    """Build a Chronos-2 DataFrame for one multivariate series.
 
-    ``values`` is ``(1, T, C)`` or ``(T, C)`` on a regular grid with spacing
-    ``step`` calendar days between consecutive rows.
+    ``values`` is ``(1, T, C)`` or ``(T, C)`` on a regular grid. ``freq`` is the
+    native spacing of one step (``D`` or ``h``); ``step>1`` uses ``f"{step}{freq}"``.
     """
     import pandas as pd
 
+    names = list(channels if channels is not None else currencies or ())
+    if not names:
+        raise ValueError("channels or currencies must be provided")
     array = np.asarray(values, dtype=np.float64)
     if array.ndim == 3:
         if array.shape[0] != 1:
@@ -161,17 +192,19 @@ def to_chronos_frame(
         raise ValueError(
             "values must have shape (time, channels) or (1, time, channels)"
         )
-    if len(currencies) != array.shape[1]:
-        raise ValueError("currencies length must match channel count")
+    if len(names) != array.shape[1]:
+        raise ValueError("channel names length must match channel count")
     positive_int("step", step)
-    del freq  # frequency is implied by step; kept for call-site clarity
+    if freq not in {"D", "h", "H"}:
+        raise ValueError("freq must be 'D' or 'h'")
+    unit = "h" if freq in {"h", "H"} else "D"
     timestamps = pd.date_range(
         start=pd.Timestamp(start),
         periods=array.shape[0],
-        freq="D" if step == 1 else f"{step}D",
+        freq=unit if step == 1 else f"{step}{unit}",
     )
     frame = pd.DataFrame({"item_id": item_id, "timestamp": timestamps})
-    for name, column in zip(currencies, array.T, strict=True):
+    for name, column in zip(names, array.T, strict=True):
         frame[name] = column
     return frame
 

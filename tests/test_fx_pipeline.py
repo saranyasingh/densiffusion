@@ -11,7 +11,7 @@ from densiffusion.fx import (
     expand_mask,
     fit_normalizer,
     linear_fill,
-    load_fx_dataset,
+    load_multivariate_dataset,
     point_metrics,
     quantile_loss,
     sparse_observation_mask,
@@ -68,7 +68,27 @@ def test_point_and_quantile_metrics():
     assert wql > 0
 
 
-def test_load_fx_dataset_roundtrip(tmp_path: Path):
+def test_load_multivariate_dataset_roundtrip(tmp_path: Path):
+    path = tmp_path / "elec.npz"
+    names = [f"client_{i:03d}" for i in range(4)]
+    values = np.random.default_rng(0).normal(size=(1, 20, 4))
+    np.savez_compressed(
+        path,
+        values=values,
+        times=np.arange(20, dtype=np.float64),
+        channels=np.asarray(names),
+        config=json.dumps(
+            {"dt": 1.0, "dataset": "toy", "freq": "h", "start": "2012-01-01T00"}
+        ),
+    )
+    loaded, times, meta = load_multivariate_dataset(path)
+    assert loaded.shape == values.shape
+    assert times.shape == (20,)
+    assert meta["channels"] == names
+    assert meta["freq"] == "h"
+
+
+def test_legacy_currencies_key_still_loads(tmp_path: Path):
     path = tmp_path / "fx.npz"
     values = np.random.default_rng(0).normal(size=(1, 20, len(FX_CURRENCIES)))
     np.savez_compressed(
@@ -76,9 +96,7 @@ def test_load_fx_dataset_roundtrip(tmp_path: Path):
         values=values,
         times=np.arange(20, dtype=np.float64),
         currencies=np.asarray(FX_CURRENCIES),
-        config=json.dumps({"dt": 1.0, "dataset": "toy"}),
+        config=json.dumps({"dt": 1.0, "dataset": "toy", "freq": "D"}),
     )
-    loaded, times, meta = load_fx_dataset(path)
-    assert loaded.shape == values.shape
-    assert times.shape == (20,)
-    assert meta["currencies"] == list(FX_CURRENCIES)
+    _, _, meta = load_multivariate_dataset(path)
+    assert meta["channels"] == list(FX_CURRENCIES)

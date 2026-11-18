@@ -84,7 +84,7 @@ def main() -> None:
     for y in range(2 + len(rows) + 1):
         axis.axhline(y, color=BORDER, linewidth=0.8)
 
-    title = "FX Chronos-2: sparse vs imputed"
+    title = "Chronos-2: sparse vs imputed"
     if "imputation" in payload:
         title += (
             f"  |  imput. CRPS CSDI {payload['imputation']['csdi_crps']:.4f} "
