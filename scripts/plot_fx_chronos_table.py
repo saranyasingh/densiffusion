@@ -19,13 +19,21 @@ BORDER = "#c9bfae"
 TEXT = "#3a3a3a"
 
 ARMS = (
-    ("sparse", "Chronos-2 fine-tuned\n(sparse)"),
-    ("csdi_imputed", "Chronos-2 fine-tuned\n(CSDI imputed)"),
-    ("linear_imputed", "Chronos-2 fine-tuned\n(linear imputed)"),
-    ("zeroshot_sparse", "Chronos-2 zero-shot\n(sparse)"),
     ("zeroshot_csdi", "Chronos-2 zero-shot\n(CSDI imputed)"),
+    ("zeroshot_linear", "Chronos-2 zero-shot\n(linear imputed)"),
+    ("zeroshot_sparse", "Chronos-2 zero-shot\n(sparse / NaN)"),
+    ("dense_oracle", "Chronos-2 zero-shot\n(dense oracle)"),
+    ("seasonal_naive", "Seasonal naive"),
+    ("last_value", "Last value"),
 )
-METRICS = (("mae", "MAE"), ("rmse", "RMSE"), ("smape", "sMAPE"), ("wql", "WQL"))
+METRICS = (
+    ("mae", "MAE"),
+    ("rmse", "RMSE"),
+    ("smape", "sMAPE"),
+    ("mase", "MASE"),
+    ("wql", "WQL"),
+    ("sql", "SQL"),
+)
 
 
 def main() -> None:

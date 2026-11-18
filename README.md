@@ -63,9 +63,10 @@ Future forecasting interfaces are reserved in `Forecaster`, `make_forecast_windo
 
 ### Sparse electricity → CSDI → Chronos-2
 
-Impute sparsified hourly electricity (periodic load) with CSDI, fine-tune
-[Chronos-2](https://arxiv.org/abs/2610.41956) on imputed vs sparse grids, and
-compare rolling forecast skill. See [docs/fx_csdi_chronos2.md](docs/fx_csdi_chronos2.md).
+Impute block-sparsified hourly electricity with CSDI, then zero-shot
+[Chronos-2](https://arxiv.org/abs/2610.41956) on sparse / CSDI / linear / dense
+oracle contexts (plus seasonal naive). See
+[docs/fx_csdi_chronos2.md](docs/fx_csdi_chronos2.md).
 
 ```sh
 uv sync --extra research --extra chronos

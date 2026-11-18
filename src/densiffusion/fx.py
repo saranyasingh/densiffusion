@@ -99,6 +99,80 @@ def sparse_observation_mask(
     return hidden
 
 
+def block_observation_mask(
+    length: int,
+    *,
+    block_length: int = 12,
+    observe_length: int = 12,
+    offset: int = 0,
+) -> np.ndarray:
+    """Hide contiguous blocks so linear fill must bridge nonlinear gaps.
+
+    Pattern repeats ``observe_length`` observed then ``block_length`` hidden.
+    Endpoints are forced observed.
+    """
+    positive_int("length", length)
+    positive_int("block_length", block_length)
+    positive_int("observe_length", observe_length)
+    if offset < 0:
+        raise ValueError("offset must be nonnegative")
+    period = observe_length + block_length
+    hidden = np.zeros(length, dtype=bool)
+    for start in range(offset, length, period):
+        hide_from = start + observe_length
+        hide_to = min(start + period, length)
+        if hide_from < hide_to:
+            hidden[hide_from:hide_to] = True
+    hidden[0] = False
+    hidden[-1] = False
+    if hidden.all() or not hidden.any():
+        raise ValueError("block mask must leave both observed and hidden points")
+    return hidden
+
+
+def random_observation_mask(
+    length: int,
+    *,
+    keep_probability: float = 0.25,
+    seed: int = 0,
+) -> np.ndarray:
+    """Bernoulli keep-mask; endpoints always observed. True = hidden."""
+    positive_int("length", length)
+    if not 0.0 < keep_probability < 1.0:
+        raise ValueError("keep_probability must be in (0, 1)")
+    rng = np.random.default_rng(seed)
+    hidden = rng.random(length) >= keep_probability
+    hidden[0] = False
+    hidden[-1] = False
+    if hidden.all() or not hidden.any():
+        raise ValueError("random mask must leave both observed and hidden points")
+    return hidden
+
+
+def build_observation_mask(
+    length: int,
+    *,
+    mode: str = "grid",
+    sparse_step: int = 2,
+    block_length: int = 12,
+    observe_length: int = 12,
+    keep_probability: float = 0.25,
+    seed: int = 0,
+) -> np.ndarray:
+    """Dispatch to grid / block / random observation masks (True = hidden)."""
+    if mode == "grid":
+        return sparse_observation_mask(length, step=sparse_step, offset=0)
+    if mode == "block":
+        return block_observation_mask(
+            length, block_length=block_length, observe_length=observe_length
+        )
+    if mode == "random":
+        return random_observation_mask(
+            length, keep_probability=keep_probability, seed=seed
+        )
+    raise ValueError("mode must be 'grid', 'block', or 'random'")
+
+
 def expand_mask(hidden_time: np.ndarray, *, batch: int, channels: int) -> np.ndarray:
     """Broadcast a length-T hidden mask to (batch, time, channels)."""
     hidden_time = np.asarray(hidden_time, dtype=bool)
@@ -248,6 +322,76 @@ def point_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float]:
         "rmse": float(np.sqrt(np.mean(np.square(y_true - y_pred)))),
         "smape": float(smape.mean()),
     }
+
+
+def seasonal_scale(history: np.ndarray, *, season: int) -> float:
+    """Mean abs seasonal difference used as MASE/SQL denominator."""
+    history = np.asarray(history, dtype=np.float64)
+    if history.ndim == 3:
+        history = history[0]
+    if history.ndim != 2:
+        raise ValueError("history must be (time, channels) or (1, time, channels)")
+    positive_int("season", season)
+    if history.shape[0] <= season:
+        raise ValueError("history must be longer than season")
+    scale = np.mean(np.abs(history[season:] - history[:-season]))
+    return float(scale if scale > 1e-8 else 1.0)
+
+
+def seasonal_naive_forecast(
+    history: np.ndarray, *, horizon: int, season: int
+) -> np.ndarray:
+    """Seasonal-naive point forecast shaped ``(horizon, channels)``."""
+    history = np.asarray(history, dtype=np.float64)
+    if history.ndim == 3:
+        history = history[0]
+    if history.ndim != 2:
+        raise ValueError("history must be (time, channels) or (1, time, channels)")
+    positive_int("horizon", horizon)
+    positive_int("season", season)
+    if history.shape[0] < season:
+        raise ValueError("history must contain at least one full season")
+    last_season = history[-season:]
+    return last_season[np.arange(horizon) % season]
+
+
+def mase(y_true: np.ndarray, y_pred: np.ndarray, *, scale: float) -> float:
+    """Mean absolute scaled error with a precomputed seasonal scale."""
+    if not np.isfinite(scale) or scale <= 0:
+        raise ValueError("scale must be finite and positive")
+    return float(np.mean(np.abs(y_true - y_pred)) / scale)
+
+
+def scaled_quantile_loss(
+    y_true: np.ndarray,
+    quantile_forecasts: dict[float, np.ndarray],
+    *,
+    scale: float,
+) -> float:
+    """Pinball loss averaged over quantiles, scaled like MASE (SQL-style)."""
+    if not np.isfinite(scale) or scale <= 0:
+        raise ValueError("scale must be finite and positive")
+    return weighted_quantile_loss(y_true, quantile_forecasts) / scale
+
+
+def forecast_metrics(
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    *,
+    scale: float,
+    quantile_forecasts: dict[float, np.ndarray] | None = None,
+) -> dict[str, float]:
+    """Point metrics plus MASE; add WQL/SQL when quantile forecasts are given."""
+    scores = {
+        **point_metrics(y_true, y_pred),
+        "mase": mase(y_true, y_pred, scale=scale),
+    }
+    if quantile_forecasts is not None:
+        scores["wql"] = weighted_quantile_loss(y_true, quantile_forecasts)
+        scores["sql"] = scaled_quantile_loss(
+            y_true, quantile_forecasts, scale=scale
+        )
+    return scores
 
 
 def extract_quantile_matrix(

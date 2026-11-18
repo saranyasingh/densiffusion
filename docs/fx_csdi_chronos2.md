@@ -4,19 +4,19 @@ End-to-end comparison of [Chronos-2](https://arxiv.org/abs/2610.41956)
 forecasting on a sparsely observed multivariate series versus the same series
 after CSDI imputation.
 
-## Recommended default: electricity
+## Recommended default: electricity + block missing
 
-Hourly LSTNet electricity (periodic daily/weekly load). Default preset keeps
-every 4th hour so linear fill must bridge peak/off-peak gaps — a harder setting
-than smooth daily FX.
+Hourly LSTNet electricity (periodic daily/weekly load). Default missingness
+hides **12h blocks** (then observes 12h), so linear fill must bridge diurnal
+peaks. Chronos evaluation is **zero-shot only** (`ENABLE_CHRONOS_FINETUNE =
+False` in `scripts/run_csdi_chronos2.py`; flip to restore LoRA fine-tuning).
 
-- **Channels.** Top-20 highest-variance clients by default (`prepare_electricity.py
-  --n-channels 20`); full 321 makes CSDI feature attention very expensive.
-- **Windows.** 97-hour windows, stride 48; Chronos context 168h, horizon 24h.
-- **Strong CSDI.** Reference-size net, quadratic 50-step schedule, LR/weight decay
-  (see `docs/csdi.md`).
-- **Chronos-2 arms.** Fine-tuned sparse / CSDI-imputed / linear-imputed, plus
-  zero-shot sparse & CSDI. Scored on the shared coarse grid (MAE/RMSE/sMAPE/WQL).
+Anchors and metrics:
+
+- **seasonal naive** and **last value**
+- **dense_oracle**: Chronos-2 on true dense history (upper bound)
+- **zeroshot_sparse / zeroshot_csdi / zeroshot_linear**
+- Errors: MAE, RMSE, sMAPE, **MASE**, WQL, **SQL**
 
 ### Commands
 
@@ -28,10 +28,10 @@ uv run --extra research --extra chronos python scripts/run_csdi_chronos2.py \
     --data data/electricity.npz --output outputs/electricity_csdi_chronos2 \
     --device cuda
 
-# smoke
+# harder random sparsity
 uv run --extra research --extra chronos python scripts/run_csdi_chronos2.py \
-    --data data/electricity.npz --output outputs/electricity_quick \
-    --quick --device cpu
+    --data data/electricity.npz --output outputs/electricity_random \
+    --missing-mode random --keep-probability 0.25 --device cuda
 ```
 
 Cluster:
@@ -40,9 +40,7 @@ Cluster:
 sbatch scripts/cluster/electricity_csdi_chronos2.sbatch
 ```
 
-## FX preset (legacy)
-
-Daily exchange rates remain available if you want the smooth baseline contrast:
+## FX preset
 
 ```sh
 uv run python scripts/prepare_fx.py --output data/fx.npz
@@ -53,6 +51,18 @@ uv run --extra research --extra chronos python scripts/run_csdi_chronos2.py \
 ## Reading `results.json`
 
 - `imputation.csdi_crps` vs `imputation.linear_crps`
-- `forecast.sparse` / `forecast.csdi_imputed` / `forecast.linear_imputed`
-- `forecast.zeroshot_*`
-- `deltas_csdi_minus_sparse` — negative means CSDI+Chronos wins
+- `forecast.zeroshot_*`, `forecast.dense_oracle`, `forecast.seasonal_naive`
+- `deltas_csdi_minus_sparse` / `deltas_csdi_minus_linear`
+
+## Plots
+
+The runner writes figures into the output directory when matplotlib is available.
+Re-plot any finished run with:
+
+```sh
+uv run --with matplotlib python scripts/plot_csdi_chronos2_results.py \
+    --run outputs/electricity_csdi_chronos2_<jobid>
+```
+
+Artifacts: `table.png`, `bars.png`, `imputation.png`, `examples.png`
+(examples need `imputed.npz`).

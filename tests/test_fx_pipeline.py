@@ -8,12 +8,17 @@ import pytest
 
 from densiffusion.fx import (
     FX_CURRENCIES,
+    block_observation_mask,
+    build_observation_mask,
     expand_mask,
     fit_normalizer,
+    forecast_metrics,
     linear_fill,
     load_multivariate_dataset,
     point_metrics,
     quantile_loss,
+    seasonal_naive_forecast,
+    seasonal_scale,
     sparse_observation_mask,
     weighted_quantile_loss,
 )
@@ -35,6 +40,33 @@ def test_sparse_observation_mask_keeps_endpoints_and_grid():
     hidden4 = sparse_observation_mask(9, step=4, offset=0)
     assert not hidden4[0] and not hidden4[-1]
     assert hidden4[1:4].all()
+
+
+def test_block_and_dispatch_masks():
+    hidden = block_observation_mask(48, block_length=12, observe_length=12)
+    assert not hidden[0] and not hidden[-1]
+    assert hidden[12:24].all()
+    assert not hidden[24:36].any()
+    assert build_observation_mask(20, mode="grid", sparse_step=2).sum() > 0
+    assert build_observation_mask(40, mode="random", keep_probability=0.3, seed=0).any()
+
+
+def test_seasonal_metrics_and_naive():
+    times = np.arange(48)
+    history = np.stack([np.sin(2 * np.pi * times / 24), times / 10], axis=1)
+    scale = seasonal_scale(history, season=24)
+    assert scale > 0
+    pred = seasonal_naive_forecast(history, horizon=12, season=24)
+    assert pred.shape == (12, 2)
+    assert np.allclose(pred[0], history[-24])
+    truth = history[-12:]
+    scores = forecast_metrics(
+        truth,
+        pred,
+        scale=scale,
+        quantile_forecasts={0.5: pred},
+    )
+    assert "mase" in scores and "sql" in scores and scores["mase"] >= 0
 
 
 def test_fit_normalizer_uses_observed_only():
