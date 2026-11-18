@@ -70,3 +70,10 @@ def test_scales_use_the_training_period_only():
     np.testing.assert_array_equal(
         original["train"]["values"], rewritten["train"]["values"]
     )
+
+
+def test_align_drops_dates_after_end():
+    series = {"A": {"1999-01-04": 1.0, "1999-01-05": 2.0, "1999-01-06": 3.0}}
+    dates, values = align(series, start="1999-01-01", end="1999-01-05")
+    assert dates == ["1999-01-04", "1999-01-05"]
+    np.testing.assert_array_equal(values, [[1.0, 2.0]])

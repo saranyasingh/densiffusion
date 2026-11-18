@@ -6,7 +6,7 @@ Run from the repository root:
 
 Downloads the H.10 series in densiffusion.fred.SERIES (public domain, citation
 requested) into data/raw/fred/, keeps the trading days every series has from
---start on, and saves data/fred_fx.npz with:
+--start to --end (default 2026-10-23), and saves data/fred_fx.npz with:
 
 - values: (series, time, 1) natural logs of the quoted rates
 - times: trading-day index 0, 1, 2, ... (holidays removed)
@@ -40,6 +40,8 @@ def download(series_id: str, folder: Path, *, refresh: bool) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--start", default="1999-01-04")
+    # A fixed end keeps every run on identical data as FRED publishes more.
+    parser.add_argument("--end", default="2026-10-23")
     parser.add_argument("--raw", type=Path, default=Path("data/raw/fred"))
     parser.add_argument("--output", type=Path, default=Path("data/fred_fx.npz"))
     parser.add_argument("--refresh", action="store_true", help="download again")
@@ -54,7 +56,7 @@ def main() -> None:
             download(series_id, args.raw, refresh=args.refresh)
         )
         print(f"{series_id}: {len(rates[series_id])} trading days")
-    dates, values = align(rates, start=args.start)
+    dates, values = align(rates, start=args.start, end=args.end)
     config = {
         "source": CITATION,
         "license": "Public domain, citation requested",

@@ -51,14 +51,17 @@ def parse_fred_csv(text: str) -> dict[str, float]:
     return values
 
 
-def align(series: dict[str, dict[str, float]], *, start: str) -> tuple[list, Array]:
-    """Return sorted dates from `start` that every series has, and their values.
+def align(
+    series: dict[str, dict[str, float]], *, start: str, end: str | None = None
+) -> tuple[list, Array]:
+    """Return sorted dates from `start` to `end` (inclusive) that every series has.
 
     Values are shaped (number of series, number of dates), rows in the order of
-    `series`. ISO dates sort correctly as strings.
+    `series`. ISO dates sort correctly as strings. Without `end`, every date
+    FRED has published is kept, so results change as new data arrive.
     """
     common = set.intersection(*(set(values) for values in series.values()))
-    dates = sorted(date for date in common if date >= start)
+    dates = sorted(d for d in common if d >= start and (end is None or d <= end))
     values = np.array([[rates[date] for date in dates] for rates in series.values()])
     return dates, values
 
