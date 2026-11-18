@@ -31,6 +31,9 @@ DATA="${DATA:-data/electricity.npz}"
 
 export UV_OFFLINE=1
 export MPLCONFIGDIR="${TMPDIR:-/tmp}/matplotlib-${SLURM_JOB_ID:-local}"
+# Triton JIT-compiles a CUDA driver shim with gcc, which needs Python.h; the
+# compute node's system Python has no dev headers, so point gcc at FASRC's.
+export C_INCLUDE_PATH="/n/sw/Miniforge3-25.3.1-0.el9/include/python3.12:${C_INCLUDE_PATH:-}"
 nvidia-smi || true
 
 if [[ ! -f "$DATA" ]]; then
