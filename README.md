@@ -60,3 +60,16 @@ and validation-only selection before scoring fresh test trajectories.
 
 Future forecasting interfaces are reserved in `Forecaster`, `make_forecast_windows`,
 `train_forecaster`, `forecast`, and `run_forecast_experiment`; the functions are stubs.
+
+### Sparse FX → CSDI → Chronos-2
+
+Impute a sparsified multivariate FX series with CSDI, fine-tune
+[Chronos-2](https://arxiv.org/abs/2610.41956) on the imputed vs sparse grids, and
+compare rolling forecast skill. See [docs/fx_csdi_chronos2.md](docs/fx_csdi_chronos2.md).
+
+```sh
+uv sync --extra research --extra chronos
+uv run python scripts/prepare_fx.py --output data/fx.npz
+uv run --extra research --extra chronos python scripts/run_fx_csdi_chronos2.py \
+    --data data/fx.npz --output outputs/fx_csdi_chronos2 --device cuda
+```
