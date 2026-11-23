@@ -834,11 +834,15 @@ def run(args) -> dict:
 
     test_start = n_train + n_val
     first_origin = test_start + max(args.context, args.season)
+    if args.origin_hour is not None:
+        # Every forecast starts at the same point of the seasonal cycle (the
+        # hour of day for hourly electricity, which starts at midnight).
+        first_origin += (args.origin_hour - first_origin) % args.season
     last_origin = usable - args.horizon
     origins = list(range(first_origin, last_origin + 1, args.forecast_stride))
     if not origins:
         raise ValueError("No forecast origins in test region; reduce context/horizon")
-    if origins[-1] != last_origin:
+    if origins[-1] != last_origin and args.origin_hour is None:
         origins.append(last_origin)
     if args.max_origins is not None:
         origins = origins[: args.max_origins]
@@ -944,6 +948,9 @@ def run(args) -> dict:
         },
         "seasonal_scale": scale,
         "n_origins": len(origins),
+        # Share of forecasts whose history ends inside a gap, where filling
+        # the last gap is partly forecasting.
+        "history_ends_in_gap": float(np.mean([hidden_time[o - 1] for o in origins])),
         "channels": channels,
         "meta": meta,
         "enable_chronos_finetune": ENABLE_CHRONOS_FINETUNE,
@@ -1086,6 +1093,14 @@ def parse_args(argv=None):
     parser.add_argument("--horizon", type=int, default=None)
     parser.add_argument("--forecast-stride", type=int, default=None)
     parser.add_argument("--max-origins", type=int, default=None)
+    parser.add_argument(
+        "--origin-hour",
+        type=int,
+        default=None,
+        help="Start every forecast at this point of the seasonal cycle (hour of "
+        "day for electricity); 12 makes block-mode histories end at the last "
+        "observed hour. Default: as before",
+    )
     # CSDI — reference-size defaults from docs/csdi.md stronger training.
     parser.add_argument("--epochs", type=int, default=200)
     parser.add_argument("--batch-size", type=int, default=16)
@@ -1146,6 +1161,8 @@ def parse_args(argv=None):
             parser.error(
                 "--stride and --impute-stride must be multiples of --sparse-step"
             )
+    if args.origin_hour is not None and not 0 <= args.origin_hour < args.season:
+        parser.error("--origin-hour must be in [0, season)")
     if not 0.0 < args.ssl_mask_rate < 1.0:
         parser.error("--ssl-mask-rate must be in (0, 1)")
     if not 1 <= args.ssl_extra_min <= args.ssl_extra_max:
