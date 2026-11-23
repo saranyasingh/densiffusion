@@ -27,6 +27,33 @@ def prepare_targets(values: Array, mask: Mask | None = None) -> tuple[Array, Mas
     return values, mask
 
 
+def prepare_availability(
+    values: Array,
+    train_mask: Mask,
+    availability: Mask,
+) -> tuple[Array, Mask, Mask]:
+    """Validate nested SSL masks: loss on ``train_mask``, values only where available.
+
+    ``availability`` is True where a value exists. ``train_mask`` must be a
+    nonempty proper subset of the available entries so each series still has
+    conditioning observations. Network-hidden positions are
+    ``~availability | train_mask``.
+    """
+    values = validate_array(values, (None, None, None))
+    train_mask = validate_mask(train_mask, values.shape)
+    availability = validate_mask(availability, values.shape)
+    if (train_mask & ~availability).any():
+        raise ValueError("train_mask entries must be available")
+    target_counts = train_mask.sum(axis=(1, 2))
+    conditioning = availability & ~train_mask
+    conditioning_counts = conditioning.sum(axis=(1, 2))
+    if (target_counts == 0).any() or (conditioning_counts == 0).any():
+        raise ValueError(
+            "Each series needs SSL targets and remaining available observations"
+        )
+    return values, train_mask, availability
+
+
 def prepare_observations(
     observed: Array,
     *,

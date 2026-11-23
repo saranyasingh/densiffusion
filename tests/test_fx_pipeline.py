@@ -17,6 +17,7 @@ from densiffusion.fx import (
     load_multivariate_dataset,
     point_metrics,
     quantile_loss,
+    sample_ssl_target_mask,
     seasonal_naive_forecast,
     seasonal_scale,
     sparse_observation_mask,
@@ -49,6 +50,24 @@ def test_block_and_dispatch_masks():
     assert not hidden[24:36].any()
     assert build_observation_mask(20, mode="grid", sparse_step=2).sum() > 0
     assert build_observation_mask(40, mode="random", keep_probability=0.3, seed=0).any()
+
+
+def test_sample_ssl_target_mask_stays_inside_available():
+    available = np.zeros((3, 9, 2), dtype=bool)
+    available[:, ::2] = True
+    targets = sample_ssl_target_mask(available, rate=0.4, seed=1)
+    assert targets.shape == available.shape
+    assert not (targets & ~available).any()
+    assert targets.any()
+    # Endpoints that are available should remain conditioning when possible.
+    assert not targets[:, 0].any() and not targets[:, -1].any()
+    # Same seed is deterministic.
+    again = sample_ssl_target_mask(available, rate=0.4, seed=1)
+    np.testing.assert_array_equal(targets, again)
+    with pytest.raises(ValueError, match="rate"):
+        sample_ssl_target_mask(available, rate=0.0)
+    with pytest.raises(ValueError, match="rate"):
+        sample_ssl_target_mask(available, rate=1.0)
 
 
 def test_seasonal_metrics_and_naive():

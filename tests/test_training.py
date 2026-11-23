@@ -409,3 +409,103 @@ def test_weight_decay_regularizes_a_parameter_without_data_gradient(config):
     train_densifier(model, data, data, config=replace(config, weight_decay=0.01))
     # visible_bias has zero data gradient because the objective scores hidden points.
     assert model.visible_bias.item() < 100
+
+
+def test_availability_mask_blocks_unavailable_leakage_and_loss(config, tmp_path):
+    """Unavailable positions must not condition the model or enter the loss."""
+    values = np.broadcast_to(
+        np.array([1.0, 100.0, 2.0, 200.0, 3.0])[None, :, None], (2, 5, 1)
+    ).copy()
+    # Available at times 0, 2, 4. SSL targets at time 2 only.
+    availability = np.zeros_like(values, dtype=bool)
+    availability[:, [0, 2, 4]] = True
+    train_mask = np.zeros_like(values, dtype=bool)
+    train_mask[:, 2] = True
+    seen = []
+
+    def objective(prediction, batch):
+        seen.append(
+            (
+                batch.mask.clone(),
+                batch.loss_mask.clone(),
+                batch.observed.clone(),
+                batch.noisy.clone(),
+            )
+        )
+        assert batch.loss_mask[:, 2].all()
+        assert not batch.loss_mask[:, [0, 1, 3, 4]].any()
+        # Network-hidden = unavailable | SSL targets.
+        assert batch.mask[:, [1, 2, 3]].all()
+        assert not batch.mask[:, [0, 4]].any()
+        # Conditioning must not reveal dense GT at unavailable times (100, 200).
+        assert (batch.observed[:, [1, 2, 3]] == 0).all()
+        torch.testing.assert_close(batch.observed[:, [0, 4]], batch.clean[:, [0, 4]])
+        assert (batch.noisy[:, [1, 3]] == 0).all()
+        return (prediction[batch.loss_mask] - batch.noise[batch.loss_mask]).square().mean()
+
+    model = Denoiser()
+    path = tmp_path / "selfsup.pt"
+    train_densifier(
+        model,
+        values,
+        values,
+        config=replace(config, epochs=1),
+        train_mask=train_mask,
+        validation_mask=train_mask,
+        train_availability=availability,
+        validation_availability=availability,
+        objective=objective,
+        checkpoint=path,
+    )
+    assert seen
+    for _, _, observed, noisy in seen:
+        assert not torch.isin(observed, torch.tensor([100.0, 200.0])).any()
+        assert not torch.isin(noisy, torch.tensor([100.0, 200.0])).any()
+
+
+def test_availability_requires_paired_masks(config):
+    values = np.ones((2, 5, 1))
+    availability = np.ones_like(values, dtype=bool)
+    availability[:, 1::2] = False
+    mask = availability.copy()
+    mask[:, 0] = False
+    mask[:, -1] = False
+    mask[:, 2] = True
+    with pytest.raises(ValueError, match="both be set or both omitted"):
+        train_densifier(
+            Denoiser(),
+            values,
+            values,
+            config=config,
+            train_mask=mask,
+            validation_mask=mask,
+            train_availability=availability,
+        )
+    with pytest.raises(ValueError, match="require explicit"):
+        train_densifier(
+            Denoiser(),
+            values,
+            values,
+            config=config,
+            train_availability=availability,
+            validation_availability=availability,
+        )
+
+
+def test_availability_rejects_targets_outside_available(config):
+    values = np.ones((2, 5, 1))
+    availability = np.zeros_like(values, dtype=bool)
+    availability[:, ::2] = True
+    train_mask = np.zeros_like(values, dtype=bool)
+    train_mask[:, 1] = True  # unavailable time
+    with pytest.raises(ValueError, match="must be available"):
+        train_densifier(
+            Denoiser(),
+            values,
+            values,
+            config=config,
+            train_mask=train_mask,
+            validation_mask=train_mask,
+            train_availability=availability,
+            validation_availability=availability,
+        )

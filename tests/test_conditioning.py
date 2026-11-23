@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from densiffusion.conditioning import prepare_targets
+from densiffusion.conditioning import prepare_availability, prepare_targets
 from densiffusion.metrics import evaluate
 from densiffusion.pipeline import impute
 
@@ -75,3 +75,21 @@ def test_explicit_masks_keep_full_targets_and_require_complete_data():
 def test_masked_imputation_rejects_grid_refinement():
     with pytest.raises(ValueError, match="factor"):
         impute(np.zeros((1, 3, 1)), None, factor=2, mask=np.array([False, True, False]))
+
+
+def test_prepare_availability_requires_nested_ssl_masks():
+    values = np.ones((2, 5, 1))
+    available = np.zeros_like(values, dtype=bool)
+    available[:, ::2] = True
+    targets = np.zeros_like(values, dtype=bool)
+    targets[:, 2] = True
+    out_v, out_t, out_a = prepare_availability(values, targets, available)
+    np.testing.assert_array_equal(out_v, values)
+    np.testing.assert_array_equal(out_t, targets)
+    np.testing.assert_array_equal(out_a, available)
+    bad = targets.copy()
+    bad[:, 1] = True
+    with pytest.raises(ValueError, match="must be available"):
+        prepare_availability(values, bad, available)
+    with pytest.raises(ValueError, match="SSL targets and remaining"):
+        prepare_availability(values, available.copy(), available)

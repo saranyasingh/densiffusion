@@ -173,6 +173,56 @@ def build_observation_mask(
     raise ValueError("mode must be 'grid', 'block', or 'random'")
 
 
+def sample_ssl_target_mask(
+    available: np.ndarray,
+    *,
+    rate: float,
+    seed: int = 0,
+) -> np.ndarray:
+    """Bernoulli-hide a fraction of available entries for self-supervised targets.
+
+    ``available`` is True where a value exists (shape ``(batch, time, channels)``
+    or broadcastable time mask). Returns a boolean mask of the same shape that
+    is True only on a subset of available positions. Endpoints that are
+    available are never selected as targets so every series keeps boundary
+    conditioning when possible.
+    """
+    available = np.asarray(available, dtype=bool)
+    if available.ndim not in (1, 3):
+        raise ValueError("available must be 1-D or (batch, time, channels)")
+    if not 0.0 < rate < 1.0:
+        raise ValueError("rate must be in (0, 1)")
+    rng = np.random.default_rng(seed)
+    if available.ndim == 1:
+        available = available[None, :, None]
+        squeeze = True
+    else:
+        squeeze = False
+    targets = np.zeros_like(available, dtype=bool)
+    # Draw independently per time step, shared across channels (time-aligned hide).
+    for batch in range(available.shape[0]):
+        time_available = available[batch].any(axis=-1)
+        candidates = np.flatnonzero(time_available)
+        if candidates.size == 0:
+            raise ValueError("available mask has no observations")
+        # Prefer not to hide endpoints when other candidates exist.
+        length = available.shape[1]
+        interior = candidates[(candidates != 0) & (candidates != length - 1)]
+        pool = interior if interior.size > 0 else candidates
+        draw = rng.random(pool.size) < rate
+        if not draw.any():
+            draw[rng.integers(0, pool.size)] = True
+        if draw.all() and pool.size == candidates.size and pool.size > 1:
+            # Leave at least one conditioning time when every available time was hit.
+            draw[rng.integers(0, pool.size)] = False
+        chosen = pool[draw]
+        targets[batch, chosen] = True
+        targets[batch] &= available[batch]
+    if (targets & ~available).any():
+        raise RuntimeError("SSL targets escaped the available set")
+    return targets[0, :, 0] if squeeze else targets
+
+
 def expand_mask(hidden_time: np.ndarray, *, batch: int, channels: int) -> np.ndarray:
     """Broadcast a length-T hidden mask to (batch, time, channels)."""
     hidden_time = np.asarray(hidden_time, dtype=bool)

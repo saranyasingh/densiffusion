@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from torch import Tensor, nn
 
-from densiffusion.conditioning import prepare_targets
+from densiffusion.conditioning import prepare_availability, prepare_targets
 from densiffusion.contracts import Array, Densifier, Mask, positive_int, validate_array
 from densiffusion.objectives import DenoisingBatch, Objective, noise_mse
 
@@ -89,18 +89,39 @@ def train_densifier[T: nn.Module](
     checkpoint: Path | None = None,
     train_mask: Mask | None = None,
     validation_mask: Mask | None = None,
+    train_availability: Mask | None = None,
+    validation_availability: Mask | None = None,
 ) -> T:
     """Fit masked imputation and return the best validation weights.
 
     forward(noisy, steps, *, observed, mask, dt) returns objective predictions.
     Value tensors are (batch, time, channels); mask is True at hidden points.
     Without masks, use alternate interior points, cropping even-length series.
+
+    With ``train_availability`` / ``validation_availability`` (True = value
+    exists), ``train_mask`` is the SSL target set: loss only there, and
+    unavailable positions never enter conditioning or the noisy target channel.
     """
     train = validate_array(train, (None, None, None))
     validation = validate_array(validation, (None, *train.shape[1:]))
-    factor = 2 if train_mask is None else None
-    train, train_mask = prepare_targets(train, train_mask)
-    validation, validation_mask = prepare_targets(validation, validation_mask)
+    if (train_availability is None) != (validation_availability is None):
+        raise ValueError(
+            "train_availability and validation_availability must both be set or both omitted"
+        )
+    if train_availability is not None:
+        if train_mask is None or validation_mask is None:
+            raise ValueError("availability masks require explicit train/validation masks")
+        train, train_mask, train_availability = prepare_availability(
+            train, train_mask, train_availability
+        )
+        validation, validation_mask, validation_availability = prepare_availability(
+            validation, validation_mask, validation_availability
+        )
+        factor = None
+    else:
+        factor = 2 if train_mask is None else None
+        train, train_mask = prepare_targets(train, train_mask)
+        validation, validation_mask = prepare_targets(validation, validation_mask)
     if not np.isfinite(dt) or dt <= 0:
         raise ValueError("dt must be finite and positive")
     if type(seed) is not int or not 0 <= seed < 2**63:
@@ -134,10 +155,11 @@ def train_densifier[T: nn.Module](
         learning_rate = optimizer.param_groups[0]["lr"]
         validate = epoch % config.validation_interval == 0 or epoch == config.epochs
         losses = []
-        for training, data, masks in (
-            (True, train, train_mask),
-            (False, validation, validation_mask),
-        ):
+        splits = (
+            (True, train, train_mask, train_availability),
+            (False, validation, validation_mask, validation_availability),
+        )
+        for training, data, masks, availability in splits:
             if not training and not validate:
                 continue
             model.train(training)
@@ -153,6 +175,11 @@ def train_densifier[T: nn.Module](
                 indices = order[start : start + config.batch_size]
                 target = torch.as_tensor(data[indices], dtype=dtype, device=device)
                 mask = torch.as_tensor(masks[indices], device=device)
+                available = (
+                    None
+                    if availability is None
+                    else torch.as_tensor(availability[indices], device=device)
+                )
                 if training:
                     optimizer.zero_grad(set_to_none=True)
                 with torch.set_grad_enabled(training):
@@ -168,6 +195,7 @@ def train_densifier[T: nn.Module](
                                     dt,
                                     objective,
                                     step=step,
+                                    availability=available,
                                 )
                                 for step in range(config.diffusion_steps)
                             )
@@ -175,7 +203,14 @@ def train_densifier[T: nn.Module](
                         )
                     else:
                         loss = _loss(
-                            model, target, mask, alpha_bar, noise_rng, dt, objective
+                            model,
+                            target,
+                            mask,
+                            alpha_bar,
+                            noise_rng,
+                            dt,
+                            objective,
+                            availability=available,
                         )
                 if not isinstance(loss, Tensor) or loss.ndim != 0:
                     raise ValueError("Objective must return a scalar tensor")
@@ -246,7 +281,24 @@ def train_forecaster[T: nn.Module](
     raise NotImplementedError("Forecaster training is not implemented yet.")
 
 
-def _loss(model, target, mask, alpha_bar, rng, dt, objective, *, step=None):
+def _loss(
+    model,
+    target,
+    mask,
+    alpha_bar,
+    rng,
+    dt,
+    objective,
+    *,
+    step=None,
+    availability=None,
+):
+    """Build a denoising batch and score ``objective``.
+
+    ``mask`` is the loss/target set. With ``availability``, conditioning uses
+    only ``availability & ~mask``; unavailable entries are zeroed in both the
+    observed plane and the noisy channel (no dense-GT leakage).
+    """
     steps = (
         torch.randint(len(alpha_bar), (len(target),), generator=rng, device="cpu")
         if step is None
@@ -257,19 +309,33 @@ def _loss(model, target, mask, alpha_bar, rng, dt, objective, *, step=None):
     ).to(target.device)
     steps = steps.to(target.device)
     alpha = alpha_bar[steps, None, None]
-    observed = target.masked_fill(mask, 0)
-    noisy = alpha.sqrt() * target + (1 - alpha).sqrt() * noise
-    noisy = torch.where(mask, noisy, target)
-    prediction = model(noisy, steps, observed=observed, mask=mask, dt=dt)
+    loss_mask = mask
+    if availability is None:
+        hidden = mask
+        observed = target.masked_fill(hidden, 0)
+        noisy = alpha.sqrt() * target + (1 - alpha).sqrt() * noise
+        noisy = torch.where(hidden, noisy, target)
+    else:
+        conditioning = availability & ~mask
+        hidden = ~conditioning
+        observed = torch.where(conditioning, target, torch.zeros_like(target))
+        noised = alpha.sqrt() * target + (1 - alpha).sqrt() * noise
+        noisy = torch.where(
+            mask,
+            noised,
+            torch.where(conditioning, target, torch.zeros_like(target)),
+        )
+    prediction = model(noisy, steps, observed=observed, mask=hidden, dt=dt)
     batch = DenoisingBatch(
         clean=target,
         noisy=noisy,
         noise=noise,
         observed=observed,
-        mask=mask,
+        mask=hidden,
         steps=steps,
         alpha_bar=alpha,
         dt=dt,
+        loss_mask=loss_mask,
     )
     return objective(prediction, batch)
 

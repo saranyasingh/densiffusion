@@ -66,3 +66,60 @@ uv run --with matplotlib python scripts/plot_csdi_chronos2_results.py \
 
 Artifacts: `table.png`, `bars.png`, `imputation.png`, `examples.png`
 (examples need `imputed.npz`).
+
+## Self-supervised sparse training
+
+The supervised runner above trains CSDI with dense ground truth at every
+base-missing time. [`scripts/run_csdi_chronos2_selfsup.py`](../scripts/run_csdi_chronos2_selfsup.py)
+keeps the same electricity → Chronos-2 evaluation, but training is nested:
+
+1. Simulate a sparse observation set (`--missing-mode block` or `random`).
+2. Among *available* times only, hide a fraction `--ssl-mask-rate` as SSL
+   targets. Naturally missing times never enter the loss or conditioning.
+3. Densify all base-missing times; zero-shot Chronos on sparse / CSDI / linear /
+   dense-oracle contexts.
+
+```sh
+uv run --extra research --extra chronos python \
+    scripts/run_csdi_chronos2_selfsup.py \
+    --data data/electricity.npz \
+    --output outputs/elec_selfsup_block \
+    --missing-mode block --ssl-mask-rate 0.25 \
+    --supervised-baseline --device cuda
+```
+
+`results.json` adds `protocol`, `ssl_mask_rate`, `observed_fraction`, and
+`imputation.ssl_crps` (held-out SSL targets). With `--supervised-baseline`,
+a sibling `supervised/` run uses the old dense-target protocol under the same
+base mask.
+
+### Threshold sweeps (1D)
+
+Two separate sweeps per missing mode (not a 2D grid):
+
+| Sweep | Fixed | Varies |
+|-------|-------|--------|
+| **A** base sparsity | `ssl_mask_rate=0.25` | random `keep_probability`, or block observe fraction in a 24h period |
+| **B** SSL hardness | block 12/12 or random keep 0.5 | `ssl_mask_rate` |
+
+```sh
+# list the 20 cells (A/B × block/random)
+uv run python scripts/sweep_csdi_chronos2_selfsup.py --list
+
+# one cell locally
+uv run --extra research --extra chronos python \
+    scripts/sweep_csdi_chronos2_selfsup.py \
+    --sweep A --missing-mode block --index 3 \
+    --data data/electricity.npz --output-root outputs \
+    --device cuda --supervised-baseline
+
+# cluster array (tasks 0–19)
+sbatch scripts/cluster/electricity_csdi_chronos2_selfsup.sbatch
+
+# threshold curves once runs finish
+uv run --with matplotlib python scripts/plot_selfsup_thresholds.py \
+    --root outputs
+```
+
+Plots: `thresholds_{block|random}_{A|B}.png` plus `thresholds_summary.json`
+(includes a steepest-drop `threshold_hint_x` on the self-sup forecast curve).
