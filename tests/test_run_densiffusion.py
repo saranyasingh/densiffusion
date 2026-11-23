@@ -99,3 +99,22 @@ def test_method_seed_depends_only_on_base_and_name():
 def test_controls_are_skipped_when_not_run():
     rows = benchmark.control_checks(flat_sweep())
     assert [verdict for _, verdict, _ in rows] == ["n/a"] * len(benchmark.CONTROLS)
+
+
+def test_paired_gain_averages_seeds():
+    rng = np.random.default_rng(0)
+    windows = len(benchmark.WINDOW_STARTS) * 6
+    future = rng.normal(size=(windows, benchmark.HORIZON))
+    run = {
+        "windows": np.concatenate(
+            [np.zeros((windows, benchmark.HISTORY)), future], axis=1
+        ),
+        "sparse": future[:, None] + rng.normal(size=(windows, 10, benchmark.HORIZON)),
+        "interp_x2": future[:, None]
+        + 0.5 * rng.normal(size=(windows, 10, benchmark.HORIZON)),
+    }
+    single = benchmark.paired_gain(run, "sparse", "interp_x2")
+    repeated = benchmark.paired_gain([run, run], "sparse", "interp_x2")
+    assert single[0] > 0
+    np.testing.assert_allclose(repeated[0], single[0])
+    assert repeated[1] <= repeated[0] <= repeated[2]

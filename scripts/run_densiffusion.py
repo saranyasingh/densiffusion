@@ -138,10 +138,29 @@ QUASI_METHODS = (
     "fineinterp_x2",
     "sparse_shifted",
     "joint_x2",
+    "fineblank_x2",
+    "sparse_long",
+    "sparse_wide",
 )
 # Added after the first sweep; each draws its own seed (method_seed), so the
 # earlier methods' samples are unchanged and --extend matches a fresh run.
-ADDED_METHODS = ("interp_x2", "fineinterp_x2", "sparse_shifted", "joint_x2")
+ADDED_METHODS = (
+    "interp_x2",
+    "fineinterp_x2",
+    "sparse_shifted",
+    "joint_x2",
+    "fineblank_x2",
+    "sparse_long",
+    "sparse_wide",
+)
+# Better-trained sparse forecasters: LONG times the epochs, or twice the width.
+LONG = 3
+WIDE = {
+    "pristi": {"width": 64, "feedforward": 64},
+    "csdi": {"hidden_channels": 64, "feedforward_dim": 64},
+    "sssd": {"width": 48},
+    "timeautodiff": {"hidden": 48},
+}
 LEVELS_TESTED = (-2, -1, 0, 1, 2, 3)
 
 
@@ -220,6 +239,12 @@ def main():
     parser.add_argument("--test-paths", type=int, default=64)
     parser.add_argument("--imputer-epochs", type=int, default=60)
     parser.add_argument("--forecaster-epochs", type=int, default=150)
+    parser.add_argument(
+        "--forecaster-lr",
+        type=float,
+        default=1e-3,
+        help="Forecaster learning rate; SSSD diverges at 1e-3 beyond ~100 epochs",
+    )
     parser.add_argument("--threads", type=int, default=2)
     parser.add_argument(
         "--device", default="cpu", help="Torch device, e.g. mps for the Apple GPU"
@@ -230,6 +255,18 @@ def main():
         "produce non-finite gradients, so train it on cpu and sample on mps",
     )
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--methods",
+        nargs="+",
+        choices=sorted(set(METHODS) | set(QUASI_METHODS)),
+        help="run: only these of the task's methods (default: all)",
+    )
+    parser.add_argument(
+        "--seeds",
+        type=int,
+        nargs="+",
+        help="compare: average the runs in --output/seed<k> over these seeds",
+    )
     reuse = parser.add_mutually_exclusive_group()
     reuse.add_argument("--rescore", action="store_true", help="Reuse checkpoints")
     reuse.add_argument(
@@ -354,6 +391,8 @@ def run_task(args):
     future = test_windows[:, HISTORY:]
 
     methods = task_methods(gp)
+    if args.methods:
+        methods = tuple(m for m in methods if m in args.methods or m == "persistence")
     if args.extend:
         results = {"model": args.model, **previous, "methods": methods}
         with np.load(folder / "samples.npz") as saved:
@@ -478,10 +517,14 @@ def run_task(args):
 
     def variant(name):
         """(checkpoint name, factor, train, validation, test histories,
-        histories per window). Fine, oracle and fineinterp variants share a
-        forecaster trained on the true fine paths; only their test histories
-        differ. sparse_shifted trains on the fine paths at every coarse phase."""
-        if name == "sparse":
+        histories per window). Fine, oracle, fineinterp and fineblank variants
+        share a forecaster trained on the true fine paths; only their test
+        histories differ (fineblank: coarse, with the midpoints left for the
+        forecaster to sample, which it was never trained to do).
+        sparse_shifted trains on the fine paths at every coarse phase;
+        sparse_long and sparse_wide are the sparse forecaster trained LONG
+        times longer or at twice the width."""
+        if name in ("sparse", "sparse_long", "sparse_wide"):
             return name, 1, train_windows, validation_windows, test_history, 1
         if name == "sparse_shifted":
             return (
@@ -514,13 +557,15 @@ def run_task(args):
                 test_history,
                 1,
             )
-        if kind == "fineinterp":
+        if kind in ("fineinterp", "fineblank"):
             return (
                 f"truefine_x{factor}",
                 factor,
                 train_truth[:, :: FINE // factor],
                 validation_truth[:, :: FINE // factor],
-                interpolate(test_history, factor),
+                interpolate(test_history, factor)
+                if kind == "fineinterp"
+                else test_history,
                 1,
             )
         if kind in ("fine", "oracle"):
@@ -542,7 +587,9 @@ def run_task(args):
             1,
         )
 
-    forecaster_config = config(args.forecaster_epochs, train_device)
+    forecaster_config = dataclasses.replace(
+        config(args.forecaster_epochs, train_device), learning_rate=args.forecaster_lr
+    )
     forecaster_sampler = sampling_config(forecaster_config)
     # FINE times the windows: train for the same number of updates as sparse.
     shifted_config = dataclasses.replace(
@@ -550,6 +597,10 @@ def run_task(args):
         epochs=max(1, args.forecaster_epochs // FINE),
         validation_interval=1,
     )
+    long_config = dataclasses.replace(
+        forecaster_config, epochs=LONG * args.forecaster_epochs
+    )
+    configs = {"sparse_shifted": shifted_config, "sparse_long": long_config}
     forecasters = {}
     for name in methods:
         if name == "persistence" or name in samples:
@@ -557,7 +608,8 @@ def run_task(args):
         key, factor, train, validation, histories, per_window = variant(name)
         if key not in forecasters:
             torch.manual_seed(args.seed)
-            forecasters[key] = small_model(args.model)
+            sizes = WIDE[args.model] if key == "sparse_wide" else {}
+            forecasters[key] = small_model(args.model, **sizes)
             record = fit(
                 forecasters[key],
                 folder / f"{key}.pt",
@@ -566,7 +618,7 @@ def run_task(args):
                     forecasters[key],
                     train,
                     validation,
-                    shifted_config if key == "sparse_shifted" else forecaster_config,
+                    configs.get(key, forecaster_config),
                     history=HISTORY,
                     horizon=HORIZON,
                     factor=factor,
@@ -587,7 +639,7 @@ def run_task(args):
             factor=factor,
             n_samples=draws,
             seed=method_seed(args.seed, name) if name in ADDED_METHODS else seed(),
-            joint=key.startswith("joint"),
+            joint=key.startswith("joint") or name.startswith("fineblank"),
         )
         samples[name] = predicted.reshape(len(test_windows), DRAWS, HORIZON)
         lap(f"forecaster {name}")
@@ -778,6 +830,9 @@ COLOURS = {
     "fineinterp_x2": "#a3245a",
     "sparse_shifted": "#8a5d00",
     "joint_x2": "#0d7a8a",
+    "fineblank_x2": "#5c2d91",
+    "sparse_long": "#b8860b",
+    "sparse_wide": "#6b4f00",
     "model": "#2a78d6",
     "interpolation": "#1baf7a",
 }
@@ -797,6 +852,9 @@ NAMES = {
     "fineinterp_x2": "Fine-data x2, interpolated history",
     "sparse_shifted": "Sparse, all phase shifts",
     "joint_x2": "Fine-data joint x2",
+    "fineblank_x2": "Fine-data x2, blank history midpoints",
+    "sparse_long": f"Sparse, {LONG}x epochs",
+    "sparse_wide": "Sparse, 2x width",
 }
 MARKERS = {
     "learned": "o",
@@ -806,6 +864,7 @@ MARKERS = {
     "fineinterp": "v",
     "sparse_shifted": "P",
     "joint": "X",
+    "fineblank": "<",
 }
 
 
@@ -1305,13 +1364,21 @@ def compare(args):
 
     _style(plt)
     sweeps = {}
+    roots = [args.output / f"seed{seed}" for seed in args.seeds or ()]
     for model in args.models:
-        found = [
-            {**json.loads(path.read_text()), "folder": str(path.parent)}
-            for task in TASKS
-            if task.startswith("qp_")
-            and (path := args.output / model / task / "results.json").exists()
-        ]
+        found = []
+        for task in (t for t in TASKS if t.startswith("qp_")):
+            paths = [root / model / task / "results.json" for root in roots]
+            paths = paths or [args.output / model / task / "results.json"]
+            if not all(path.exists() for path in paths):
+                if any(path.exists() for path in paths):
+                    print(f"Skipping {model} {task}: not every seed has finished")
+                continue
+            results = [
+                {**json.loads(path.read_text()), "folder": str(path.parent)}
+                for path in paths
+            ]
+            found.append(merge_seeds(results) if args.seeds else results[0])
         if found:
             sweeps[model] = sorted(found, key=_period_ratio)
     if not sweeps:
@@ -1340,6 +1407,10 @@ def _verdict(passed, total):
     return "no" if passed == 0 else f"partly ({passed}/{total})"
 
 
+def _ran(result, *methods):
+    return all(method in result["forecast"] for method in methods)
+
+
 def finding_checks(sweep):
     """(finding, verdict, evidence) for each quasi-periodic finding from PriSTI."""
     at = {_period_ratio(result): result for result in sweep}
@@ -1365,7 +1436,11 @@ def finding_checks(sweep):
             evidence,
         )
     )
-    margins = [_crps_ratio(r, "interp_x8") - _crps_ratio(r, "fine_x8") for r in barely]
+    margins = [
+        _crps_ratio(r, "interp_x8") - _crps_ratio(r, "fine_x8")
+        for r in barely
+        if _ran(r, "interp_x8", "fine_x8")
+    ]
     rows.append(
         (
             "Fine-data x8 beats interpolated x8 at P/dt 2.5-4 (CRPS margin)",
@@ -1382,7 +1457,9 @@ def finding_checks(sweep):
             f"{max(gaps):.3f}" if gaps else "",
         )
     )
-    cases = [(r, m) for m in ("learned_x2", "learned_x8") for r in barely[1:]]
+    cases = [
+        (r, m) for m in ("learned_x2", "learned_x8") for r in barely[1:] if _ran(r, m)
+    ]
     rows.append(
         (
             "Coarse-data x2 and x8 are significantly worse than sparse at P/dt 3 "
@@ -1407,7 +1484,9 @@ def finding_checks(sweep):
             ", ".join(winners) or "none",
         )
     )
-    cases = [(r, m) for r in resolved for m in densified if m.endswith("_x8")]
+    cases = [
+        (r, m) for r in resolved for m in densified if m.endswith("_x8") and _ran(r, m)
+    ]
     rows.append(
         (
             "Every x8 densifier is significantly worse than sparse at P/dt >= 6",
@@ -1415,15 +1494,16 @@ def finding_checks(sweep):
             f"{sum(_significance(r, m) == -1 for r, m in cases)} of {len(cases)}",
         )
     )
-    wins = sum(_crps_ratio(r, "fine_x2") < _crps_ratio(r, "fine_x8") for r in sampled)
+    both = [r for r in sampled if _ran(r, "fine_x2", "fine_x8")]
+    wins = sum(_crps_ratio(r, "fine_x2") < _crps_ratio(r, "fine_x8") for r in both)
     rows.append(
         (
             "Fine-data x2 beats fine-data x8 for P/dt >= 2.5",
-            _verdict(wins, len(sampled)),
-            f"{wins} of {len(sampled)}",
+            _verdict(wins, len(both)),
+            f"{wins} of {len(both)}",
         )
     )
-    if 1.6 in at:
+    if 1.6 in at and _ran(at[1.6], "fine_x2", "fine_x8", "interp_x8"):
         aliased = at[1.6]
         best = min(("fine_x2", "fine_x8"), key=lambda m: _crps_ratio(aliased, m))
         helps = _significance(aliased, best) == 1
@@ -1467,47 +1547,123 @@ CONTROLS = (
         "Fine-data x2 (separate imputer and forecaster) beats one model that "
         "fills in the history and forecasts together",
     ),
+    (
+        "fineblank_x2",
+        "Fine-data x2 beats the same forecaster given coarse histories with the "
+        "midpoints left blank (trained on fine, tested on coarse)",
+    ),
+)
+UNDERTRAINING = (
+    ("sparse", "Interpolated x2 beats the sparse forecaster"),
+    (
+        "sparse_long",
+        f"Interpolated x2 beats the sparse forecaster trained {LONG}x longer",
+    ),
+    ("sparse_wide", "Interpolated x2 beats the sparse forecaster at 2x width"),
 )
 
 
 def paired_gain(samples, baseline, method):
     """Mean per-window CRPS reduction of method over baseline, with a 95%
-    bootstrap interval over test paths (as in score_forecasts)."""
-    future = samples["windows"][:, HISTORY:]
-    n_paths = len(future) // len(WINDOW_STARTS)
-    gain = ensemble_crps(samples[baseline], future).mean(axis=1)
-    gain = gain - ensemble_crps(samples[method], future).mean(axis=1)
-    paths = np.arange(len(gain)) % n_paths
-    by_path = np.bincount(paths, gain) / np.bincount(paths)
-    resampled = np.random.default_rng(0).integers(n_paths, size=(4000, n_paths))
-    low, high = np.quantile(by_path[resampled].mean(axis=1), [0.025, 0.975])
-    return float(gain.mean()), float(low), float(high)
+    bootstrap interval over test paths (as in score_forecasts).
+
+    Given a list of samples, one per seed on the same test paths, the gain is
+    averaged over seeds and the interval resamples seeds as well as paths.
+    """
+    runs = samples if isinstance(samples, list) else [samples]
+    by_path = []
+    for run in runs:
+        future = run["windows"][:, HISTORY:]
+        n_paths = len(future) // len(WINDOW_STARTS)
+        gain = ensemble_crps(run[baseline], future).mean(axis=1)
+        gain = gain - ensemble_crps(run[method], future).mean(axis=1)
+        paths = np.arange(len(gain)) % n_paths
+        by_path.append(np.bincount(paths, gain) / np.bincount(paths))
+    by_path = np.array(by_path)
+    n_seeds, n_paths = by_path.shape
+    rng = np.random.default_rng(0)
+    path_draws = rng.integers(n_paths, size=(4000, n_paths))
+    if n_seeds == 1:
+        means = by_path[0][path_draws].mean(axis=1)
+    else:
+        seed_draws = rng.integers(n_seeds, size=(4000, n_seeds))
+        means = np.array(
+            [
+                by_path[s][:, p].mean()
+                for s, p in zip(seed_draws, path_draws, strict=True)
+            ]
+        )
+    low, high = np.quantile(means, [0.025, 0.975])
+    return float(by_path.mean()), float(low), float(high)
 
 
-def control_checks(sweep, ratios=(2.5, 3, 4)):
-    """(control, verdict, evidence) comparing fine-data x2 with each control.
+def merge_seeds(results):
+    """One task's results averaged over seeds: mean CRPS per method, and gains
+    over sparse whose intervals resample seeds and test paths."""
+    folders = [result["folder"] for result in results]
+    runs = []
+    for folder in folders:
+        with np.load(Path(folder) / "samples.npz") as saved:
+            runs.append({key: saved[key] for key in saved.files})
+    methods = [m for m in results[0]["forecast"] if all(m in r for r in runs)]
+    forecast = {}
+    for method in methods:
+        crps = np.mean([result["forecast"][method]["crps"] for result in results])
+        forecast[method] = {"crps": float(crps)}
+        if method not in ("sparse", "gp", "persistence"):
+            mean, low, high = paired_gain(runs, "sparse", method)
+            forecast[method]["gain_over_sparse"] = mean
+            forecast[method]["gain_over_sparse_95"] = [low, high]
+    return {**results[0], "forecast": forecast, "folders": folders}
 
-    Evidence is fine-data x2's CRPS gain over the control in units of the
-    exact GP's CRPS, with its 95% interval, at each P/dt in ratios.
+
+def _run_folders(result):
+    return result.get("folders") or [result["folder"]]
+
+
+def control_checks(sweep, ratios=(2.5, 3, 4), controls=CONTROLS, method="fine_x2"):
+    """(control, verdict, evidence) comparing method with each control.
+
+    Evidence is method's CRPS gain over the control in units of the exact
+    GP's CRPS, with its 95% interval, at each P/dt in ratios.
     """
     at = {_period_ratio(result): result for result in sweep}
     tasks = [at[p] for p in ratios if p in at]
     rows = []
-    for control, finding in CONTROLS:
-        usable = [r for r in tasks if control in r["forecast"] and "folder" in r]
+    for control, finding in controls:
+        usable = [
+            r
+            for r in tasks
+            if control in r["forecast"] and ("folder" in r or "folders" in r)
+        ]
         if not usable:
             rows.append((finding, "n/a", "not run"))
             continue
         cells, passed = [], 0
         for result in usable:
-            with np.load(Path(result["folder"]) / "samples.npz") as samples:
-                gain = paired_gain(samples, control, "fine_x2")
+            runs = []
+            for folder in _run_folders(result):
+                with np.load(Path(folder) / "samples.npz") as saved:
+                    runs.append({key: saved[key] for key in saved.files})
+            gain = paired_gain(runs, control, method)
             scale = result["forecast"]["gp"]["crps"]
             mean, low, high = (value / scale for value in gain)
             passed += low > 0
             cells.append(f"{mean:+.2f} [{low:+.2f}, {high:+.2f}]")
         rows.append((finding, _verdict(passed, len(usable)), "; ".join(cells)))
     return rows
+
+
+def _seed_note(sweeps):
+    counts = {len(r.get("folders", ())) for sweep in sweeps.values() for r in sweep}
+    if counts <= {0, 1}:
+        return []
+    seeds = "-".join(str(c) for c in sorted(counts))
+    return [
+        "",
+        f"Each result is averaged over {seeds} seeds; 95% intervals resample "
+        "seeds as well as test paths.",
+    ]
 
 
 def write_comparison(sweeps, output):
@@ -1522,6 +1678,7 @@ def write_comparison(sweeps, output):
         f"draws per test window ({HISTORIES} densified histories x {FUTURES} "
         "futures); only the network changes, each at about 45k parameters. CRPS "
         "is relative to the exact GP forecast (1 = best possible).",
+        *_seed_note(sweeps),
         "",
         "## Do the PriSTI findings hold?",
         "",
@@ -1543,7 +1700,7 @@ def write_comparison(sweeps, output):
         "",
         "## Where does the fine-data gain come from?",
         "",
-        "Fine-data x2 against three controls at P/dt = 2.5, 3 and 4: its CRPS "
+        "Fine-data x2 against each control at P/dt = 2.5, 3 and 4: its CRPS "
         "gain over each control in units of the exact GP's CRPS (positive = "
         "fine-data x2 is better), with 95% bootstrap intervals over test paths. "
         "Yes means significantly better at every P/dt.",
@@ -1555,6 +1712,32 @@ def write_comparison(sweeps, output):
         cells = []
         for model in sweeps:
             _, verdict, evidence = controls[model][index]
+            cells.append(f"{verdict}: {evidence}")
+        lines.append(f"| {finding} | " + " | ".join(cells) + " |")
+    undertrained = {
+        model: control_checks(
+            sweep, (1.6, 2.5, 3, 4), controls=UNDERTRAINING, method="interp_x2"
+        )
+        for model, sweep in sweeps.items()
+    }
+    lines += [
+        "",
+        "## Is the 2x grid gain an undertraining effect?",
+        "",
+        "Interpolated x2 (coarse data only) against the sparse forecaster and "
+        "two better-trained versions of it at P/dt = 1.6, 2.5, 3 and 4: its "
+        "CRPS gain in units of the exact GP's CRPS (positive = interpolated x2 "
+        "is better), with 95% bootstrap intervals over test paths. If the gain "
+        "disappears against the better-trained forecasters, the 2x grid only "
+        "makes up for undertraining.",
+        "",
+        "| Comparison " + header[0],
+        "|---" + header[1],
+    ]
+    for index, (_, finding) in enumerate(UNDERTRAINING):
+        cells = []
+        for model in sweeps:
+            _, verdict, evidence = undertrained[model][index]
             cells.append(f"{verdict}: {evidence}")
         lines.append(f"| {finding} | " + " | ".join(cells) + " |")
     ratios = sorted({_period_ratio(r) for sweep in sweeps.values() for r in sweep})
