@@ -1,0 +1,300 @@
+{
+  "protocol": "selfsup",
+  "ssl_mask_rate": 0.25,
+  "observed_fraction": 0.25003801703163014,
+  "imputation": {
+    "csdi_crps": 5.14402494217196,
+    "linear_crps": 5.447186678541186,
+    "csdi_beats_linear": true,
+    "ssl_crps": 2.5732511484884744
+  },
+  "forecast": {
+    "zeroshot_sparse": {
+      "mae": 13663.83904117713,
+      "rmse": 43649.96876654201,
+      "smape": 0.5290954647801054,
+      "mase": 7.380605365536667,
+      "wql": 6564.83925059911,
+      "sql": 3.546037658292214
+    },
+    "zeroshot_csdi": {
+      "mae": 17099.63456092062,
+      "rmse": 47696.79933458956,
+      "smape": 0.5268118454451998,
+      "mase": 9.2364711124535,
+      "wql": 8118.329743504218,
+      "sql": 4.385164951338684
+    },
+    "zeroshot_linear": {
+      "mae": 13384.865443092862,
+      "rmse": 43505.562352812216,
+      "smape": 0.5116795260777831,
+      "mase": 7.229916087899621,
+      "wql": 6579.613342872143,
+      "sql": 3.554017973661319
+    },
+    "dense_oracle": {
+      "mae": 1543.709107071438,
+      "rmse": 4735.29136629192,
+      "smape": 0.06123906714976482,
+      "mase": 0.8338438182815219,
+      "wql": 615.9583708263707,
+      "sql": 0.33271364240812124
+    },
+    "seasonal_naive": {
+      "mae": 1969.237091244726,
+      "rmse": 6027.428753725309,
+      "smape": 0.07712232756471635,
+      "mase": 1.063695334660685
+    },
+    "last_value": {
+      "mae": 11489.56102320675,
+      "rmse": 40445.73992148789,
+      "smape": 0.392707040572813,
+      "mase": 6.206155933188981
+    }
+  },
+  "seasonal_scale": 1851.3168452251468,
+  "n_origins": 158,
+  "channels": [
+    "client_089",
+    "client_093",
+    "client_128",
+    "client_153",
+    "client_155",
+    "client_167",
+    "client_175",
+    "client_179",
+    "client_186",
+    "client_199",
+    "client_233",
+    "client_236",
+    "client_276",
+    "client_290",
+    "client_296",
+    "client_302",
+    "client_308",
+    "client_313",
+    "client_314",
+    "client_315"
+  ],
+  "meta": {
+    "channels": [
+      "client_089",
+      "client_093",
+      "client_128",
+      "client_153",
+      "client_155",
+      "client_167",
+      "client_175",
+      "client_179",
+      "client_186",
+      "client_199",
+      "client_233",
+      "client_236",
+      "client_276",
+      "client_290",
+      "client_296",
+      "client_302",
+      "client_308",
+      "client_313",
+      "client_314",
+      "client_315"
+    ],
+    "citation": "Lai et al., Modeling Long- and Short-Term Temporal Patterns with Deep Neural Networks (LSTNet), 2018; electricity subset (UCI ElectricityLoadDiagrams20112014, hourly).",
+    "client_ids": [
+      89,
+      93,
+      128,
+      153,
+      155,
+      167,
+      175,
+      179,
+      186,
+      199,
+      233,
+      236,
+      276,
+      290,
+      296,
+      302,
+      308,
+      313,
+      314,
+      315
+    ],
+    "dataset": "lstnet_electricity",
+    "dt": 1.0,
+    "freq": "h",
+    "item_id": "electricity",
+    "n_channels": 20,
+    "n_series": 1,
+    "n_steps": 26304,
+    "seed": 0,
+    "selection": "highest_variance",
+    "source": "https://github.com/laiguokun/multivariate-time-series-data/raw/master/electricity/electricity.txt.gz",
+    "start": "2012-01-01T00",
+    "currencies": [
+      "client_089",
+      "client_093",
+      "client_128",
+      "client_153",
+      "client_155",
+      "client_167",
+      "client_175",
+      "client_179",
+      "client_186",
+      "client_199",
+      "client_233",
+      "client_236",
+      "client_276",
+      "client_290",
+      "client_296",
+      "client_302",
+      "client_308",
+      "client_313",
+      "client_314",
+      "client_315"
+    ]
+  },
+  "enable_chronos_finetune": false,
+  "versions": {
+    "python": "3.12.14",
+    "numpy": "2.5.3",
+    "torch": "2.14.1+cu130"
+  },
+  "args": {
+    "preset": "electricity",
+    "data": "data/electricity.npz",
+    "output": "outputs/elec_selfsup_block_A_obs6_63098029_1",
+    "device": "cuda",
+    "seed": 0,
+    "missing_mode": "block",
+    "sparse_step": 4,
+    "block_length": 18,
+    "observe_length": 6,
+    "keep_probability": 0.5,
+    "ssl_mask_rate": 0.25,
+    "supervised_baseline": true,
+    "season": 24,
+    "window_length": 97,
+    "stride": 48,
+    "impute_stride": 48,
+    "n_samples": 16,
+    "aggregate": "median",
+    "context": 168,
+    "horizon": 24,
+    "forecast_stride": 24,
+    "max_origins": null,
+    "epochs": 200,
+    "batch_size": 16,
+    "sample_batch_size": 8,
+    "learning_rate": 0.001,
+    "diffusion_steps": 50,
+    "beta_start": 0.0001,
+    "beta_end": 0.5,
+    "schedule": "quadratic",
+    "weight_decay": 1e-06,
+    "lr_decay_fractions": [
+      0.75,
+      0.9
+    ],
+    "lr_decay_factor": 0.1,
+    "validation_steps": "all",
+    "validation_interval": 10,
+    "hidden_channels": 64,
+    "residual_layers": 4,
+    "attention_heads": 8,
+    "diffusion_embedding_dim": 128,
+    "time_embedding_dim": 128,
+    "feature_embedding_dim": 16,
+    "feedforward_dim": 64,
+    "dropout": 0.1,
+    "chronos_model": "amazon/chronos-2",
+    "finetune_mode": "lora",
+    "chronos_steps": 1000,
+    "chronos_lr": 0.0001,
+    "chronos_batch_size": 32,
+    "skip_finetune": false,
+    "quick": false
+  },
+  "deltas_csdi_minus_sparse": {
+    "mae": 3435.7955197434876,
+    "rmse": 4046.830568047546,
+    "smape": -0.0022836193349056177,
+    "mase": 1.8558657469168338,
+    "wql": 1553.490492905108,
+    "sql": 0.8391272930464697
+  },
+  "deltas_csdi_minus_linear": {
+    "mae": 3714.7691178277564,
+    "rmse": 4191.236981777343,
+    "smape": 0.015132319367416658,
+    "mase": 2.0065550245538795,
+    "wql": 1538.7164006320745,
+    "sql": 0.8311469776773648
+  },
+  "elapsed_sec": 597.590930223465,
+  "supervised_baseline": {
+    "imputation": {
+      "csdi_crps": 1.1538265081349113,
+      "linear_crps": 5.447186678541186,
+      "csdi_beats_linear": true
+    },
+    "forecast": {
+      "zeroshot_sparse": {
+        "mae": 13663.83904117713,
+        "rmse": 43649.96876654201,
+        "smape": 0.5290954647801054,
+        "mase": 7.380605365536667,
+        "wql": 6564.83925059911,
+        "sql": 3.546037658292214
+      },
+      "zeroshot_csdi": {
+        "mae": 5834.264082536013,
+        "rmse": 22472.972565682816,
+        "smape": 0.13672743366606455,
+        "mase": 3.151413059079297,
+        "wql": 2742.670723216955,
+        "sql": 1.481470192577115
+      },
+      "zeroshot_linear": {
+        "mae": 13384.865443092862,
+        "rmse": 43505.562352812216,
+        "smape": 0.5116795260777831,
+        "mase": 7.229916087899621,
+        "wql": 6579.613342872143,
+        "sql": 3.554017973661319
+      },
+      "dense_oracle": {
+        "mae": 1543.709107071438,
+        "rmse": 4735.29136629192,
+        "smape": 0.06123906714976482,
+        "mase": 0.8338438182815219,
+        "wql": 615.9583708263707,
+        "sql": 0.33271364240812124
+      },
+      "seasonal_naive": {
+        "mae": 1969.237091244726,
+        "rmse": 6027.428753725309,
+        "smape": 0.07712232756471635,
+        "mase": 1.063695334660685
+      },
+      "last_value": {
+        "mae": 11489.56102320675,
+        "rmse": 40445.73992148789,
+        "smape": 0.392707040572813,
+        "mase": 6.206155933188981
+      }
+    },
+    "deltas_csdi_minus_sparse": {
+      "mae": -7829.5749586411175,
+      "rmse": -21176.996200859197,
+      "smape": -0.39236803111404084,
+      "mase": -4.22919230645737,
+      "wql": -3822.1685273821545,
+      "sql": -2.064567465715099
+    }
+  }
+}
