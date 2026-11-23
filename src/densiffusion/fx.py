@@ -492,9 +492,7 @@ def forecast_metrics(
     }
     if quantile_forecasts is not None:
         scores["wql"] = weighted_quantile_loss(y_true, quantile_forecasts)
-        scores["sql"] = scaled_quantile_loss(
-            y_true, quantile_forecasts, scale=scale
-        )
+        scores["sql"] = scaled_quantile_loss(y_true, quantile_forecasts, scale=scale)
     return scores
 
 

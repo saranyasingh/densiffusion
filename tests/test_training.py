@@ -441,7 +441,9 @@ def test_availability_mask_blocks_unavailable_leakage_and_loss(config, tmp_path)
         assert (batch.observed[:, [1, 2, 3]] == 0).all()
         torch.testing.assert_close(batch.observed[:, [0, 4]], batch.clean[:, [0, 4]])
         assert (batch.noisy[:, [1, 3]] == 0).all()
-        return (prediction[batch.loss_mask] - batch.noise[batch.loss_mask]).square().mean()
+        return (
+            (prediction[batch.loss_mask] - batch.noise[batch.loss_mask]).square().mean()
+        )
 
     model = Denoiser()
     path = tmp_path / "selfsup.pt"

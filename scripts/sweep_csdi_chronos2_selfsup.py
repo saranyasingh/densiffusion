@@ -222,13 +222,15 @@ def main(argv=None) -> None:
     if args.array_task_id is not None:
         if not 0 <= args.array_task_id < len(catalog):
             raise SystemExit(
-                f"--array-task-id must be in [0, {len(catalog)}); got {args.array_task_id}"
+                f"--array-task-id must be in [0, {len(catalog)}); "
+                f"got {args.array_task_id}"
             )
         cell = catalog[args.array_task_id]
     else:
         if args.sweep is None or args.missing_mode is None or args.index is None:
             raise SystemExit(
-                "Provide --sweep, --missing-mode, and --index (or --array-task-id / --list)"
+                "Provide --sweep, --missing-mode, and --index "
+                "(or --array-task-id / --list)"
             )
         group = cells_for(args.sweep.upper(), args.missing_mode)
         if not 0 <= args.index < len(group):

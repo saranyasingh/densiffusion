@@ -463,9 +463,7 @@ def score_forecast(
         point = quantiles[0.5]
     if point is None:
         raise ValueError("point forecast or quantile forecasts required")
-    return forecast_metrics(
-        truth, point, scale=scale, quantile_forecasts=quantiles
-    )
+    return forecast_metrics(truth, point, scale=scale, quantile_forecasts=quantiles)
 
 
 def windowed_masks(hidden_time: np.ndarray, *, window: int, stride: int, channels: int):
@@ -668,8 +666,7 @@ def run(args) -> dict:
         train_windows, train_masks = train_windows[train_ok], train_masks[train_ok]
         val_windows, val_masks = val_windows[val_ok], val_masks[val_ok]
     LOGGER.info(
-        "%s mode=%s protocol=%s: T=%d C=%d; windows train/val=%d/%d; "
-        "freq=%s season=%d",
+        "%s mode=%s protocol=%s: T=%d C=%d; windows train/val=%d/%d; freq=%s season=%d",
         meta.get("dataset", "series"),
         args.missing_mode,
         args.protocol,
@@ -805,9 +802,7 @@ def run(args) -> dict:
     if ENABLE_CHRONOS_FINETUNE and not args.skip_finetune:
         LOGGER.info("ENABLE_CHRONOS_FINETUNE=True: fine-tuning Chronos arms")
         train_frames = {
-            "sparse": to_chronos_frame(
-                sparse_nan[:, :n_train], step=1, **frame_kwargs
-            ),
+            "sparse": to_chronos_frame(sparse_nan[:, :n_train], step=1, **frame_kwargs),
             "csdi_imputed": to_chronos_frame(
                 imputed[:, :n_train], step=1, **frame_kwargs
             ),
@@ -833,8 +828,7 @@ def run(args) -> dict:
             }
     else:
         LOGGER.info(
-            "Chronos fine-tuning disabled "
-            "(ENABLE_CHRONOS_FINETUNE=%s); zero-shot only",
+            "Chronos fine-tuning disabled (ENABLE_CHRONOS_FINETUNE=%s); zero-shot only",
             ENABLE_CHRONOS_FINETUNE,
         )
 

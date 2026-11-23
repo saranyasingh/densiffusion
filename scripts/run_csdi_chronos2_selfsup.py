@@ -53,7 +53,6 @@ if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 from run_csdi_chronos2 import (  # noqa: E402
     ENABLE_CHRONOS_FINETUNE,
-    QUANTILES,
     SPLITS,
     aggregate_imputations,
     chronos_forecast,
@@ -227,7 +226,9 @@ def run_imputation_and_forecast(
                 float(payload["ssl_crps"]) if "ssl_crps" in payload.files else None
             )
     else:
-        LOGGER.info("Imputing full series with %d CSDI draws (%s)", args.n_samples, protocol)
+        LOGGER.info(
+            "Imputing full series with %d CSDI draws (%s)", args.n_samples, protocol
+        )
         draws = impute_series(
             full_n,
             sampler,
@@ -306,9 +307,7 @@ def run_imputation_and_forecast(
     finetuned_arms = {}
     if ENABLE_CHRONOS_FINETUNE and not args.skip_finetune:
         train_frames = {
-            "sparse": to_chronos_frame(
-                sparse_nan[:, :n_train], step=1, **frame_kwargs
-            ),
+            "sparse": to_chronos_frame(sparse_nan[:, :n_train], step=1, **frame_kwargs),
             "csdi_imputed": to_chronos_frame(
                 imputed[:, :n_train], step=1, **frame_kwargs
             ),
@@ -648,7 +647,9 @@ def run(args) -> dict:
         LOGGER.info("Training supervised baseline under the same base mask")
         sup_model = build_csdi(n_channels, args)
         if not train_sup_ok.any() or not val_sup_ok.any():
-            raise ValueError("No valid supervised windows under the current missing mask")
+            raise ValueError(
+                "No valid supervised windows under the current missing mask"
+            )
         # Rebuild windows aligned with filter above (already filtered).
         sup_model = fit_csdi_supervised(
             sup_model,

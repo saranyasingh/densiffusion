@@ -106,11 +106,14 @@ def train_densifier[T: nn.Module](
     validation = validate_array(validation, (None, *train.shape[1:]))
     if (train_availability is None) != (validation_availability is None):
         raise ValueError(
-            "train_availability and validation_availability must both be set or both omitted"
+            "train_availability and validation_availability must both be set "
+            "or both omitted"
         )
     if train_availability is not None:
         if train_mask is None or validation_mask is None:
-            raise ValueError("availability masks require explicit train/validation masks")
+            raise ValueError(
+                "availability masks require explicit train/validation masks"
+            )
         train, train_mask, train_availability = prepare_availability(
             train, train_mask, train_availability
         )

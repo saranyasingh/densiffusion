@@ -115,11 +115,7 @@ def collect_points(runs: list[tuple[Path, dict, dict]], mode: str, sweep: str):
             "csdi_crps": imputation.get("csdi_crps"),
             "linear_crps": imputation.get("linear_crps"),
             "ssl_crps": imputation.get("ssl_crps"),
-            "forecast": {
-                arm: forecast[arm]
-                for arm, _, _ in SERIES
-                if arm in forecast
-            },
+            "forecast": {arm: forecast[arm] for arm, _, _ in SERIES if arm in forecast},
         }
         supervised = load_supervised(run)
         if supervised and "zeroshot_csdi" in supervised.get("forecast", {}):
@@ -156,8 +152,11 @@ def plot_sweep(points: list[dict], *, mode: str, sweep: str, output: Path) -> di
         axis.tick_params(colors=TEXT, labelsize=9)
         axis.grid(True, color=BORDER, alpha=0.45, linewidth=0.6)
 
-    xs = [p["x"] for p in points]
-    metric = "mase" if any("mase" in p["forecast"].get("zeroshot_csdi", {}) for p in points) else "mae"
+    metric = (
+        "mase"
+        if any("mase" in p["forecast"].get("zeroshot_csdi", {}) for p in points)
+        else "mae"
+    )
 
     for arm, label, color in SERIES:
         ys = [
@@ -219,10 +218,17 @@ def plot_sweep(points: list[dict], *, mode: str, sweep: str, output: Path) -> di
     x_ssl = [p["x"] for p in points if p.get("ssl_crps") is not None]
     if ssl:
         ax_i.plot(
-            x_ssl, ssl, marker="^", color="#5c4d7a", label="SSL-holdout CRPS", linewidth=2
+            x_ssl,
+            ssl,
+            marker="^",
+            color="#5c4d7a",
+            label="SSL-holdout CRPS",
+            linewidth=2,
         )
     if any(p.get("supervised_crps") is not None for p in points):
-        ys = [p["supervised_crps"] for p in points if p.get("supervised_crps") is not None]
+        ys = [
+            p["supervised_crps"] for p in points if p.get("supervised_crps") is not None
+        ]
         x_s = [p["x"] for p in points if p.get("supervised_crps") is not None]
         ax_i.plot(
             x_s,
