@@ -24,8 +24,8 @@ Stages (checkpoints are reused when present):
 
 With ``--protocol selfsup``, CSDI trains only on observed values, as in
 ``run_csdi_chronos2_selfsup.py``: some observed time steps are hidden as targets
-(``--ssl-targets points`` or ``gaps``) and the base-missing values are neither
-conditioned on nor scored.
+(by default 1-2 extra hours per window, so training inputs are as sparse as test
+inputs) and the base-missing values are neither conditioned on nor scored.
 
 With ``--per-draw-forecasts K``, Chronos also forecasts from each of the first K
 CSDI draws separately and pools the forecasts (``zeroshot_csdi_draws``), so
@@ -474,19 +474,57 @@ def windowed_masks(hidden_time: np.ndarray, *, window: int, stride: int, channel
     return make_windows(mask, window_length=window, stride=stride) > 0.5
 
 
-def ssl_targets(available, *, kind, rate, min_gap, max_gap, seed):
+def extra_run_targets(available, *, min_length, max_length, seed):
+    """Hide one run of ``min_length``-``max_length`` observed steps per window.
+
+    The run lies wholly inside observed data and away from the window's first
+    and last steps, so the window stays only slightly sparser than before.
+    """
+    rng = np.random.default_rng(seed)
+    observed = available.any(axis=-1)
+    targets = np.zeros_like(available, dtype=bool)
+    for index, row in enumerate(observed):
+        length = int(rng.integers(min_length, max_length + 1))
+        sums = np.convolve(row.astype(int), np.ones(length, dtype=int), "valid")
+        starts = np.flatnonzero(sums == length)
+        starts = starts[(starts > 0) & (starts + length < len(row))]
+        if starts.size:
+            start = int(rng.choice(starts))
+            targets[index, start : start + length] = available[
+                index, start : start + length
+            ]
+    return targets
+
+
+def ssl_targets(
+    available,
+    *,
+    kind,
+    rate,
+    min_gap,
+    max_gap,
+    seed,
+    extra_min=1,
+    extra_max=2,
+):
     """Self-supervised targets: observed entries hidden for CSDI to fill in.
 
-    ``kind="points"`` hides each available time step with probability ``rate``,
-    as in ``run_csdi_chronos2_selfsup.py``. ``kind="gaps"`` hides runs of
-    ``min_gap``-``max_gap`` steps, spaced so that about ``rate`` of each window
-    is hidden, so CSDI practises on gaps shaped like the real ones. Targets are
-    shared across channels and never include naturally missing values.
+    ``kind="extra"`` hides one run of ``extra_min``-``extra_max`` observed
+    steps per window (see ``extra_run_targets``), so training inputs are about
+    as sparse as test inputs. ``kind="points"`` hides each available time step
+    with probability ``rate``, as in ``run_csdi_chronos2_selfsup.py``.
+    ``kind="gaps"`` hides runs of ``min_gap``-``max_gap`` steps, spaced so that
+    about ``rate`` of each window is hidden. Targets are shared across channels
+    and never include naturally missing values.
     """
+    if kind == "extra":
+        return extra_run_targets(
+            available, min_length=extra_min, max_length=extra_max, seed=seed
+        )
     if kind == "points":
         return sample_ssl_target_mask(available, rate=rate, seed=seed)
     if kind != "gaps":
-        raise ValueError("kind must be points or gaps")
+        raise ValueError("kind must be extra, points or gaps")
     mean_gap = (min_gap + max_gap) / 2
     # Observed runs uniform on [1, max_observed] have mean gap * (1 - rate) / rate.
     max_observed = max(1, round(2 * mean_gap * (1 - rate) / rate - 1))
@@ -583,14 +621,25 @@ def run(args) -> dict:
     train_available = val_available = None
     if args.protocol == "selfsup":
         # Train only on observed values: hide some as targets; base-missing
-        # values are neither conditioned on nor scored.
-        train_available = windowed_masks(~train_hidden, **window_kwargs)
-        val_available = windowed_masks(~val_hidden, **window_kwargs)
+        # values are neither conditioned on nor scored. Each window appears
+        # --ssl-copies times with different targets, like redrawing them
+        # every epoch (epochs are divided by the same factor below).
+        copies = args.ssl_copies
+        train_windows = np.repeat(train_windows, copies, axis=0)
+        val_windows = np.repeat(val_windows, copies, axis=0)
+        train_available = np.repeat(
+            windowed_masks(~train_hidden, **window_kwargs), copies, axis=0
+        )
+        val_available = np.repeat(
+            windowed_masks(~val_hidden, **window_kwargs), copies, axis=0
+        )
         ssl = dict(
             kind=args.ssl_targets,
             rate=args.ssl_mask_rate,
             min_gap=args.min_gap,
             max_gap=args.max_gap,
+            extra_min=args.ssl_extra_min,
+            extra_max=args.ssl_extra_max,
         )
         train_windows, train_available, train_masks = filter_ssl_windows(
             train_windows,
@@ -647,6 +696,13 @@ def run(args) -> dict:
         validation_interval=args.validation_interval,
         device=args.device,
     )
+    if args.protocol == "selfsup" and args.ssl_copies > 1:
+        # Same number of updates as without copies.
+        csdi_config = replace(
+            csdi_config,
+            epochs=max(1, args.epochs // args.ssl_copies),
+            validation_interval=max(1, args.validation_interval // args.ssl_copies),
+        )
     protocol_tag = (
         "" if args.protocol == "supervised" else f"_selfsup_{args.ssl_targets}"
     )
@@ -997,10 +1053,20 @@ def parse_args(argv=None):
     )
     parser.add_argument(
         "--ssl-targets",
-        choices=("points", "gaps"),
-        default="points",
-        help="selfsup targets: single time steps (as in the selfsup script) or "
-        "runs of --min-gap to --max-gap steps, like the real gaps",
+        choices=("extra", "points", "gaps"),
+        default="extra",
+        help="selfsup targets: one extra run of --ssl-extra-min to --ssl-extra-max "
+        "observed steps per window (default); single steps at --ssl-mask-rate (as "
+        "in the selfsup script); or runs like the real gaps at --ssl-mask-rate",
+    )
+    parser.add_argument("--ssl-extra-min", type=int, default=1)
+    parser.add_argument("--ssl-extra-max", type=int, default=2)
+    parser.add_argument(
+        "--ssl-copies",
+        type=int,
+        default=8,
+        help="selfsup: copies of each window with different targets; epochs are "
+        "divided by this, so training costs the same",
     )
     parser.add_argument(
         "--ssl-mask-rate",
@@ -1088,6 +1154,10 @@ def parse_args(argv=None):
             )
     if not 0.0 < args.ssl_mask_rate < 1.0:
         parser.error("--ssl-mask-rate must be in (0, 1)")
+    if not 1 <= args.ssl_extra_min <= args.ssl_extra_max:
+        parser.error("need 1 <= --ssl-extra-min <= --ssl-extra-max")
+    if args.ssl_copies < 1:
+        parser.error("--ssl-copies must be positive")
     if args.per_draw_forecasts < 0:
         parser.error("--per-draw-forecasts must be non-negative")
     if args.quick:

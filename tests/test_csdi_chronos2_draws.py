@@ -136,3 +136,23 @@ def test_filter_ssl_windows_needs_targets_and_conditioning():
     )
     assert kept_values[:, 0, 0].tolist() == [1.0]
     assert kept_targets.sum() == 1
+
+
+def test_extra_targets_hide_one_short_observed_run_per_window():
+    rng = np.random.default_rng(2)
+    available = np.repeat(rng.random((300, 97, 1)) > 0.3, 2, axis=2)
+    targets = pipeline.ssl_targets(
+        available, kind="extra", rate=0.25, min_gap=2, max_gap=12, seed=0
+    )
+    assert not (targets & ~available).any()
+    lengths = set()
+    for window in targets[..., 0]:
+        runs = pipeline.hidden_runs(window)
+        assert len(runs) <= 1
+        for start, stop in runs:
+            assert 0 < start and stop < 97
+            lengths.add(stop - start)
+    assert lengths == {1, 2}
+    # Nearly every window gets a target, and the windows stay almost as sparse.
+    assert (targets.any(axis=(1, 2))).mean() > 0.95
+    assert targets.sum() / available.sum() < 0.03
