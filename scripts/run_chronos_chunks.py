@@ -310,6 +310,10 @@ def run(args):
     torch.manual_seed(args.seed)
     values, _times, meta = load_multivariate_dataset(args.data)
     values = np.asarray(values[0], dtype=np.float64)  # (T, clients)
+    if args.customers:
+        # Keep the highest-variance customers, as prepare_electricity.py does.
+        top = np.sort(np.argsort(-values.var(axis=0), kind="stable")[: args.customers])
+        values = values[:, top]
     length, n_clients = values.shape
     train_end, val_end = (int(f * length) for f in SPLITS)
     train_clients, held_clients = split_clients(n_clients, args.holdout, seed=0)
@@ -626,6 +630,12 @@ def parse_args(argv=None):
     parser.add_argument("--max-gap-hours", type=int, default=24)
     parser.add_argument("--start-hour", type=int, default=0)
     parser.add_argument("--holdout", type=float, default=0.2)
+    parser.add_argument(
+        "--customers",
+        type=int,
+        default=0,
+        help="Use only the N highest-variance (largest) customers; 0 = all",
+    )
     parser.add_argument("--train-chunks", type=int, default=40000)
     parser.add_argument("--val-chunks", type=int, default=2000)
     parser.add_argument("--test-chunks", type=int, default=1000, help="per group")

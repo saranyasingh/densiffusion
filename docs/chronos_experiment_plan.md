@@ -56,7 +56,11 @@ out entirely; CSDI trains on the first 70% of the record, picks its checkpoint
 on the next 15%, and test chunks come from the last 15%. 1000 test chunks per
 group (training customers, held-out customers), fixed by `--test-seed` and the
 same for every method, protocol and seed. Chunks that are mostly zero or flat
-are skipped. Univariate CSDI (64 channels, 4 layers), 16 draws,
+are skipped. All customers are used: the highest-variance ones are simply
+the largest (median load 9,900 for the top 20, 592 over all), with about the
+same relative variability, and scaling each chunk by its own level already
+makes sizes count equally. `--customers N` restricts to the N
+highest-variance customers if needed. Univariate CSDI (64 channels, 4 layers), 16 draws,
 `autogluon/chronos-2-small`.
 
 Gaps: a random number (1-10) of gaps, each with a random start and a random
