@@ -94,6 +94,28 @@ uv run --extra research --extra chronos python scripts/run_csdi_chronos2.py \
 
 Without either option the pipeline and its outputs are unchanged.
 
+## Gaps at random times
+
+The default block mask hides the same 12 hours every day (12:00-23:00 for
+electricity, which starts at midnight), so the sparse context never contains an
+afternoon, and CSDI's knowledge of afternoons comes only from its dense training
+targets. `--missing-mode random_block` instead alternates observed and hidden
+runs whose lengths are drawn uniformly from `[--min-observed, --max-observed]`
+and `[--min-gap, --max-gap]` (electricity default 2-12 hours each, so about half
+the hours are hidden, as with the block mask). Gaps then fall at different times
+of day and last different lengths; every hour of the day is sometimes observed.
+The mask is the same for all channels and depends on `--seed`.
+
+```sh
+uv run --extra research --extra chronos python scripts/run_csdi_chronos2.py \
+    --data data/electricity.npz --output outputs/electricity_random_gaps \
+    --missing-mode random_block --per-draw-forecasts 16 --stitch block \
+    --device cuda --seed 0
+```
+
+The sparse arm (`zeroshot_sparse`) still forecasts from the context with the
+gaps left as missing values, never seeing or filling them.
+
 ## Plots
 
 The runner writes figures into the output directory when matplotlib is available.

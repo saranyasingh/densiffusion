@@ -149,6 +149,47 @@ def random_observation_mask(
     return hidden
 
 
+def random_block_observation_mask(
+    length: int,
+    *,
+    min_gap: int = 2,
+    max_gap: int = 12,
+    min_observed: int = 2,
+    max_observed: int = 12,
+    seed: int = 0,
+) -> np.ndarray:
+    """Gaps at random times with random lengths. True = hidden.
+
+    Alternates observed and hidden runs with lengths drawn uniformly from
+    ``[min_observed, max_observed]`` and ``[min_gap, max_gap]``, from a random
+    starting point, so gaps fall at different times of day and last different
+    lengths. The expected hidden fraction is mean gap / (mean gap + mean
+    observed run). Endpoints are forced observed.
+    """
+    positive_int("length", length)
+    for name, value in (
+        ("min_gap", min_gap),
+        ("max_gap", max_gap),
+        ("min_observed", min_observed),
+        ("max_observed", max_observed),
+    ):
+        positive_int(name, value)
+    if min_gap > max_gap or min_observed > max_observed:
+        raise ValueError("minimum run lengths must not exceed the maximums")
+    rng = np.random.default_rng(seed)
+    hidden = np.zeros(length, dtype=bool)
+    position = int(rng.integers(0, max_observed + 1))
+    while position < length:
+        gap = int(rng.integers(min_gap, max_gap + 1))
+        hidden[position : position + gap] = True
+        position += gap + int(rng.integers(min_observed, max_observed + 1))
+    hidden[0] = False
+    hidden[-1] = False
+    if hidden.all() or not hidden.any():
+        raise ValueError("random block mask must leave both observed and hidden points")
+    return hidden
+
+
 def build_observation_mask(
     length: int,
     *,
@@ -158,8 +199,12 @@ def build_observation_mask(
     observe_length: int = 12,
     keep_probability: float = 0.25,
     seed: int = 0,
+    min_gap: int = 2,
+    max_gap: int = 12,
+    min_observed: int = 2,
+    max_observed: int = 12,
 ) -> np.ndarray:
-    """Dispatch to grid / block / random observation masks (True = hidden)."""
+    """Dispatch to grid / block / random / random_block masks (True = hidden)."""
     if mode == "grid":
         return sparse_observation_mask(length, step=sparse_step, offset=0)
     if mode == "block":
@@ -170,7 +215,16 @@ def build_observation_mask(
         return random_observation_mask(
             length, keep_probability=keep_probability, seed=seed
         )
-    raise ValueError("mode must be 'grid', 'block', or 'random'")
+    if mode == "random_block":
+        return random_block_observation_mask(
+            length,
+            min_gap=min_gap,
+            max_gap=max_gap,
+            min_observed=min_observed,
+            max_observed=max_observed,
+            seed=seed,
+        )
+    raise ValueError("mode must be 'grid', 'block', 'random', or 'random_block'")
 
 
 def sample_ssl_target_mask(

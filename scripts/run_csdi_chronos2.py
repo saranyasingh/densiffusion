@@ -82,6 +82,10 @@ PRESETS = {
         block_length=12,
         observe_length=12,
         keep_probability=0.25,
+        min_gap=2,
+        max_gap=12,
+        min_observed=2,
+        max_observed=12,
         window_length=97,
         stride=48,
         impute_stride=48,
@@ -96,6 +100,10 @@ PRESETS = {
         block_length=7,
         observe_length=7,
         keep_probability=0.25,
+        min_gap=1,
+        max_gap=7,
+        min_observed=1,
+        max_observed=7,
         window_length=65,
         stride=32,
         impute_stride=32,
@@ -484,6 +492,10 @@ def run(args) -> dict:
         observe_length=args.observe_length,
         keep_probability=args.keep_probability,
         seed=args.seed,
+        min_gap=args.min_gap,
+        max_gap=args.max_gap,
+        min_observed=args.min_observed,
+        max_observed=args.max_observed,
     )
     observed = ~expand_mask(hidden_time, batch=1, channels=n_channels)
 
@@ -863,14 +875,22 @@ def parse_args(argv=None):
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument(
         "--missing-mode",
-        choices=("grid", "block", "random"),
+        choices=("grid", "block", "random", "random_block"),
         default=None,
-        help="grid=every sparse-step; block=contiguous gaps; random=Bernoulli keep",
+        help="grid=every sparse-step; block=contiguous gaps at fixed times; "
+        "random=Bernoulli keep; random_block=gaps of random length at random times",
     )
     parser.add_argument("--sparse-step", type=int, default=None)
     parser.add_argument("--block-length", type=int, default=None)
     parser.add_argument("--observe-length", type=int, default=None)
     parser.add_argument("--keep-probability", type=float, default=None)
+    for name in ("min-gap", "max-gap", "min-observed", "max-observed"):
+        parser.add_argument(
+            f"--{name}",
+            type=int,
+            default=None,
+            help="random_block: run lengths drawn uniformly between min and max",
+        )
     parser.add_argument("--season", type=int, default=None, help="MASE/SQL season")
     parser.add_argument("--window-length", type=int, default=None)
     parser.add_argument("--stride", type=int, default=None)
