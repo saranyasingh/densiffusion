@@ -54,6 +54,46 @@ uv run --extra research --extra chronos python scripts/run_csdi_chronos2.py \
 - `forecast.zeroshot_*`, `forecast.dense_oracle`, `forecast.seasonal_naive`
 - `deltas_csdi_minus_sparse` / `deltas_csdi_minus_linear`
 
+## Forecasting from each CSDI draw
+
+By default the CSDI draws are collapsed to their median before Chronos sees
+them. With 12h gaps the draws disagree about where daily peaks fall, so their
+median is smoother than any real day, and Chronos never sees the uncertainty
+about the gaps. `--per-draw-forecasts K` adds an arm, `zeroshot_csdi_draws`,
+that forecasts from each of the first K draws separately and pools the
+forecasts:
+
+- Each draw is one CSDI sample across all channels, and Chronos forecasts the
+  channels of one draw together, so draws are never mixed between clients.
+- The K contexts go to Chronos in one batched call, as separate items.
+- Each forecast's quantile function (levels 0.01-0.99) is sampled at 20 evenly
+  spaced probabilities; the K x 20 samples are pooled.
+- Every arm then also reports `crps` and `scaled_crps` (CRPS over the seasonal
+  scale, comparable with SQL), from the same number of samples of its own
+  quantile forecast. Point forecasts (seasonal naive, last value) get CRPS =
+  MAE. MAE, WQL and SQL still use the standard 0.1-0.9 levels, so they match
+  earlier runs; the pooled arm's are computed from the pooled samples.
+- `deltas_zeroshot_csdi_draws_minus_zeroshot_csdi` and
+  `..._minus_zeroshot_linear` compare the pooled arm with the median and
+  straight-line arms.
+
+`--stitch block` changes how overlapping imputation windows are combined. The
+default (`average`) averages overlapping windows, and with a window of 97 and
+a stride of 48 almost every hidden point lies in two windows, so each saved
+"draw" is the mean of two independent CSDI draws and has less spread than a
+real one. `block` takes each contiguous gap whole from the window that
+contains it most centrally, so every draw stays a single CSDI sample. Its
+imputations are cached as `imputed_block.npz`, next to the default
+`imputed.npz`. Use it with `--per-draw-forecasts`:
+
+```sh
+uv run --extra research --extra chronos python scripts/run_csdi_chronos2.py \
+    --data data/electricity.npz --output outputs/electricity_draws \
+    --per-draw-forecasts 16 --stitch block --device cuda
+```
+
+Without either option the pipeline and its outputs are unchanged.
+
 ## Plots
 
 The runner writes figures into the output directory when matplotlib is available.

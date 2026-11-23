@@ -21,6 +21,13 @@ Stages (checkpoints are reused when present):
 3. Train CSDI; impute with a multi-draw median ensemble
 4. Zero-shot Chronos on sparse (NaN) / CSDI / linear / dense-oracle contexts
 5. Score MAE/RMSE/sMAPE/MASE/WQL/SQL vs seasonal naive on the dense horizon
+
+With ``--per-draw-forecasts K``, Chronos also forecasts from each of the first K
+CSDI draws separately and pools the forecasts (``zeroshot_csdi_draws``), so
+uncertainty about the gaps carries into the forecast instead of being collapsed
+by the median. Every arm then also gets CRPS, from samples of its quantile
+forecast. ``--stitch block`` keeps each draw a single CSDI sample (see
+``impute_series``).
 """
 
 from __future__ import annotations
@@ -58,6 +65,10 @@ from densiffusion.training import TrainingConfig, train_densifier
 
 LOGGER = logging.getLogger("csdi_chronos2")
 QUANTILES = (0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
+# Wider levels for CRPS: each quantile forecast is sampled at QUANTILE_SAMPLES
+# evenly spaced probabilities, flat beyond the 1% and 99% levels.
+FINE_QUANTILES = (0.01, 0.05, *QUANTILES, 0.95, 0.99)
+QUANTILE_SAMPLES = 20
 SPLITS = dict(train_fraction=0.7, validation_fraction=0.15)
 
 # Flip to True to restore LoRA/full Chronos fine-tuning of the context arms.
@@ -147,6 +158,13 @@ def fit_csdi(
     )
 
 
+def hidden_runs(hidden: np.ndarray) -> list[tuple[int, int]]:
+    """(start, stop) of each contiguous run of True in a 1-D mask."""
+    padded = np.concatenate([[0], np.asarray(hidden, dtype=np.int8), [0]])
+    edges = np.flatnonzero(np.diff(padded))
+    return [(int(a), int(b)) for a, b in zip(edges[::2], edges[1::2], strict=True)]
+
+
 def impute_series(
     values: np.ndarray,
     sampler: DDPMSampler,
@@ -156,11 +174,17 @@ def impute_series(
     stride: int,
     n_samples: int,
     seed: int,
+    stitch: str = "average",
 ) -> np.ndarray:
     """Fill hidden entries of (1, T, C) with overlapping-window CSDI draws.
 
     Returns ``(n_samples, T, C)``. Observed positions are preserved exactly.
-    Overlapping hidden predictions are averaged across windows.
+    With ``stitch="average"``, overlapping hidden predictions are averaged
+    across windows; this blends independent draws, so each returned draw is
+    smoother than a CSDI sample. With ``stitch="block"``, each contiguous
+    hidden run is taken whole from the window that contains it most centrally,
+    so every draw stays a single CSDI sample (runs that no window contains are
+    still averaged).
     """
     series = np.asarray(values, dtype=np.float64)
     if series.shape[0] != 1:
@@ -173,6 +197,24 @@ def impute_series(
         starts.append(length - window)
     full_hidden = expand_mask(hidden_time, batch=1, channels=channels)
     masked = np.where(full_hidden, 0.0, series)
+    hidden = np.asarray(hidden_time, dtype=bool)
+    owned_runs: dict[int, list[tuple[int, int]]] = {}
+    owned = np.zeros(length, dtype=bool)
+    if stitch == "block":
+        for run_start, run_stop in hidden_runs(hidden):
+            inside = [
+                i
+                for i, s in enumerate(starts)
+                if s <= run_start and run_stop <= s + window
+            ]
+            if inside:
+                centre = (run_start + run_stop) / 2
+                best = min(inside, key=lambda i: abs(starts[i] + window / 2 - centre))
+                owned_runs.setdefault(best, []).append((run_start, run_stop))
+                owned[run_start:run_stop] = True
+    elif stitch != "average":
+        raise ValueError("stitch must be average or block")
+    result = np.repeat(series, n_samples, axis=0)
     total = np.zeros((n_samples, length, channels), dtype=np.float64)
     weight = np.zeros((length,), dtype=np.float64)
     for index, start in enumerate(starts):
@@ -188,17 +230,22 @@ def impute_series(
             seed=seed + index,
         )[0]
         stop = start + window
-        # Average only at positions that were hidden in this window.
-        total[:, start:stop] += draws * local_hidden[None, :, None]
-        weight[start:stop] += local_hidden.astype(np.float64)
-    # Observed entries: copy through exactly. Hidden entries: average draws.
-    result = np.repeat(series, n_samples, axis=0)
-    hidden = hidden_time.astype(bool)
-    if hidden.any():
-        if (weight[hidden] == 0).any():
+        for run_start, run_stop in owned_runs.get(index, ()):
+            local = slice(run_start - start, run_stop - start)
+            result[:, run_start:run_stop] = draws[:, local]
+        # Average only at positions that were hidden in this window and that
+        # no single window owns.
+        shared = np.asarray(local_hidden, dtype=bool) & ~owned[start:stop]
+        total[:, start:stop] += draws * shared[None, :, None]
+        weight[start:stop] += shared.astype(np.float64)
+    # Observed entries: copy through exactly. Hidden entries: owned runs were
+    # copied above; average the rest.
+    averaged = hidden & ~owned
+    if averaged.any():
+        if (weight[averaged] == 0).any():
             raise RuntimeError("imputation windows failed to cover every hidden point")
-        scale = weight[hidden][None, :, None]
-        result[:, hidden] = total[:, hidden] / scale
+        scale = weight[averaged][None, :, None]
+        result[:, averaged] = total[:, averaged] / scale
     return result
 
 
@@ -300,6 +347,84 @@ def chronos_forecast(
         quantile_levels=quantile_levels,
         prediction_length=prediction_length,
     )
+
+
+def chronos_forecast_draws(
+    pipeline,
+    contexts: list[np.ndarray],
+    *,
+    channels,
+    prediction_length: int,
+    start: np.datetime64,
+    freq: str,
+    item_id: str,
+    quantile_levels=QUANTILES,
+) -> list[dict[float, np.ndarray]]:
+    """Forecast each (1, T, C) context as its own item in one Chronos call.
+
+    Each context is one whole CSDI draw across all channels, so Chronos sees
+    every channel of the same draw together.
+    """
+    import pandas as pd
+
+    names = [f"{item_id}-draw{k}" for k in range(len(contexts))]
+    frame = pd.concat(
+        [
+            to_chronos_frame(
+                context,
+                channels=channels,
+                start=start,
+                freq=freq,
+                item_id=name,
+                step=1,
+            )
+            for context, name in zip(contexts, names, strict=True)
+        ],
+        ignore_index=True,
+    )
+    pred = pipeline.predict_df(
+        frame,
+        prediction_length=prediction_length,
+        quantile_levels=list(quantile_levels),
+        id_column="item_id",
+        timestamp_column="timestamp",
+        target=list(channels),
+    )
+    return [
+        extract_quantile_matrix(
+            pred[pred["item_id"] == name],
+            currencies=channels,
+            quantile_levels=quantile_levels,
+            prediction_length=prediction_length,
+        )
+        for name in names
+    ]
+
+
+def quantile_samples(quantiles: dict[float, np.ndarray], n: int) -> np.ndarray:
+    """``(n, horizon, channels)`` draws from a quantile forecast.
+
+    Linearly interpolates the quantile function at probabilities
+    ``(j + 0.5) / n``, flat beyond the outermost levels. Crossed quantiles are
+    sorted first.
+    """
+    levels = np.array(sorted(quantiles))
+    values = np.sort(np.stack([quantiles[q] for q in levels]), axis=0)
+    probabilities = (np.arange(n) + 0.5) / n
+    upper = np.clip(np.searchsorted(levels, probabilities), 1, len(levels) - 1)
+    lower = upper - 1
+    weight = (probabilities - levels[lower]) / (levels[upper] - levels[lower])
+    weight = np.clip(weight, 0.0, 1.0)[:, None, None]
+    return values[lower] * (1 - weight) + values[upper] * weight
+
+
+def add_crps(scores: dict, truth: np.ndarray, samples: np.ndarray, *, scale: float):
+    """Add CRPS of ``(n, horizon, channels)`` samples, raw and over ``scale``.
+
+    For a point forecast (n = 1) CRPS equals the mean absolute error.
+    """
+    value = crps(samples[None], truth[None])
+    return {**scores, "crps": value, "scaled_crps": value / scale}
 
 
 def score_forecast(
@@ -441,11 +566,13 @@ def run(args) -> dict:
         model, replace(csdi_config, batch_size=args.sample_batch_size)
     )
 
-    imputed_path = args.output / "imputed.npz"
+    suffix = "" if args.stitch == "average" else f"_{args.stitch}"
+    imputed_path = args.output / f"imputed{suffix}.npz"
     if imputed_path.exists():
         LOGGER.info("Loading imputations from %s", imputed_path)
         with np.load(imputed_path, allow_pickle=False) as payload:
             imputed_norm = payload["imputed_norm"]
+            draws_norm = payload["draws_norm"]
             linear_norm = payload["linear_norm"]
             imputation_crps = float(payload["imputation_crps"])
             linear_crps = float(payload["linear_crps"])
@@ -459,7 +586,9 @@ def run(args) -> dict:
             stride=args.impute_stride,
             n_samples=args.n_samples,
             seed=args.seed + 17,
+            stitch=args.stitch,
         )
+        draws_norm = draws
         imputed_norm = aggregate_imputations(draws, args.aggregate)
         sparse_full = np.where(observed, full_n, 0.0)
         linear_norm = linear_fill(sparse_full, ~observed)
@@ -502,6 +631,17 @@ def run(args) -> dict:
         "zeroshot_linear": linear_imputed,
         "dense_oracle": dense_truth,
     }
+
+    # Per-draw arm: each of the first K draws, whole across channels.
+    per_draw = args.per_draw_forecasts
+    if per_draw > draws_norm.shape[0]:
+        raise ValueError(
+            f"--per-draw-forecasts {per_draw} exceeds the {draws_norm.shape[0]} "
+            "saved CSDI draws"
+        )
+    draw_series = [normalizer.inverse(draws_norm[k : k + 1]) for k in range(per_draw)]
+    levels = FINE_QUANTILES if per_draw else QUANTILES
+    n_crps = per_draw * QUANTILE_SAMPLES
 
     # Optional fine-tuning path — off unless ENABLE_CHRONOS_FINETUNE is True.
     finetuned_arms = {}
@@ -557,6 +697,7 @@ def run(args) -> dict:
     )
     score_names = [
         *context_arms,
+        *(["zeroshot_csdi_draws"] if per_draw else []),
         "seasonal_naive",
         "last_value",
         *{f"finetuned_{name}" for name in finetuned_arms},
@@ -572,13 +713,12 @@ def run(args) -> dict:
         naive = seasonal_naive_forecast(
             history, horizon=args.horizon, season=args.season
         )
-        arm_scores["seasonal_naive"].append(
-            score_forecast(truth, None, scale=scale, point=naive)
-        )
         last_value = np.broadcast_to(history[-1][None, :], truth.shape)
-        arm_scores["last_value"].append(
-            score_forecast(truth, None, scale=scale, point=last_value)
-        )
+        for name, point in (("seasonal_naive", naive), ("last_value", last_value)):
+            scores = score_forecast(truth, None, scale=scale, point=point)
+            if per_draw:
+                scores = add_crps(scores, truth, point[None], scale=scale)
+            arm_scores[name].append(scores)
 
         for name, series in context_arms.items():
             context_vals = series[:, origin - args.context : origin]
@@ -590,10 +730,35 @@ def run(args) -> dict:
                 prediction_length=args.horizon,
                 step=1,
                 start=start,
+                quantile_levels=levels,
                 validate_inputs=not allow_nan,
                 **forecast_kwargs,
             )
-            arm_scores[name].append(score_forecast(truth, quantiles, scale=scale))
+            # The original metrics always use the standard levels.
+            standard = {q: quantiles[q] for q in QUANTILES}
+            scores = score_forecast(truth, standard, scale=scale)
+            if per_draw:
+                samples = quantile_samples(quantiles, n_crps)
+                scores = add_crps(scores, truth, samples, scale=scale)
+            arm_scores[name].append(scores)
+
+        if per_draw:
+            forecasts = chronos_forecast_draws(
+                pipeline,
+                [series[:, origin - args.context : origin] for series in draw_series],
+                prediction_length=args.horizon,
+                start=start,
+                quantile_levels=levels,
+                **forecast_kwargs,
+            )
+            pooled = np.concatenate(
+                [quantile_samples(f, QUANTILE_SAMPLES) for f in forecasts]
+            )
+            pooled_quantiles = {q: np.quantile(pooled, q, axis=0) for q in QUANTILES}
+            scores = score_forecast(truth, pooled_quantiles, scale=scale)
+            arm_scores["zeroshot_csdi_draws"].append(
+                add_crps(scores, truth, pooled, scale=scale)
+            )
 
         for name, arm in finetuned_arms.items():
             context_vals = arm["series"][:, origin - args.context : origin]
@@ -655,6 +820,17 @@ def run(args) -> dict:
             - results["forecast"]["zeroshot_linear"][key]
             for key in results["forecast"]["zeroshot_linear"]
         }
+    forecast = results["forecast"]
+    for arm, baseline in (
+        ("zeroshot_csdi_draws", "zeroshot_csdi"),
+        ("zeroshot_csdi_draws", "zeroshot_linear"),
+    ):
+        if arm in forecast and baseline in forecast:
+            results[f"deltas_{arm}_minus_{baseline}"] = {
+                key: forecast[arm][key] - forecast[baseline][key]
+                for key in forecast[baseline]
+                if key in forecast[arm]
+            }
     write_json(args.output / "results.json", results)
     LOGGER.info("Results:\n%s", json.dumps(results["forecast"], indent=2))
     LOGGER.info("Imputation CRPS CSDI=%.6f linear=%.6f", imputation_crps, linear_crps)
@@ -701,6 +877,20 @@ def parse_args(argv=None):
     parser.add_argument("--impute-stride", type=int, default=None)
     parser.add_argument("--n-samples", type=int, default=16)
     parser.add_argument("--aggregate", choices=("mean", "median"), default="median")
+    parser.add_argument(
+        "--per-draw-forecasts",
+        type=int,
+        default=0,
+        help="Also forecast from each of the first K CSDI draws and pool the "
+        "forecasts (zeroshot_csdi_draws); adds CRPS for every arm",
+    )
+    parser.add_argument(
+        "--stitch",
+        choices=("average", "block"),
+        default="average",
+        help="Combine overlapping imputation windows by averaging (default) or "
+        "by taking each gap whole from one window, so draws stay CSDI samples",
+    )
     parser.add_argument("--context", type=int, default=None)
     parser.add_argument("--horizon", type=int, default=None)
     parser.add_argument("--forecast-stride", type=int, default=None)
@@ -765,9 +955,12 @@ def parse_args(argv=None):
             parser.error(
                 "--stride and --impute-stride must be multiples of --sparse-step"
             )
+    if args.per_draw_forecasts < 0:
+        parser.error("--per-draw-forecasts must be non-negative")
     if args.quick:
         args.epochs = min(args.epochs, 2)
         args.n_samples = min(args.n_samples, 2)
+        args.per_draw_forecasts = min(args.per_draw_forecasts, args.n_samples)
         args.window_length = min(args.window_length, 49)
         args.stride = min(args.stride, 24)
         args.impute_stride = args.stride
@@ -788,6 +981,8 @@ def parse_args(argv=None):
         args.batch_size = min(args.batch_size, 8)
         args.lr_decay_fractions = []
         args.validation_steps = "sampled"
+    if args.per_draw_forecasts > args.n_samples:
+        parser.error("--per-draw-forecasts cannot exceed --n-samples")
     return args
 
 
