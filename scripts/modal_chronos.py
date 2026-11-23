@@ -90,6 +90,7 @@ def prepare(path: str, clients: int) -> str:
 )
 def run(script: str, arguments: list[str], output: str) -> int:
     """Run scripts/<script> with arguments; return its exit code."""
+    volume.reload()  # see data prepared after this container started
     start = time.time()
     command = [
         sys.executable, "-u", f"scripts/{script}", *arguments,
