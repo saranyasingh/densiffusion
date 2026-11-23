@@ -22,6 +22,11 @@ Stages (checkpoints are reused when present):
 4. Zero-shot Chronos on sparse (NaN) / CSDI / linear / dense-oracle contexts
 5. Score MAE/RMSE/sMAPE/MASE/WQL/SQL vs seasonal naive on the dense horizon
 
+With ``--protocol selfsup``, CSDI trains only on observed values, as in
+``run_csdi_chronos2_selfsup.py``: some observed time steps are hidden as targets
+(``--ssl-targets points`` or ``gaps``) and the base-missing values are neither
+conditioned on nor scored.
+
 With ``--per-draw-forecasts K``, Chronos also forecasts from each of the first K
 CSDI draws separately and pools the forecasts (``zeroshot_csdi_draws``), so
 uncertainty about the gaps carries into the forecast instead of being collapsed
@@ -53,6 +58,8 @@ from densiffusion.fx import (
     forecast_metrics,
     linear_fill,
     load_multivariate_dataset,
+    random_block_observation_mask,
+    sample_ssl_target_mask,
     seasonal_naive_forecast,
     seasonal_scale,
     to_chronos_frame,
@@ -145,6 +152,8 @@ def fit_csdi(
     config,
     seed,
     validation_masks=None,
+    train_availability=None,
+    validation_availability=None,
 ):
     if checkpoint.exists():
         LOGGER.info("Loading CSDI checkpoint %s", checkpoint)
@@ -153,6 +162,13 @@ def fit_csdi(
         return model.eval()
     if validation_masks is None:
         validation_masks = np.broadcast_to(train_mask, validation.shape).copy()
+    availability = {}
+    if train_availability is not None:
+        # Self-supervised: unavailable values are neither inputs nor targets.
+        availability = dict(
+            train_availability=train_availability,
+            validation_availability=validation_availability,
+        )
     return train_densifier(
         model,
         train,
@@ -163,6 +179,7 @@ def fit_csdi(
         checkpoint=checkpoint,
         train_mask=train_mask,
         validation_mask=validation_masks,
+        **availability,
     )
 
 
@@ -457,6 +474,51 @@ def windowed_masks(hidden_time: np.ndarray, *, window: int, stride: int, channel
     return make_windows(mask, window_length=window, stride=stride) > 0.5
 
 
+def ssl_targets(available, *, kind, rate, min_gap, max_gap, seed):
+    """Self-supervised targets: observed entries hidden for CSDI to fill in.
+
+    ``kind="points"`` hides each available time step with probability ``rate``,
+    as in ``run_csdi_chronos2_selfsup.py``. ``kind="gaps"`` hides runs of
+    ``min_gap``-``max_gap`` steps, spaced so that about ``rate`` of each window
+    is hidden, so CSDI practises on gaps shaped like the real ones. Targets are
+    shared across channels and never include naturally missing values.
+    """
+    if kind == "points":
+        return sample_ssl_target_mask(available, rate=rate, seed=seed)
+    if kind != "gaps":
+        raise ValueError("kind must be points or gaps")
+    mean_gap = (min_gap + max_gap) / 2
+    # Observed runs uniform on [1, max_observed] have mean gap * (1 - rate) / rate.
+    max_observed = max(1, round(2 * mean_gap * (1 - rate) / rate - 1))
+    rng = np.random.default_rng(seed)
+    targets = np.zeros_like(available, dtype=bool)
+    for index in range(len(available)):
+        try:
+            gaps = random_block_observation_mask(
+                available.shape[1],
+                min_gap=min_gap,
+                max_gap=max_gap,
+                min_observed=1,
+                max_observed=max_observed,
+                seed=int(rng.integers(2**32)),
+            )
+        except ValueError:  # no gap fell inside this window
+            continue
+        targets[index] = gaps[:, None] & available[index]
+    return targets
+
+
+def filter_ssl_windows(values, available, targets):
+    """Keep windows with targets and observed values left to condition on."""
+    keep = np.array(
+        [t.any() and (a & ~t).any() for a, t in zip(available, targets, strict=True)],
+        dtype=bool,
+    )
+    if not keep.any():
+        raise ValueError("No windows with SSL targets under this mask and rate")
+    return values[keep], available[keep], targets[keep]
+
+
 def run(args) -> dict:
     args.output.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
@@ -513,33 +575,55 @@ def run(args) -> dict:
     val_windows = make_windows(
         val_n, window_length=args.window_length, stride=args.stride
     )
-    train_masks = windowed_masks(
-        hidden_time[:n_train],
-        window=args.window_length,
-        stride=args.stride,
-        channels=n_channels,
+    window_kwargs = dict(
+        window=args.window_length, stride=args.stride, channels=n_channels
     )
-    val_masks = windowed_masks(
-        hidden_time[n_train : n_train + n_val],
-        window=args.window_length,
-        stride=args.stride,
-        channels=n_channels,
-    )
-    # Drop windows that are fully observed or fully hidden.
-    train_ok = np.array(
-        [mask.any() and not mask.all() for mask in train_masks], dtype=bool
-    )
-    val_ok = np.array(
-        [mask.any() and not mask.all() for mask in val_masks], dtype=bool
-    )
-    if not train_ok.any() or not val_ok.any():
-        raise ValueError("No valid imputation windows under the current missing mask")
-    train_windows, train_masks = train_windows[train_ok], train_masks[train_ok]
-    val_windows, val_masks = val_windows[val_ok], val_masks[val_ok]
+    train_hidden = hidden_time[:n_train]
+    val_hidden = hidden_time[n_train : n_train + n_val]
+    train_available = val_available = None
+    if args.protocol == "selfsup":
+        # Train only on observed values: hide some as targets; base-missing
+        # values are neither conditioned on nor scored.
+        train_available = windowed_masks(~train_hidden, **window_kwargs)
+        val_available = windowed_masks(~val_hidden, **window_kwargs)
+        ssl = dict(
+            kind=args.ssl_targets,
+            rate=args.ssl_mask_rate,
+            min_gap=args.min_gap,
+            max_gap=args.max_gap,
+        )
+        train_windows, train_available, train_masks = filter_ssl_windows(
+            train_windows,
+            train_available,
+            ssl_targets(train_available, seed=args.seed, **ssl),
+        )
+        val_windows, val_available, val_masks = filter_ssl_windows(
+            val_windows,
+            val_available,
+            ssl_targets(val_available, seed=args.seed + 1, **ssl),
+        )
+    else:
+        train_masks = windowed_masks(train_hidden, **window_kwargs)
+        val_masks = windowed_masks(val_hidden, **window_kwargs)
+        # Drop windows that are fully observed or fully hidden.
+        train_ok = np.array(
+            [mask.any() and not mask.all() for mask in train_masks], dtype=bool
+        )
+        val_ok = np.array(
+            [mask.any() and not mask.all() for mask in val_masks], dtype=bool
+        )
+        if not train_ok.any() or not val_ok.any():
+            raise ValueError(
+                "No valid imputation windows under the current missing mask"
+            )
+        train_windows, train_masks = train_windows[train_ok], train_masks[train_ok]
+        val_windows, val_masks = val_windows[val_ok], val_masks[val_ok]
     LOGGER.info(
-        "%s mode=%s: T=%d C=%d; windows train/val=%d/%d; freq=%s season=%d",
+        "%s mode=%s protocol=%s: T=%d C=%d; windows train/val=%d/%d; "
+        "freq=%s season=%d",
         meta.get("dataset", "series"),
         args.missing_mode,
+        args.protocol,
         usable,
         n_channels,
         len(train_windows),
@@ -563,22 +647,27 @@ def run(args) -> dict:
         validation_interval=args.validation_interval,
         device=args.device,
     )
+    protocol_tag = (
+        "" if args.protocol == "supervised" else f"_selfsup_{args.ssl_targets}"
+    )
     model = build_csdi(n_channels, args)
     model = fit_csdi(
         model,
-        args.output / "csdi.pt",
+        args.output / f"csdi{protocol_tag}.pt",
         train_windows,
         val_windows,
         train_masks,
         validation_masks=val_masks,
         config=csdi_config,
         seed=args.seed,
+        train_availability=train_available,
+        validation_availability=val_available,
     )
     sampler = DDPMSampler(
         model, replace(csdi_config, batch_size=args.sample_batch_size)
     )
 
-    suffix = "" if args.stitch == "average" else f"_{args.stitch}"
+    suffix = protocol_tag + ("" if args.stitch == "average" else f"_{args.stitch}")
     imputed_path = args.output / f"imputed{suffix}.npz"
     if imputed_path.exists():
         LOGGER.info("Loading imputations from %s", imputed_path)
@@ -793,6 +882,8 @@ def run(args) -> dict:
         return {key: float(np.mean([row[key] for row in scores])) for key in keys}
 
     results = {
+        "protocol": args.protocol,
+        "observed_fraction": float((~hidden_time).mean()),
         "imputation": {
             "csdi_crps": float(imputation_crps),
             "linear_crps": float(linear_crps),
@@ -898,6 +989,26 @@ def parse_args(argv=None):
     parser.add_argument("--n-samples", type=int, default=16)
     parser.add_argument("--aggregate", choices=("mean", "median"), default="median")
     parser.add_argument(
+        "--protocol",
+        choices=("supervised", "selfsup"),
+        default="supervised",
+        help="supervised: CSDI learns from the true values in the gaps; selfsup: "
+        "only from observed values, hiding some of them as targets",
+    )
+    parser.add_argument(
+        "--ssl-targets",
+        choices=("points", "gaps"),
+        default="points",
+        help="selfsup targets: single time steps (as in the selfsup script) or "
+        "runs of --min-gap to --max-gap steps, like the real gaps",
+    )
+    parser.add_argument(
+        "--ssl-mask-rate",
+        type=float,
+        default=0.25,
+        help="selfsup: fraction of observed time steps hidden as targets",
+    )
+    parser.add_argument(
         "--per-draw-forecasts",
         type=int,
         default=0,
@@ -975,6 +1086,8 @@ def parse_args(argv=None):
             parser.error(
                 "--stride and --impute-stride must be multiples of --sparse-step"
             )
+    if not 0.0 < args.ssl_mask_rate < 1.0:
+        parser.error("--ssl-mask-rate must be in (0, 1)")
     if args.per_draw_forecasts < 0:
         parser.error("--per-draw-forecasts must be non-negative")
     if args.quick:

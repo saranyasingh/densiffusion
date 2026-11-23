@@ -116,6 +116,39 @@ uv run --extra research --extra chronos python scripts/run_csdi_chronos2.py \
 The sparse arm (`zeroshot_sparse`) still forecasts from the context with the
 gaps left as missing values, never seeing or filling them.
 
+## Self-supervised CSDI in the per-draw pipeline
+
+`--protocol selfsup` trains CSDI on observed values only, as in
+`run_csdi_chronos2_selfsup.py`: in each training window some observed time
+steps are hidden as targets, and the base-missing values are neither inputs
+nor targets. It works with every missing mode and with `--per-draw-forecasts`
+and `--stitch block`. Two kinds of target:
+
+- `--ssl-targets points` (default) hides each observed time step with
+  probability `--ssl-mask-rate` (default 0.25), as the self-supervised script
+  does.
+- `--ssl-targets gaps` hides runs of `--min-gap` to `--max-gap` steps, spaced so
+  that about `--ssl-mask-rate` of each window is hidden, so CSDI practises on
+  gaps shaped like the real ones (CSDI's original paper trains on realistic
+  missing patterns in the same way).
+
+With the fixed block mask, observed values only ever cover the same hours of
+the day, so a self-supervised CSDI never sees the hours it must fill. With
+`--missing-mode random_block` every hour is sometimes observed, so it can learn
+them from observed data alone.
+
+```sh
+uv run --extra research --extra chronos python scripts/run_csdi_chronos2.py \
+    --data data/electricity.npz --output outputs/electricity_selfsup_gaps \
+    --missing-mode random_block --protocol selfsup --ssl-targets gaps \
+    --per-draw-forecasts 16 --stitch block --device cuda --seed 0
+```
+
+Checkpoints and cached imputations carry the protocol in their names
+(`csdi_selfsup_gaps.pt`, `imputed_selfsup_gaps_block.npz`), so supervised and
+self-supervised runs can share an output folder. `results.json` records
+`protocol` and `observed_fraction`.
+
 ## Plots
 
 The runner writes figures into the output directory when matplotlib is available.

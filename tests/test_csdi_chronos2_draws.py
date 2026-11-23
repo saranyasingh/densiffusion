@@ -94,3 +94,45 @@ def test_unknown_stitch_is_rejected():
             seed=0,
             stitch="nearest",
         )
+
+
+@pytest.mark.parametrize("kind", ["points", "gaps"])
+def test_ssl_targets_only_hide_observed_values(kind):
+    rng = np.random.default_rng(0)
+    available = np.repeat(rng.random((40, 97, 1)) > 0.4, 3, axis=2)
+    targets = pipeline.ssl_targets(
+        available, kind=kind, rate=0.25, min_gap=2, max_gap=12, seed=0
+    )
+    assert targets.shape == available.shape
+    assert not (targets & ~available).any()
+    # Shared across channels.
+    np.testing.assert_array_equal(targets[..., 0], targets[..., 2])
+    share = targets.sum() / available.sum()
+    assert 0.1 < share < 0.4
+
+
+def test_gap_targets_come_in_runs():
+    available = np.ones((200, 97, 1), dtype=bool)
+    targets = pipeline.ssl_targets(
+        available, kind="gaps", rate=0.25, min_gap=4, max_gap=8, seed=1
+    )
+    assert targets.mean() == pytest.approx(0.25, abs=0.05)
+    lengths = [
+        stop - start
+        for window in targets[..., 0]
+        for start, stop in pipeline.hidden_runs(window)[1:-1]
+    ]
+    assert min(lengths) >= 4 and max(lengths) <= 8
+
+
+def test_filter_ssl_windows_needs_targets_and_conditioning():
+    values = np.arange(3.0)[:, None, None] * np.ones((3, 4, 1))
+    available = np.ones((3, 4, 1), dtype=bool)
+    targets = np.zeros((3, 4, 1), dtype=bool)
+    targets[1, 1] = True
+    targets[2] = True  # nothing left to condition on
+    kept_values, _, kept_targets = pipeline.filter_ssl_windows(
+        values, available, targets
+    )
+    assert kept_values[:, 0, 0].tolist() == [1.0]
+    assert kept_targets.sum() == 1
