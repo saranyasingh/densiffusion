@@ -239,6 +239,12 @@ def main():
     parser.add_argument("--test-paths", type=int, default=64)
     parser.add_argument("--imputer-epochs", type=int, default=60)
     parser.add_argument("--forecaster-epochs", type=int, default=150)
+    parser.add_argument(
+        "--forecaster-lr",
+        type=float,
+        default=1e-3,
+        help="Forecaster learning rate; SSSD diverges at 1e-3 beyond ~100 epochs",
+    )
     parser.add_argument("--threads", type=int, default=2)
     parser.add_argument(
         "--device", default="cpu", help="Torch device, e.g. mps for the Apple GPU"
@@ -581,7 +587,9 @@ def run_task(args):
             1,
         )
 
-    forecaster_config = config(args.forecaster_epochs, train_device)
+    forecaster_config = dataclasses.replace(
+        config(args.forecaster_epochs, train_device), learning_rate=args.forecaster_lr
+    )
     forecaster_sampler = sampling_config(forecaster_config)
     # FINE times the windows: train for the same number of updates as sparse.
     shifted_config = dataclasses.replace(
