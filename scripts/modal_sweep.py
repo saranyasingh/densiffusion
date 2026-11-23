@@ -23,6 +23,9 @@ Download results with:
     modal volume get --env Densiffusion densiffusion-outputs \
         nihar/<name> outputs/modal/
 
+--sweep jena runs scripts/run_jena.py on the Jena solar-radiation tasks instead
+(the data, data/jena/swdr.npz, is packed into the image).
+
 Pass extra run options with --extra, e.g. --extra="--forecaster-epochs 450";
 with --extra=--extend, finished tasks are extended instead of skipped. Paths
 are generated from fixed data seeds, so --seed changes network
@@ -49,6 +52,11 @@ ENVIRONMENT = "Densiffusion"
 FOLDER = "nihar"
 CALLS = ROOT / "outputs" / "modal_calls.json"
 TASKS = ("qp_1.6", "qp_2.5", "qp_3", "qp_4", "qp_6", "qp_8", "qp_16")
+JENA_TASKS = tuple(f"jena_{r}" for r in ("1.64", "2.57", "3", "3.6", "6", "9", "18"))
+SWEEPS = {  # --sweep: (script, tasks)
+    "qp": ("run_densiffusion.py", TASKS),
+    "jena": ("run_jena.py", JENA_TASKS),
+}
 CORES = 8
 MEMORY_MIB = 16384
 TIMEOUT_HOURS = 24  # the course maximum; billing follows actual use
@@ -61,6 +69,11 @@ image = (
     .add_local_dir(ROOT / "src", "/repo/src", ignore=["**/__pycache__"])
     .add_local_dir(ROOT / "scripts", "/repo/scripts", ignore=["**/__pycache__"])
 )
+if (ROOT / "data" / "jena" / "swdr.npz").exists():
+    # Public CC-BY data (MPI-BGC Jena weather station), 1.7 MB.
+    image = image.add_local_file(
+        ROOT / "data" / "jena" / "swdr.npz", "/repo/data/jena/swdr.npz"
+    )
 volume = modal.Volume.from_name("densiffusion-outputs")
 app = modal.App(APP, tags={"project": ENVIRONMENT, "purpose": "main"})
 
@@ -75,7 +88,12 @@ app = modal.App(APP, tags={"project": ENVIRONMENT, "purpose": "main"})
     volumes={"/repo/outputs": volume},
 )
 def run_model(
-    model: str, seed: int, output: str, tasks: list[str], extra: list[str]
+    model: str,
+    seed: int,
+    output: str,
+    tasks: list[str],
+    extra: list[str],
+    script: str = "run_densiffusion.py",
 ) -> dict[str, int]:
     """Run every task for one model and seed; return each task's exit code."""
     start = time.time()
@@ -88,7 +106,7 @@ def run_model(
                 continue
             shutil.rmtree(folder, ignore_errors=True)  # partial run
         command = [
-            sys.executable, "-u", "scripts/run_densiffusion.py", "run",
+            sys.executable, "-u", f"scripts/{script}", "run",
             "--model", model, "--task", task, "--seed", str(seed),
             "--output", f"outputs/{output}", "--threads", "1", *extra,
         ]  # fmt: skip
@@ -104,15 +122,17 @@ def run_model(
 
 def launch(args):
     """Spawn one call per (model, seed) and record the call ids."""
-    if not set(args.tasks) <= set(TASKS) or len(args.tasks) > CORES:
-        raise SystemExit(f"Choose at most {CORES} tasks from {', '.join(TASKS)}")
+    script, tasks = SWEEPS[args.sweep]
+    chosen = args.tasks or list(tasks)
+    if not set(chosen) <= set(tasks) or len(chosen) > CORES:
+        raise SystemExit(f"Choose at most {CORES} tasks from {', '.join(tasks)}")
     function = modal.Function.from_name(APP, "run_model", environment_name=ENVIRONMENT)
     calls = json.loads(CALLS.read_text()) if CALLS.exists() else {}
     for model in args.models:
         for seed in args.seeds:
             output = f"{FOLDER}/{args.name}/seed{seed}/{model}"
             call = function.spawn(
-                model, seed, output, list(args.tasks), shlex.split(args.extra)
+                model, seed, output, chosen, shlex.split(args.extra), script
             )
             calls[call.object_id] = output
             print(f"spawned {output}: {call.object_id}")
@@ -138,7 +158,8 @@ if __name__ == "__main__":
     start = commands.add_parser("launch", help="spawn runs on the deployed app")
     start.add_argument("--models", nargs="+", default=["pristi"])
     start.add_argument("--seeds", nargs="+", type=int, default=[42])
-    start.add_argument("--tasks", nargs="+", default=list(TASKS))
+    start.add_argument("--sweep", choices=tuple(SWEEPS), default="qp")
+    start.add_argument("--tasks", nargs="+", help="default: every task of the sweep")
     start.add_argument("--name", default="qp_seeds")
     start.add_argument("--extra", default="")
     start.set_defaults(func=launch)

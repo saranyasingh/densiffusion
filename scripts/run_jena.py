@@ -157,6 +157,13 @@ def main():
     parser.add_argument("--test-paths", type=int, default=64)
     parser.add_argument("--imputer-epochs", type=int, default=60)
     parser.add_argument("--forecaster-epochs", type=int, default=150)
+    parser.add_argument("--forecaster-lr", type=float, default=1e-3)
+    parser.add_argument(
+        "--methods",
+        nargs="+",
+        choices=METHODS[1:],
+        help="Run only these methods (sparse always runs); default all",
+    )
     parser.add_argument("--threads", type=int, default=2)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
@@ -176,6 +183,11 @@ def main():
 
 
 def run_task(args):
+    methods = tuple(
+        m
+        for m in METHODS
+        if not args.methods or m in args.methods or m in ("persistence", "sparse")
+    )
     task, spacing = args.task, TASKS[args.task]
     folder = args.output / task
     folder.mkdir(parents=True)
@@ -229,7 +241,7 @@ def run_task(args):
         "device": args.device,
         "train_device": args.train_device or args.device,
         "scale_floor": args.scale_floor,
-        "methods": METHODS,
+        "methods": methods,
         "first_test_start": str(
             start + timedelta(minutes=step * int(path_starts["test"][0]))
         ),
@@ -336,7 +348,9 @@ def run_task(args):
             1,
         )
 
-    forecaster_config = config(args.forecaster_epochs, train_device)
+    forecaster_config = dataclasses.replace(
+        config(args.forecaster_epochs, train_device), learning_rate=args.forecaster_lr
+    )
     forecaster_sampler = sampling_config(forecaster_config)
     shifted_config = dataclasses.replace(
         forecaster_config,
@@ -345,7 +359,7 @@ def run_task(args):
     )
     samples = {"persistence": np.repeat(test_history[:, -1:, None], HORIZON, axis=2)}
     forecasters = {}
-    for name in METHODS[1:]:
+    for name in methods[1:]:
         key, factor, train, validation, histories, per_window = variant(name)
         if key not in forecasters:
             torch.manual_seed(args.seed)
@@ -431,10 +445,12 @@ def report(args):
     )
     if not results:
         raise FileNotFoundError(f"No task results in {args.output}")
-    write_tables(results, args.output)
-    every = [m for m in METHODS if m not in ("persistence", "sparse")]
+    ran = [m for m in METHODS if all(m in r["forecast"] for r in results)]
+    write_tables(results, args.output, ran)
+    every = [m for m in ran if m not in ("persistence", "sparse")]
     plot_sweep(plt, results, args.output / "sweep.png", every)
-    plot_sweep(plt, results, args.output / "sweep_focus.png", FOCUS)
+    focus = [m for m in FOCUS if m in ran]
+    plot_sweep(plt, results, args.output / "sweep_focus.png", focus)
     print(f"Report written to {args.output}")
 
 
@@ -443,9 +459,9 @@ def _relative(result, method):
     return forecast[method]["crps"] / forecast["sparse"]["crps"]
 
 
-def write_tables(results, output):
+def write_tables(results, output, ran=METHODS):
     model = MODEL_LABELS[results[0]["model"]]
-    methods = [m for m in METHODS if m != "sparse"]
+    methods = [m for m in ran if m != "sparse"]
     lines = [
         f"# Densified vs sparse {model} forecasting of Jena solar radiation",
         "",
