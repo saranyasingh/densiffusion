@@ -51,7 +51,7 @@ CALLS = ROOT / "outputs" / "modal_calls.json"
 TASKS = ("qp_1.6", "qp_2.5", "qp_3", "qp_4", "qp_6", "qp_8", "qp_16")
 CORES = 8
 MEMORY_MIB = 16384
-TIMEOUT_HOURS = 12
+TIMEOUT_HOURS = 24  # the course maximum; billing follows actual use
 MAX_CONTAINERS = 4  # the team may run 8 at once; leave room for teammates
 
 image = (

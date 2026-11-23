@@ -250,6 +250,12 @@ def main():
     )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
+        "--methods",
+        nargs="+",
+        choices=sorted(set(METHODS) | set(QUASI_METHODS)),
+        help="run: only these of the task's methods (default: all)",
+    )
+    parser.add_argument(
         "--seeds",
         type=int,
         nargs="+",
@@ -379,6 +385,8 @@ def run_task(args):
     future = test_windows[:, HISTORY:]
 
     methods = task_methods(gp)
+    if args.methods:
+        methods = tuple(m for m in methods if m in args.methods or m == "persistence")
     if args.extend:
         results = {"model": args.model, **previous, "methods": methods}
         with np.load(folder / "samples.npz") as saved:
@@ -1391,6 +1399,10 @@ def _verdict(passed, total):
     return "no" if passed == 0 else f"partly ({passed}/{total})"
 
 
+def _ran(result, *methods):
+    return all(method in result["forecast"] for method in methods)
+
+
 def finding_checks(sweep):
     """(finding, verdict, evidence) for each quasi-periodic finding from PriSTI."""
     at = {_period_ratio(result): result for result in sweep}
@@ -1416,7 +1428,11 @@ def finding_checks(sweep):
             evidence,
         )
     )
-    margins = [_crps_ratio(r, "interp_x8") - _crps_ratio(r, "fine_x8") for r in barely]
+    margins = [
+        _crps_ratio(r, "interp_x8") - _crps_ratio(r, "fine_x8")
+        for r in barely
+        if _ran(r, "interp_x8", "fine_x8")
+    ]
     rows.append(
         (
             "Fine-data x8 beats interpolated x8 at P/dt 2.5-4 (CRPS margin)",
@@ -1433,7 +1449,9 @@ def finding_checks(sweep):
             f"{max(gaps):.3f}" if gaps else "",
         )
     )
-    cases = [(r, m) for m in ("learned_x2", "learned_x8") for r in barely[1:]]
+    cases = [
+        (r, m) for m in ("learned_x2", "learned_x8") for r in barely[1:] if _ran(r, m)
+    ]
     rows.append(
         (
             "Coarse-data x2 and x8 are significantly worse than sparse at P/dt 3 "
@@ -1458,7 +1476,9 @@ def finding_checks(sweep):
             ", ".join(winners) or "none",
         )
     )
-    cases = [(r, m) for r in resolved for m in densified if m.endswith("_x8")]
+    cases = [
+        (r, m) for r in resolved for m in densified if m.endswith("_x8") and _ran(r, m)
+    ]
     rows.append(
         (
             "Every x8 densifier is significantly worse than sparse at P/dt >= 6",
@@ -1466,15 +1486,16 @@ def finding_checks(sweep):
             f"{sum(_significance(r, m) == -1 for r, m in cases)} of {len(cases)}",
         )
     )
-    wins = sum(_crps_ratio(r, "fine_x2") < _crps_ratio(r, "fine_x8") for r in sampled)
+    both = [r for r in sampled if _ran(r, "fine_x2", "fine_x8")]
+    wins = sum(_crps_ratio(r, "fine_x2") < _crps_ratio(r, "fine_x8") for r in both)
     rows.append(
         (
             "Fine-data x2 beats fine-data x8 for P/dt >= 2.5",
-            _verdict(wins, len(sampled)),
-            f"{wins} of {len(sampled)}",
+            _verdict(wins, len(both)),
+            f"{wins} of {len(both)}",
         )
     )
-    if 1.6 in at:
+    if 1.6 in at and _ran(at[1.6], "fine_x2", "fine_x8", "interp_x8"):
         aliased = at[1.6]
         best = min(("fine_x2", "fine_x8"), key=lambda m: _crps_ratio(aliased, m))
         helps = _significance(aliased, best) == 1
