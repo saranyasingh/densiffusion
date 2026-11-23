@@ -119,9 +119,9 @@ twice its estimate, the rest is not launched until rechecked.
 | Task | Runs | Hours per run (est.) | Cost (est.) |
 |---|---|---|---|
 | 1. Training-length curve: 150 and 1350 epochs, 3 models x 3 seeds (CPU) | 18 | 0.4 / 2.5 | $13 |
-| 1. Jena, PriSTI, 3x training, 3 seeds (CPU) | 3 | 1 | $2 |
+| 1. Jena, PriSTI, 3x training, 3 seeds (CPU) | 3 | 3-6 | $5-9 |
 | 2. Saranya's pipeline, per-draw, 3 seeds (L4) | 3 | 1.5 | $6 |
 | 3. Three configurations x 3 seeds (L4) | 9 | 0.75 | $9 |
-| **Total** | | | **about $30** |
+| **Total** | | | **about $35-40** |
 
 Spent before these runs: about $8 of the team's $750.
