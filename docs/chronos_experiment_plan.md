@@ -113,6 +113,37 @@ uv run --extra research python scripts/run_chronos_chunks.py compare \
     --output outputs/modal/chronos/chunks_e100
 ```
 
+### Follow-up: heavy gaps (added 24 November 2026, before these runs)
+
+With random gaps, Chronos-2 given the gappy history is already within 0.011
+of the complete-history score, so even a perfect filler could gain little.
+The follow-up asks whether CSDI helps more when the gaps hurt more:
+`--gaps heavy` hides a random 50-80% of each history in gaps of 6-48 hours,
+so outages can last up to two days. Same test chunks (same `--test-seed`;
+only the gaps differ), same CSDI size and training, 3 seeds each:
+
+| Config | Gaps | CSDI training |
+|---|---|---|
+| `heavy_selfsup` | heavy | self-supervised |
+| `heavy_supervised` | heavy | supervised |
+
+Main comparisons, held-out customers first: **C4b** (per-draw CSDI vs the
+gappy history, for each training), then C3 (self-supervised vs supervised),
+C1, C2 and C5 as above. Secondary: the share of the gap cost (gappy minus
+complete) each filler recovers, against the same share in the 50%+ band of
+the random-gap runs.
+
+```sh
+for protocol in selfsup supervised; do
+    uv run --with modal==1.6.4 python scripts/modal_chronos.py launch \
+        --script run_chronos_chunks.py --name chunks_e100/heavy_$protocol \
+        --seeds 0 1 2 --args "--gaps heavy --protocol $protocol"
+done
+```
+
+Estimated cost: 6 L4 runs at about 20 minutes each (the measured task 3
+time), about $2.
+
 ## Costs
 
 Estimates from the measured step-1 run times and Modal's published rates

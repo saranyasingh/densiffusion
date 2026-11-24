@@ -24,9 +24,10 @@ Design:
 - Gaps (``--gaps random``): a random number of gaps (1 to ``--max-gaps``),
   each with a random start and a random length (1 to ``--max-gap-hours``),
   possibly overlapping, so the missing fraction varies from chunk to chunk.
-  ``--gaps daily`` hides 12:00-23:00 every day instead, as in
-  run_csdi_chronos2.py; use it with ``--start-hour 12`` so histories end at
-  the last observed hour.
+  ``--gaps heavy`` hides a random 50-80% of the history in gaps of 6-48
+  hours, so outages can last up to two days. ``--gaps daily`` hides
+  12:00-23:00 every day instead, as in run_csdi_chronos2.py; use it with
+  ``--start-hour 12`` so histories end at the last observed hour.
 - The test chunks and their gaps depend only on ``--test-seed``, so every
   method, protocol and seed is scored on the same chunks.
 - CSDI (``--protocol``): ``supervised`` learns from the true values in the
@@ -143,6 +144,25 @@ def random_gaps(rng, *, max_gaps=10, max_hours=24, min_observed=24):
             return hidden
 
 
+def heavy_gaps(rng, *, missing=(0.5, 0.8), gap_hours=(6, 48)):
+    """Hide long gaps at random starts until a random 50-80% is hidden.
+
+    The target fraction is drawn uniformly from ``missing``; gaps of
+    ``gap_hours`` hours (up to two days) are added until it is reached. Masks
+    that overshoot the upper bound are redrawn. True = hidden.
+    """
+    low, high = missing
+    while True:
+        target = rng.uniform(low, high)
+        hidden = np.zeros(HISTORY, dtype=bool)
+        while hidden.mean() < target:
+            start = int(rng.integers(0, HISTORY))
+            length = int(rng.integers(gap_hours[0], gap_hours[1] + 1))
+            hidden[start : start + length] = True
+        if hidden.mean() <= high:
+            return hidden
+
+
 def daily_gaps(start_hour: int, *, first=12, last=23):
     """Hide the same hours (``first``-``last``) every day. True = hidden."""
     hours = (start_hour + np.arange(HISTORY)) % DAY
@@ -152,6 +172,9 @@ def daily_gaps(start_hour: int, *, first=12, last=23):
 def gap_masks(n, rng, args, start_hour):
     if args.gaps == "daily":
         return np.tile(daily_gaps(start_hour), (n, 1))
+    if args.gaps == "heavy":
+        spec = {"missing": args.heavy_missing, "gap_hours": args.heavy_gap_hours}
+        return np.stack([heavy_gaps(rng, **spec) for _ in range(n)])
     return np.stack(
         [
             random_gaps(rng, max_gaps=args.max_gaps, max_hours=args.max_gap_hours)
@@ -579,7 +602,7 @@ def compare(args):
                 lines.append(
                     f"| {label} | {name} | {mean:+.4f} [{low:+.4f}, {high:+.4f}] |"
                 )
-        for gaps in ("random", "daily"):
+        for gaps in ("random", "heavy", "daily"):
             selfsup, supervised = f"{gaps}_selfsup", f"{gaps}_supervised"
             if selfsup in configs and supervised in configs:
                 a, b = configs[selfsup][group], configs[supervised][group]
@@ -625,9 +648,27 @@ def parse_args(argv=None):
     parser.add_argument(
         "--protocol", choices=("selfsup", "supervised"), default="selfsup"
     )
-    parser.add_argument("--gaps", choices=("random", "daily"), default="random")
+    parser.add_argument(
+        "--gaps", choices=("random", "heavy", "daily"), default="random"
+    )
     parser.add_argument("--max-gaps", type=int, default=10)
     parser.add_argument("--max-gap-hours", type=int, default=24)
+    parser.add_argument(
+        "--heavy-missing",
+        type=float,
+        nargs=2,
+        default=(0.5, 0.8),
+        metavar=("LOW", "HIGH"),
+        help="--gaps heavy: range of the hidden fraction",
+    )
+    parser.add_argument(
+        "--heavy-gap-hours",
+        type=int,
+        nargs=2,
+        default=(6, 48),
+        metavar=("MIN", "MAX"),
+        help="--gaps heavy: range of each gap's length in hours",
+    )
     parser.add_argument("--start-hour", type=int, default=0)
     parser.add_argument("--holdout", type=float, default=0.2)
     parser.add_argument(

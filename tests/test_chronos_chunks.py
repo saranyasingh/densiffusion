@@ -34,6 +34,21 @@ def test_random_gaps_vary_and_leave_enough_observed():
     assert fractions.min() < 0.05 and fractions.max() > 0.5
 
 
+def test_heavy_gaps_hide_50_to_80_percent_in_long_runs():
+    rng = np.random.default_rng(0)
+    masks = np.stack([chunks.heavy_gaps(rng) for _ in range(300)])
+    fractions = masks.mean(axis=1)
+    assert fractions.min() >= 0.5 and fractions.max() <= 0.8
+    assert fractions.max() - fractions.min() > 0.2
+    edges = np.diff(masks.astype(int), axis=1)
+    starts = np.argwhere(edges == 1)
+    # every interior gap (not cut by either end) lasts at least 6 hours
+    for row, col in starts:
+        rest = masks[row, col + 1 :]
+        if not rest.all():
+            assert np.argmin(rest) >= 6
+
+
 def test_daily_gaps_end_on_an_observed_hour_from_noon():
     hidden = chunks.daily_gaps(12)
     assert hidden[:12].all() and not hidden[12:24].any()
