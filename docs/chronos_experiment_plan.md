@@ -56,7 +56,11 @@ out entirely; CSDI trains on the first 70% of the record, picks its checkpoint
 on the next 15%, and test chunks come from the last 15%. 1000 test chunks per
 group (training customers, held-out customers), fixed by `--test-seed` and the
 same for every method, protocol and seed. Chunks that are mostly zero or flat
-are skipped. All customers are used: the highest-variance ones are simply
+are skipped. CSDI trains for 100 epochs on 40,000 histories: the pilot (20
+epochs) was still improving steadily at the full learning rate (validation
+loss 0.33 to 0.25 over epochs 2-14), so 20 epochs undertrained it. This was
+decided from the validation curve, before any comparison was computed. All
+customers are used: the highest-variance ones are simply
 the largest (median load 9,900 for the top 20, 592 over all), with about the
 same relative variability, and scaling each chunk by its own level already
 makes sizes count equally. `--customers N` restricts to the N
@@ -100,13 +104,13 @@ Secondary, not used to pick headlines:
 for config in "random selfsup 0" "random supervised 0" "daily supervised 12"; do
     set -- $config
     uv run --with modal==1.6.4 python scripts/modal_chronos.py launch \
-        --script run_chronos_chunks.py --name chunks/$1_$2 --seeds 0 1 2 \
+        --script run_chronos_chunks.py --name chunks_e100/$1_$2 --seeds 0 1 2 \
         --args "--gaps $1 --protocol $2 --start-hour $3"
 done
-modal volume get --env Densiffusion densiffusion-outputs nihar/chronos/chunks \
+modal volume get --env Densiffusion densiffusion-outputs nihar/chronos/chunks_e100 \
     outputs/modal/chronos/
 uv run --extra research python scripts/run_chronos_chunks.py compare \
-    --output outputs/modal/chronos/chunks
+    --output outputs/modal/chronos/chunks_e100
 ```
 
 ## Costs
