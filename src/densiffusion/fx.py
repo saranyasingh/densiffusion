@@ -185,7 +185,8 @@ def sample_ssl_target_mask(
     or broadcastable time mask). Returns a boolean mask of the same shape that
     is True only on a subset of available positions. Endpoints that are
     available are never selected as targets so every series keeps boundary
-    conditioning when possible.
+    conditioning when possible. Batches with no observations are left all-False
+    (callers may drop those windows) instead of raising.
     """
     available = np.asarray(available, dtype=bool)
     if available.ndim not in (1, 3):
@@ -204,7 +205,9 @@ def sample_ssl_target_mask(
         time_available = available[batch].any(axis=-1)
         candidates = np.flatnonzero(time_available)
         if candidates.size == 0:
-            raise ValueError("available mask has no observations")
+            # Nothing to hide in this window (e.g. natural all-missing gaps);
+            # leave targets False so callers can drop the region.
+            continue
         # Prefer not to hide endpoints when other candidates exist.
         length = available.shape[1]
         interior = candidates[(candidates != 0) & (candidates != length - 1)]

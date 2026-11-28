@@ -70,6 +70,18 @@ def test_sample_ssl_target_mask_stays_inside_available():
         sample_ssl_target_mask(available, rate=1.0)
 
 
+def test_sample_ssl_target_mask_skips_empty_batches():
+    available = np.zeros((3, 9, 2), dtype=bool)
+    available[0, ::2] = True
+    available[2, 1::2] = True
+    # Batch 1 is entirely missing — should not raise; targets stay False.
+    targets = sample_ssl_target_mask(available, rate=0.4, seed=2)
+    assert targets.shape == available.shape
+    assert not targets[1].any()
+    assert targets[0].any() and targets[2].any()
+    assert not (targets & ~available).any()
+
+
 def test_seasonal_metrics_and_naive():
     times = np.arange(48)
     history = np.stack([np.sin(2 * np.pi * times / 24), times / 10], axis=1)
