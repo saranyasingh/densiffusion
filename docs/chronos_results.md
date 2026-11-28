@@ -94,6 +94,37 @@ This mirrors the synthetic results (`docs/quasiperiodic_writeup.md` on
 what a capable forecaster already gets from the sparse history; what helps is
 knowledge brought from complete data.
 
+### Follow-up: heavy gaps
+
+`--gaps heavy` hides a random 50-80% of each history (68% on average) in
+gaps of 6-48 hours; same test chunks, CSDI size and training, 3 seeds.
+Held-out customers:
+
+| CSDI training | Gappy | Straight lines | CSDI median | CSDI per-draw | Complete | Same hour yesterday |
+|---|---|---|---|---|---|---|
+| Self-supervised | 0.096 | 0.256 | 0.157 | 0.140 | 0.059 | 0.122 |
+| Supervised | 0.096 | 0.256 | 0.080 | 0.072 | 0.059 | 0.122 |
+
+| | Comparison (held-out) | Self-supervised | Supervised |
+|---|---|---|---|
+| C1 | per-draw CSDI vs straight lines | +0.117 [+0.102, +0.131] | +0.184 [+0.160, +0.210] |
+| C2 | per-draw vs median | +0.0178 [+0.0154, +0.0206] | +0.0073 [+0.0060, +0.0092] |
+| C4a | straight lines vs gappy | -0.160 [-0.183, -0.138] | -0.160 [-0.183, -0.138] |
+| C4b | per-draw CSDI vs gappy | **-0.043 [-0.054, -0.034]** | **+0.024 [+0.021, +0.028]** |
+| C3 | self-supervised vs supervised | -0.067 [-0.080, -0.057] | |
+
+- **Supervised CSDI gains most here:** 25% better than the gappy history,
+  recovering about two-thirds of what the gaps cost (0.096 against 0.059).
+- **Self-supervised CSDI makes forecasts 45% worse than leaving the gaps.**
+  Its gap-filling error is 0.18-0.20 (supervised 0.071, straight lines 0.33).
+  It learned by filling runs of 1-2 hours, and here must fill up to 48. The
+  result holds in every seed and whether or not the history ends in a gap
+  (71% do). A self-supervised variant that masks long runs, matching the test
+  gaps, is the natural next check.
+- **Per-draw beats the median by 9-11%**, as with daily gaps: the more
+  uncertain the fill, the more pooling helps.
+- Training customers give the same picture.
+
 ### Caveats
 
 - One dataset, small models (CSDI, Chronos-2-small), 3 seeds.
