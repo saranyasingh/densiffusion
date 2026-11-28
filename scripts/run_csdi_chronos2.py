@@ -159,6 +159,9 @@ def impute_series(
 ) -> np.ndarray:
     """Fill hidden entries of (1, T, C) with overlapping-window CSDI draws.
 
+    ``hidden_time`` may be length-T (time-aligned hide) or a full
+    ``(1, T, C)`` / ``(T, C)`` boolean mask for per-channel missingness.
+
     Returns ``(n_samples, T, C)``. Observed positions are preserved exactly.
     Overlapping hidden predictions are averaged across windows.
     """
@@ -171,13 +174,26 @@ def impute_series(
     starts = list(range(0, length - window + 1, stride))
     if starts[-1] + window < length:
         starts.append(length - window)
-    full_hidden = expand_mask(hidden_time, batch=1, channels=channels)
+    hidden_arr = np.asarray(hidden_time, dtype=bool)
+    if hidden_arr.ndim == 1:
+        if hidden_arr.shape[0] != length:
+            raise ValueError("hidden_time length must match series length")
+        full_hidden = expand_mask(hidden_arr, batch=1, channels=channels)
+    elif hidden_arr.ndim == 2:
+        if hidden_arr.shape != (length, channels):
+            raise ValueError("hidden_time must have shape (T, C)")
+        full_hidden = hidden_arr[None]
+    elif hidden_arr.ndim == 3:
+        if hidden_arr.shape != (1, length, channels):
+            raise ValueError("hidden_time must have shape (1, T, C)")
+        full_hidden = hidden_arr
+    else:
+        raise ValueError("hidden_time must be 1-D, 2-D, or (1, T, C)")
     masked = np.where(full_hidden, 0.0, series)
     total = np.zeros((n_samples, length, channels), dtype=np.float64)
-    weight = np.zeros((length,), dtype=np.float64)
+    weight = np.zeros((length, channels), dtype=np.float64)
     for index, start in enumerate(starts):
-        local_hidden = hidden_time[start : start + window]
-        local_mask = expand_mask(local_hidden, batch=1, channels=channels)
+        local_mask = full_hidden[:, start : start + window]
         draws = impute(
             masked[:, start : start + window],
             sampler,
@@ -189,16 +205,15 @@ def impute_series(
         )[0]
         stop = start + window
         # Average only at positions that were hidden in this window.
-        total[:, start:stop] += draws * local_hidden[None, :, None]
-        weight[start:stop] += local_hidden.astype(np.float64)
+        total[:, start:stop] += draws * local_mask.astype(np.float64)
+        weight[start:stop] += local_mask[0].astype(np.float64)
     # Observed entries: copy through exactly. Hidden entries: average draws.
     result = np.repeat(series, n_samples, axis=0)
-    hidden = hidden_time.astype(bool)
+    hidden = full_hidden[0]
     if hidden.any():
         if (weight[hidden] == 0).any():
             raise RuntimeError("imputation windows failed to cover every hidden point")
-        scale = weight[hidden][None, :, None]
-        result[:, hidden] = total[:, hidden] / scale
+        result[:, hidden] = total[:, hidden] / weight[hidden][None, :]
     return result
 
 
@@ -218,7 +233,24 @@ def load_chronos(model_id: str, device: str):
 
 
 def time_unit(freq: str) -> str:
-    return "h" if freq in {"h", "H"} else "D"
+    if freq in {"h", "H"}:
+        return "h"
+    if freq in {"min", "T", "1min"} or (
+        isinstance(freq, str) and freq.endswith("min") and freq[:-3].isdigit()
+    ):
+        return "m"
+    return "D"
+
+
+def step_delta(freq: str) -> np.timedelta64:
+    """Timedelta for one index step on the series grid."""
+    if freq in {"h", "H"}:
+        return np.timedelta64(1, "h")
+    if freq in {"min", "T", "1min"}:
+        return np.timedelta64(1, "m")
+    if isinstance(freq, str) and freq.endswith("min") and freq[:-3].isdigit():
+        return np.timedelta64(int(freq[:-3]), "m")
+    return np.timedelta64(1, "D")
 
 
 def finetune_chronos(
@@ -308,13 +340,14 @@ def score_forecast(
     *,
     scale: float,
     point: np.ndarray | None = None,
+    mask: np.ndarray | None = None,
 ) -> dict:
     if quantiles is not None:
         point = quantiles[0.5]
     if point is None:
         raise ValueError("point forecast or quantile forecasts required")
     return forecast_metrics(
-        truth, point, scale=scale, quantile_forecasts=quantiles
+        truth, point, scale=scale, quantile_forecasts=quantiles, mask=mask
     )
 
 

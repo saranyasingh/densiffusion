@@ -61,7 +61,7 @@ from run_csdi_chronos2 import (  # noqa: E402
     impute_series,
     load_chronos,
     score_forecast,
-    time_unit,
+    step_delta,
     windowed_masks,
     write_json,
 )
@@ -83,6 +83,24 @@ PRESETS = {
         forecast_stride=24,
         season=24,
         ssl_mask_rate=0.25,
+        natural_missing=False,
+    ),
+    # Intel Lab temps @ 1 min: natural ~50% missing, SSL rate from random Sweep B.
+    "intel_lab": dict(
+        missing_mode="random",  # unused when natural_missing=True
+        sparse_step=2,
+        block_length=12,
+        observe_length=12,
+        keep_probability=0.5,
+        window_length=97,
+        stride=48,
+        impute_stride=48,
+        context=180,  # 3h
+        horizon=60,  # 1h
+        forecast_stride=60,
+        season=1440,  # 1 day of minutes
+        ssl_mask_rate=0.25,
+        natural_missing=True,
     ),
 }
 
@@ -104,13 +122,24 @@ def build_csdi(n_channels: int, args) -> ImputationModel:
 
 
 def windowed_available(
-    available_time: np.ndarray, *, window: int, stride: int, channels: int
+    available: np.ndarray, *, window: int, stride: int, channels: int | None = None
 ) -> np.ndarray:
-    """Sliding windows of a length-T availability mask (True = observed)."""
-    mask = np.broadcast_to(
-        available_time.astype(np.float64)[None, :, None],
-        (1, len(available_time), channels),
-    ).copy()
+    """Sliding windows of availability (True = observed).
+
+    ``available`` is length-T (broadcast to all channels) or ``(1, T, C)``.
+    """
+    available = np.asarray(available)
+    if available.ndim == 1:
+        if channels is None:
+            raise ValueError("channels required for 1-D availability")
+        mask = np.broadcast_to(
+            available.astype(np.float64)[None, :, None],
+            (1, len(available), channels),
+        ).copy()
+    elif available.ndim == 3:
+        mask = available.astype(np.float64)
+    else:
+        raise ValueError("available must be 1-D or (1, T, C)")
     return make_windows(mask, window_length=window, stride=stride) > 0.5
 
 
@@ -213,16 +242,32 @@ def run_imputation_and_forecast(
     sampler: DDPMSampler,
     protocol: str,
     ssl_eval_mask=None,
+    natural_missing: bool = False,
 ):
-    """Impute base-missing times, backtest Chronos, write results.json."""
+    """Impute base-missing times, backtest Chronos, write results.json.
+
+    ``hidden_time`` is length-T (synthetic) or ``(1, T, C)`` (natural missing).
+    With ``natural_missing``, skip dense-oracle CRPS / forecast arms and score
+    Chronos only on horizon cells that were actually observed.
+    """
     imputed_path = output / "imputed.npz"
     if imputed_path.exists():
         LOGGER.info("Loading imputations from %s", imputed_path)
         with np.load(imputed_path, allow_pickle=False) as payload:
             imputed_norm = payload["imputed_norm"]
             linear_norm = payload["linear_norm"]
-            imputation_crps = float(payload["imputation_crps"])
-            linear_crps = float(payload["linear_crps"])
+            imputation_crps = (
+                float(payload["imputation_crps"])
+                if "imputation_crps" in payload.files
+                and np.isfinite(payload["imputation_crps"])
+                else None
+            )
+            linear_crps = (
+                float(payload["linear_crps"])
+                if "linear_crps" in payload.files
+                and np.isfinite(payload["linear_crps"])
+                else None
+            )
             ssl_crps = (
                 float(payload["ssl_crps"]) if "ssl_crps" in payload.files else None
             )
@@ -240,19 +285,32 @@ def run_imputation_and_forecast(
         imputed_norm = aggregate_imputations(draws, args.aggregate)
         sparse_full = np.where(observed, full_n, 0.0)
         linear_norm = linear_fill(sparse_full, ~observed)
-        eval_mask = ~observed
-        imputation_crps = crps(draws[None], full_n, mask=eval_mask)
-        linear_crps = crps(linear_norm[:, None], full_n, mask=eval_mask)
+        imputation_crps = None
+        linear_crps = None
+        if not natural_missing:
+            eval_mask = ~observed
+            imputation_crps = crps(draws[None], full_n, mask=eval_mask)
+            linear_crps = crps(linear_norm[:, None], full_n, mask=eval_mask)
         ssl_crps = None
         if ssl_eval_mask is not None and np.asarray(ssl_eval_mask).any():
-            # Hide SSL targets and all naturally missing times so scoring does
-            # not condition on dense GT at unavailable positions.
             ssl_targets = np.asarray(ssl_eval_mask, dtype=bool)
-            if ssl_targets.ndim == 3:
-                ssl_time = ssl_targets.any(axis=-1)[0]
+            if ssl_targets.ndim == 1:
+                ssl_hidden = (
+                    expand_mask(hidden_time, batch=1, channels=full_n.shape[2])
+                    if np.asarray(hidden_time).ndim == 1
+                    else np.asarray(hidden_time, dtype=bool)
+                ) | expand_mask(ssl_targets, batch=1, channels=full_n.shape[2])
+                ssl_score_mask = expand_mask(
+                    ssl_targets, batch=1, channels=full_n.shape[2]
+                )
             else:
-                ssl_time = ssl_targets
-            ssl_hidden = hidden_time | ssl_time
+                base_hidden = (
+                    expand_mask(hidden_time, batch=1, channels=full_n.shape[2])
+                    if np.asarray(hidden_time).ndim == 1
+                    else np.asarray(hidden_time, dtype=bool)
+                )
+                ssl_hidden = base_hidden | ssl_targets
+                ssl_score_mask = ssl_targets
             ssl_draws = impute_series(
                 full_n,
                 sampler,
@@ -262,25 +320,26 @@ def run_imputation_and_forecast(
                 n_samples=args.n_samples,
                 seed=args.seed + 31,
             )
-            ssl_crps = crps(ssl_draws[None], full_n, mask=ssl_targets)
+            ssl_crps = crps(ssl_draws[None], full_n, mask=ssl_score_mask)
         save_kwargs = dict(
             imputed_norm=imputed_norm,
             linear_norm=linear_norm,
             draws_norm=draws,
             target_norm=full_n,
             observed=observed,
-            imputation_crps=np.asarray(imputation_crps),
-            linear_crps=np.asarray(linear_crps),
             mean=normalizer.mean,
             std=normalizer.std,
         )
+        if imputation_crps is not None:
+            save_kwargs["imputation_crps"] = np.asarray(imputation_crps)
+            save_kwargs["linear_crps"] = np.asarray(linear_crps)
         if ssl_crps is not None:
             save_kwargs["ssl_crps"] = np.asarray(ssl_crps)
         np.savez_compressed(imputed_path, **save_kwargs)
         LOGGER.info(
-            "Imputation CRPS: CSDI=%.6f linear=%.6f ssl=%s",
-            imputation_crps,
-            linear_crps,
+            "Imputation CRPS: CSDI=%s linear=%s ssl=%s",
+            f"{imputation_crps:.6f}" if imputation_crps is not None else "n/a",
+            f"{linear_crps:.6f}" if linear_crps is not None else "n/a",
             f"{ssl_crps:.6f}" if ssl_crps is not None else "n/a",
         )
 
@@ -288,10 +347,14 @@ def run_imputation_and_forecast(
     linear_imputed = normalizer.inverse(linear_norm)
     dense_truth = values
     sparse_nan = values.astype(np.float64, copy=True)
-    sparse_nan[0, hidden_time] = np.nan
+    sparse_nan = np.where(observed, sparse_nan, np.nan)
 
-    scale = seasonal_scale(train_v, season=args.season)
-    unit = time_unit(series_freq)
+    # MASE scale: use linear-filled train so sparse zeros do not dominate.
+    train_filled = linear_fill(
+        np.where(observed[:, :n_train], train_v, 0.0), ~observed[:, :n_train]
+    )
+    scale = seasonal_scale(train_filled, season=args.season)
+    delta = step_delta(series_freq)
     pipeline = load_chronos(args.chronos_model, args.device)
     frame_kwargs = dict(
         channels=channels, start=series_start, freq=series_freq, item_id=item_id
@@ -300,8 +363,9 @@ def run_imputation_and_forecast(
         "zeroshot_sparse": sparse_nan,
         "zeroshot_csdi": imputed,
         "zeroshot_linear": linear_imputed,
-        "dense_oracle": dense_truth,
     }
+    if not natural_missing:
+        context_arms["dense_oracle"] = dense_truth
 
     finetuned_arms = {}
     if ENABLE_CHRONOS_FINETUNE and not args.skip_finetune:
@@ -345,10 +409,11 @@ def run_imputation_and_forecast(
         origins = origins[: args.max_origins]
 
     LOGGER.info(
-        "Backtesting %d origins on dense horizon=%d (%s)",
+        "Backtesting %d origins on horizon=%d (%s, natural_missing=%s)",
         len(origins),
         args.horizon,
         protocol,
+        natural_missing,
     )
     score_names = [
         *context_arms,
@@ -360,19 +425,26 @@ def run_imputation_and_forecast(
 
     for origin in origins:
         truth = dense_truth[0, origin : origin + args.horizon]
-        history = dense_truth[0, :origin]
+        horizon_mask = observed[0, origin : origin + args.horizon]
+        if natural_missing and not horizon_mask.any():
+            continue
+        score_mask = horizon_mask if natural_missing else None
+        # Baselines use linear-filled history when values are naturally sparse.
+        history = linear_imputed[0, :origin] if natural_missing else dense_truth[0, :origin]
         forecast_kwargs = dict(channels=channels, freq=series_freq, item_id=item_id)
-        start = series_start + np.timedelta64(origin - args.context, unit)
+        start = series_start + (origin - args.context) * delta
 
         naive = seasonal_naive_forecast(
             history, horizon=args.horizon, season=args.season
         )
         arm_scores["seasonal_naive"].append(
-            score_forecast(truth, None, scale=scale, point=naive)
+            score_forecast(truth, None, scale=scale, point=naive, mask=score_mask)
         )
         last_value = np.broadcast_to(history[-1][None, :], truth.shape)
         arm_scores["last_value"].append(
-            score_forecast(truth, None, scale=scale, point=last_value)
+            score_forecast(
+                truth, None, scale=scale, point=last_value, mask=score_mask
+            )
         )
 
         for name, series in context_arms.items():
@@ -387,7 +459,9 @@ def run_imputation_and_forecast(
                 validate_inputs=not allow_nan,
                 **forecast_kwargs,
             )
-            arm_scores[name].append(score_forecast(truth, quantiles, scale=scale))
+            arm_scores[name].append(
+                score_forecast(truth, quantiles, scale=scale, mask=score_mask)
+            )
 
         for name, arm in finetuned_arms.items():
             context_vals = arm["series"][:, origin - args.context : origin]
@@ -400,7 +474,7 @@ def run_imputation_and_forecast(
                 **forecast_kwargs,
             )
             arm_scores[f"finetuned_{name}"].append(
-                score_forecast(truth, quantiles, scale=scale)
+                score_forecast(truth, quantiles, scale=scale, mask=score_mask)
             )
 
     def summarize(scores: list[dict]) -> dict[str, float]:
@@ -410,22 +484,28 @@ def run_imputation_and_forecast(
         return {key: float(np.mean([row[key] for row in scores])) for key in keys}
 
     observed_fraction = float(observed.mean())
+    imputation = {}
+    if imputation_crps is not None and linear_crps is not None:
+        imputation = {
+            "csdi_crps": float(imputation_crps),
+            "linear_crps": float(linear_crps),
+            "csdi_beats_linear": bool(imputation_crps < linear_crps),
+        }
+    if ssl_crps is not None:
+        imputation["ssl_crps"] = float(ssl_crps)
     results = {
         "protocol": protocol,
         "ssl_mask_rate": float(args.ssl_mask_rate),
         "observed_fraction": observed_fraction,
-        "imputation": {
-            "csdi_crps": float(imputation_crps),
-            "linear_crps": float(linear_crps),
-            "csdi_beats_linear": bool(imputation_crps < linear_crps),
-        },
+        "natural_missing": bool(natural_missing),
+        "imputation": imputation,
         "forecast": {
             name: summarize(rows) for name, rows in arm_scores.items() if rows
         },
         "seasonal_scale": scale,
         "n_origins": len(origins),
         "channels": channels,
-        "meta": meta,
+        "meta": {k: v for k, v in meta.items() if k != "observed"},
         "enable_chronos_finetune": ENABLE_CHRONOS_FINETUNE,
         "versions": {
             "python": platform.python_version(),
@@ -434,8 +514,6 @@ def run_imputation_and_forecast(
         },
         "args": vars(args),
     }
-    if ssl_crps is not None:
-        results["imputation"]["ssl_crps"] = float(ssl_crps)
     if (
         "zeroshot_csdi" in results["forecast"]
         and "zeroshot_sparse" in results["forecast"]
@@ -471,7 +549,8 @@ def run(args) -> dict:
     torch.manual_seed(args.seed)
     if args.device == "mps" and not torch.backends.mps.is_available():
         raise ValueError("MPS unavailable")
-    if args.missing_mode not in {"block", "random"}:
+    natural_missing = bool(getattr(args, "natural_missing", False))
+    if not natural_missing and args.missing_mode not in {"block", "random"}:
         raise ValueError("self-sup runner supports missing-mode block or random")
 
     values, _times, meta = load_multivariate_dataset(args.data)
@@ -482,25 +561,43 @@ def run(args) -> dict:
     n_channels = values.shape[2]
     usable = values.shape[1]
     values = values[:, :usable]
-    hidden_time = build_observation_mask(
-        usable,
-        mode=args.missing_mode,
-        sparse_step=args.sparse_step,
-        block_length=args.block_length,
-        observe_length=args.observe_length,
-        keep_probability=args.keep_probability,
-        seed=args.seed,
-    )
-    available_time = ~hidden_time
-    observed = ~expand_mask(hidden_time, batch=1, channels=n_channels)
+    if natural_missing or meta.get("natural_missing") or "observed" in meta:
+        natural_missing = True
+        args.natural_missing = True
+        if "observed" not in meta:
+            raise ValueError(
+                "natural-missing datasets must include an observed mask in the NPZ"
+            )
+        observed = np.asarray(meta["observed"], dtype=bool)[:, :usable]
+        if observed.shape != values.shape:
+            raise ValueError("observed mask shape mismatch")
+        hidden_time = ~observed  # (1, T, C) per-channel natural gaps
+    else:
+        hidden_1d = build_observation_mask(
+            usable,
+            mode=args.missing_mode,
+            sparse_step=args.sparse_step,
+            block_length=args.block_length,
+            observe_length=args.observe_length,
+            keep_probability=args.keep_probability,
+            seed=args.seed,
+        )
+        hidden_time = hidden_1d
+        observed = ~expand_mask(hidden_1d, batch=1, channels=n_channels)
 
     train_v, val_v, _test_v = split_data(values, axis="time", **SPLITS)
     n_train, n_val = train_v.shape[1], val_v.shape[1]
 
     normalizer = fit_normalizer(train_v, observed=observed[:, :n_train])
-    train_n = normalizer.transform(train_v)
-    val_n = normalizer.transform(val_v)
-    full_n = normalizer.transform(values)
+    train_n = np.where(
+        observed[:, :n_train], normalizer.transform(train_v), 0.0
+    )
+    val_n = np.where(
+        observed[:, n_train : n_train + n_val],
+        normalizer.transform(val_v),
+        0.0,
+    )
+    full_n = np.where(observed, normalizer.transform(values), 0.0)
 
     train_windows = make_windows(
         train_n, window_length=args.window_length, stride=args.stride
@@ -508,18 +605,31 @@ def run(args) -> dict:
     val_windows = make_windows(
         val_n, window_length=args.window_length, stride=args.stride
     )
-    train_available = windowed_available(
-        available_time[:n_train],
-        window=args.window_length,
-        stride=args.stride,
-        channels=n_channels,
-    )
-    val_available = windowed_available(
-        available_time[n_train : n_train + n_val],
-        window=args.window_length,
-        stride=args.stride,
-        channels=n_channels,
-    )
+    if natural_missing:
+        train_available = windowed_available(
+            observed[:, :n_train],
+            window=args.window_length,
+            stride=args.stride,
+        )
+        val_available = windowed_available(
+            observed[:, n_train : n_train + n_val],
+            window=args.window_length,
+            stride=args.stride,
+        )
+    else:
+        available_time = ~hidden_time
+        train_available = windowed_available(
+            available_time[:n_train],
+            window=args.window_length,
+            stride=args.stride,
+            channels=n_channels,
+        )
+        val_available = windowed_available(
+            available_time[n_train : n_train + n_val],
+            window=args.window_length,
+            stride=args.stride,
+            channels=n_channels,
+        )
     train_ssl = sample_ssl_target_mask(
         train_available, rate=args.ssl_mask_rate, seed=args.seed
     )
@@ -532,38 +642,42 @@ def run(args) -> dict:
     val_windows, val_available, val_ssl = filter_ssl_windows(
         val_windows, val_available, val_ssl
     )
-    # Supervised masks = base hidden pattern (for optional baseline).
-    train_sup_masks = windowed_masks(
-        hidden_time[:n_train],
-        window=args.window_length,
-        stride=args.stride,
-        channels=n_channels,
-    )
-    val_sup_masks = windowed_masks(
-        hidden_time[n_train : n_train + n_val],
-        window=args.window_length,
-        stride=args.stride,
-        channels=n_channels,
-    )
-    train_sup_ok = np.array(
-        [mask.any() and not mask.all() for mask in train_sup_masks], dtype=bool
-    )
-    val_sup_ok = np.array(
-        [mask.any() and not mask.all() for mask in val_sup_masks], dtype=bool
-    )
-    train_sup_windows = make_windows(
-        train_n, window_length=args.window_length, stride=args.stride
-    )[train_sup_ok]
-    val_sup_windows = make_windows(
-        val_n, window_length=args.window_length, stride=args.stride
-    )[val_sup_ok]
-    train_sup_masks = train_sup_masks[train_sup_ok]
-    val_sup_masks = val_sup_masks[val_sup_ok]
+    # Supervised masks only for synthetic missingness (dense GT exists).
+    train_sup_masks = train_sup_windows = val_sup_masks = val_sup_windows = None
+    train_sup_ok = val_sup_ok = np.array([], dtype=bool)
+    if not natural_missing:
+        train_sup_masks = windowed_masks(
+            hidden_time[:n_train],
+            window=args.window_length,
+            stride=args.stride,
+            channels=n_channels,
+        )
+        val_sup_masks = windowed_masks(
+            hidden_time[n_train : n_train + n_val],
+            window=args.window_length,
+            stride=args.stride,
+            channels=n_channels,
+        )
+        train_sup_ok = np.array(
+            [mask.any() and not mask.all() for mask in train_sup_masks], dtype=bool
+        )
+        val_sup_ok = np.array(
+            [mask.any() and not mask.all() for mask in val_sup_masks], dtype=bool
+        )
+        train_sup_windows = make_windows(
+            train_n, window_length=args.window_length, stride=args.stride
+        )[train_sup_ok]
+        val_sup_windows = make_windows(
+            val_n, window_length=args.window_length, stride=args.stride
+        )[val_sup_ok]
+        train_sup_masks = train_sup_masks[train_sup_ok]
+        val_sup_masks = val_sup_masks[val_sup_ok]
 
     LOGGER.info(
-        "%s selfsup mode=%s ssl_rate=%.3f: T=%d C=%d; windows train/val=%d/%d; "
-        "observed_fraction=%.3f",
+        "%s selfsup natural=%s mode=%s ssl_rate=%.3f: T=%d C=%d; "
+        "windows train/val=%d/%d; observed_fraction=%.3f",
         meta.get("dataset", "series"),
+        natural_missing,
         args.missing_mode,
         args.ssl_mask_rate,
         usable,
@@ -589,12 +703,9 @@ def run(args) -> dict:
         device=args.device,
     )
 
-    # Held-out SSL eval mask on the full series (subset of available times).
-    full_available = np.broadcast_to(
-        available_time.astype(bool)[None, :, None], (1, usable, n_channels)
-    ).copy()
+    # Held-out SSL eval mask on available entries only.
     ssl_eval = sample_ssl_target_mask(
-        full_available, rate=args.ssl_mask_rate, seed=args.seed + 99
+        observed, rate=args.ssl_mask_rate, seed=args.seed + 99
     )
 
     model = build_csdi(n_channels, args)
@@ -631,6 +742,7 @@ def run(args) -> dict:
         meta=meta,
         usable=usable,
         ssl_eval_mask=ssl_eval,
+        natural_missing=natural_missing,
     )
     results = run_imputation_and_forecast(
         output=args.output,
@@ -643,6 +755,11 @@ def run(args) -> dict:
     LOGGER.info("Self-sup results:\n%s", json.dumps(results["forecast"], indent=2))
 
     if args.supervised_baseline:
+        if natural_missing:
+            raise ValueError(
+                "--supervised-baseline requires dense ground truth; "
+                "not available with natural missingness"
+            )
         sup_dir = args.output / "supervised"
         sup_dir.mkdir(parents=True, exist_ok=True)
         LOGGER.info("Training supervised baseline under the same base mask")
@@ -668,7 +785,12 @@ def run(args) -> dict:
             sampler=sup_sampler,
             protocol="supervised",
             ssl_eval_mask=None,
-            **{k: v for k, v in shared.items() if k != "ssl_eval_mask"},
+            **{
+                k: v
+                for k, v in shared.items()
+                if k not in {"ssl_eval_mask", "natural_missing"}
+            },
+            natural_missing=False,
         )
         # Drop unused ssl from supervised shared call — already excluded.
         write_json(sup_dir / "results.json", sup_results)
@@ -703,7 +825,13 @@ def parse_args(argv=None):
         "--missing-mode",
         choices=("block", "random"),
         default=None,
-        help="Base sparsity pattern (self-sup supports block or random)",
+        help="Synthetic base sparsity (ignored with --natural-missing / intel_lab)",
+    )
+    parser.add_argument(
+        "--natural-missing",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Use observed mask from the NPZ instead of synthetic missingness",
     )
     parser.add_argument("--sparse-step", type=int, default=None)
     parser.add_argument("--block-length", type=int, default=None)
@@ -767,16 +895,24 @@ def parse_args(argv=None):
         help="Tiny CSDI + Chronos-2-small smoke settings",
     )
     args = parser.parse_args(argv)
+    if args.preset == "intel_lab" and args.data == Path("data/electricity.npz"):
+        args.data = Path("data/intel_lab.npz")
     for key, value in PRESETS[args.preset].items():
         if getattr(args, key) is None:
             setattr(args, key, value)
+    if args.natural_missing is None:
+        args.natural_missing = bool(PRESETS[args.preset].get("natural_missing", False))
     if args.window_length < 3:
         parser.error("--window-length must be at least 3")
     if args.season < 1:
         parser.error("--season must be positive")
     if not 0.0 < args.ssl_mask_rate < 1.0:
         parser.error("--ssl-mask-rate must be in (0, 1)")
-    if args.missing_mode == "random" and not 0.0 < args.keep_probability < 1.0:
+    if (
+        not args.natural_missing
+        and args.missing_mode == "random"
+        and not 0.0 < args.keep_probability < 1.0
+    ):
         parser.error("--keep-probability must be in (0, 1)")
     if args.quick:
         args.epochs = min(args.epochs, 2)

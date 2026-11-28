@@ -256,6 +256,8 @@ def load_multivariate_dataset(path: Path) -> tuple[np.ndarray, np.ndarray, dict]
     """Load prepare_*.py output: values (1, T, C), times (T,), metadata.
 
     Channel names are read from ``channels`` or legacy ``currencies``.
+    Optional ``observed`` (bool, same shape as values) is attached to the
+    returned config under ``observed`` for naturally sparse datasets.
     """
     with np.load(path, allow_pickle=False) as dataset:
         values = validate_array(dataset["values"], (None, None, None))
@@ -267,6 +269,11 @@ def load_multivariate_dataset(path: Path) -> tuple[np.ndarray, np.ndarray, dict]
         else:
             raise KeyError("dataset must contain 'channels' or 'currencies'")
         config = json.loads(str(dataset["config"]))
+        observed = None
+        if "observed" in dataset.files:
+            observed = np.asarray(dataset["observed"], dtype=bool)
+            if observed.shape != values.shape:
+                raise ValueError("observed must match values shape")
     if times.shape != (values.shape[1],):
         raise ValueError("times must have shape (n_steps,)")
     if len(channels) != values.shape[2]:
@@ -279,6 +286,8 @@ def load_multivariate_dataset(path: Path) -> tuple[np.ndarray, np.ndarray, dict]
         "start": config.get("start", str(FX_START)),
         "item_id": config.get("item_id", "series"),
     }
+    if observed is not None:
+        config["observed"] = observed
     return values, times, config
 
 
@@ -319,13 +328,28 @@ def to_chronos_frame(
     if len(names) != array.shape[1]:
         raise ValueError("channel names length must match channel count")
     positive_int("step", step)
-    if freq not in {"D", "h", "H"}:
-        raise ValueError("freq must be 'D' or 'h'")
-    unit = "h" if freq in {"h", "H"} else "D"
+    # Native Chronos grids: daily, hourly, or minute (Intel Lab, etc.).
+    if freq in {"D"}:
+        unit = "D"
+    elif freq in {"h", "H"}:
+        unit = "h"
+    elif freq in {"min", "T", "1min"}:
+        unit = "min"
+    elif isinstance(freq, str) and freq.endswith("min") and freq[:-3].isdigit():
+        # e.g. "5min" — bake bin size into the pandas offset when step==1.
+        if step != 1:
+            raise ValueError("step must be 1 when freq is already multi-minute")
+        unit = freq
+    else:
+        raise ValueError("freq must be 'D', 'h', 'min', or like '5min'")
+    if unit in {"D", "h", "min"}:
+        offset = unit if step == 1 else f"{step}{unit}"
+    else:
+        offset = unit
     timestamps = pd.date_range(
         start=pd.Timestamp(start),
         periods=array.shape[0],
-        freq=unit if step == 1 else f"{step}{unit}",
+        freq=offset,
     )
     frame = pd.DataFrame({"item_id": item_id, "timestamp": timestamps})
     for name, column in zip(names, array.T, strict=True):
@@ -358,18 +382,43 @@ def weighted_quantile_loss(
     )
 
 
-def point_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float]:
-    """MAE / RMSE / sMAPE for matched forecast arrays."""
+def point_metrics(
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    *,
+    mask: np.ndarray | None = None,
+) -> dict[str, float]:
+    """MAE / RMSE / sMAPE for matched forecast arrays.
+
+    Optional ``mask`` (True = score) selects entries; useful when only some
+    horizon cells were naturally observed.
+    """
     y_true = np.asarray(y_true, dtype=np.float64)
     y_pred = np.asarray(y_pred, dtype=np.float64)
     if y_true.shape != y_pred.shape:
         raise ValueError("y_true and y_pred must have the same shape")
-    absolute = np.abs(y_true - y_pred)
-    denom = np.abs(y_true) + np.abs(y_pred)
+    if mask is None:
+        absolute = np.abs(y_true - y_pred)
+        denom = np.abs(y_true) + np.abs(y_pred)
+        smape = np.where(denom > 0, 2.0 * absolute / denom, 0.0)
+        return {
+            "mae": float(absolute.mean()),
+            "rmse": float(np.sqrt(np.mean(np.square(y_true - y_pred)))),
+            "smape": float(smape.mean()),
+        }
+    mask = np.asarray(mask, dtype=bool)
+    if mask.shape != y_true.shape:
+        raise ValueError("mask must match y_true shape")
+    if not mask.any():
+        raise ValueError("mask must select at least one entry")
+    truth = y_true[mask]
+    pred = y_pred[mask]
+    absolute = np.abs(truth - pred)
+    denom = np.abs(truth) + np.abs(pred)
     smape = np.where(denom > 0, 2.0 * absolute / denom, 0.0)
     return {
         "mae": float(absolute.mean()),
-        "rmse": float(np.sqrt(np.mean(np.square(y_true - y_pred)))),
+        "rmse": float(np.sqrt(np.mean(np.square(truth - pred)))),
         "smape": float(smape.mean()),
     }
 
@@ -430,17 +479,34 @@ def forecast_metrics(
     *,
     scale: float,
     quantile_forecasts: dict[float, np.ndarray] | None = None,
+    mask: np.ndarray | None = None,
 ) -> dict[str, float]:
-    """Point metrics plus MASE; add WQL/SQL when quantile forecasts are given."""
+    """Point metrics plus MASE; add WQL/SQL when quantile forecasts are given.
+
+    Optional ``mask`` (True = score) restricts point metrics and MASE to
+    observed horizon entries (natural-missing evaluation).
+    """
     scores = {
-        **point_metrics(y_true, y_pred),
-        "mase": mase(y_true, y_pred, scale=scale),
+        **point_metrics(y_true, y_pred, mask=mask),
+        "mase": (
+            mase(y_true[mask], y_pred[mask], scale=scale)
+            if mask is not None
+            else mase(y_true, y_pred, scale=scale)
+        ),
     }
     if quantile_forecasts is not None:
-        scores["wql"] = weighted_quantile_loss(y_true, quantile_forecasts)
-        scores["sql"] = scaled_quantile_loss(
-            y_true, quantile_forecasts, scale=scale
-        )
+        if mask is None:
+            scores["wql"] = weighted_quantile_loss(y_true, quantile_forecasts)
+            scores["sql"] = scaled_quantile_loss(
+                y_true, quantile_forecasts, scale=scale
+            )
+        else:
+            q_masked = {q: pred[mask] for q, pred in quantile_forecasts.items()}
+            truth = y_true[mask]
+            scores["wql"] = weighted_quantile_loss(truth, q_masked)
+            scores["sql"] = scaled_quantile_loss(
+                truth, q_masked, scale=scale
+            )
     return scores
 
 

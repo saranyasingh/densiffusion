@@ -123,3 +123,24 @@ uv run --with matplotlib python scripts/plot_selfsup_thresholds.py \
 
 Plots: `thresholds_{block|random}_{A|B}.png` plus `thresholds_summary.json`
 (includes a steepest-drop `threshold_hint_x` on the self-sup forecast curve).
+
+## Intel Lab (natural missingness)
+
+[Intel Berkeley lab sensors](https://db.csail.mit.edu/labdata/labdata.html):
+temperature only, densest 20 motes, **1-minute** grid (targets ~50% observed
+from real packet loss — no synthetic base mask). SSL mask rate **0.25** (best
+random Sweep B setting). Chronos scores only on horizon cells that were
+actually observed; dense-oracle / supervised baseline are off.
+
+```sh
+uv run python scripts/prepare_intel_lab.py --output data/intel_lab.npz
+
+uv run --extra research --extra chronos python \
+    scripts/run_csdi_chronos2_selfsup.py \
+    --preset intel_lab \
+    --data data/intel_lab.npz \
+    --output outputs/intel_lab_selfsup \
+    --device cuda
+
+sbatch scripts/cluster/intel_lab_csdi_chronos2_selfsup.sbatch
+```
